@@ -114,9 +114,17 @@ class PlatformProvider extends OrchidServiceProvider
     public function registerPermissions(): array
     {
         return [
-            ItemPermission::group(__('System'))
-                ->addPermission('platform.systems.roles', __('Roles'))
-                ->addPermission('platform.systems.users', __('Users')),
+            ItemPermission::group(__('Tizim vakolatlari'))
+                ->addPermission('platform.systems.roles', 'Rollar')
+                ->addPermission('platform.systems.users', __('Foydalanuvchilar')),
+
+            ItemPermission::group('Maxsus vakolatlar')
+                ->addPermission('platform.branches', 'Filial')
+                ->addPermission('platform.subjects', 'Fan')
+                ->addPermission('platform.groups', 'Gurux')
+                ->addPermission('platform.sources', 'Tarmoqlar')
+                ->addPermission('platform.students', 'Talabalar')
+
         ];
     }
 }

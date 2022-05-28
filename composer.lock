@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f995ca6fd2a3e8b9f534a8c62708d558",
+    "content-hash": "59a328bf0e2f64fbeeab8ac5ab5b217c",
     "packages": [
         {
             "name": "brick/math",
@@ -892,6 +892,72 @@
                 }
             ],
             "time": "2022-03-20T21:55:58+00:00"
+        },
+        {
+            "name": "laravel-notification-channels/telegram",
+            "version": "2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel-notification-channels/telegram.git",
+                "reference": "63f6727c3f9953e11ee9a690c29ce0db456d69a1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/laravel-notification-channels/telegram/zipball/63f6727c3f9953e11ee9a690c29ce0db456d69a1",
+                "reference": "63f6727c3f9953e11ee9a690c29ce0db456d69a1",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "guzzlehttp/guzzle": "^7.0",
+                "illuminate/contracts": "8.45 - 9",
+                "illuminate/notifications": "8.45 - 9",
+                "illuminate/support": "8.45 - 9",
+                "php": "^7.4 || ^8.0"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.4",
+                "phpunit/phpunit": "^9.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "NotificationChannels\\Telegram\\TelegramServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "NotificationChannels\\Telegram\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Irfaq Syed",
+                    "email": "github@lukonet.net",
+                    "homepage": "https://lukonet.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Telegram Notifications Channel for Laravel",
+            "homepage": "https://github.com/laravel-notification-channels/telegram",
+            "keywords": [
+                "laravel",
+                "notification",
+                "telegram",
+                "telegram notification",
+                "telegram notifications channel"
+            ],
+            "support": {
+                "issues": "https://github.com/laravel-notification-channels/telegram/issues",
+                "source": "https://github.com/laravel-notification-channels/telegram/tree/2.0.0"
+            },
+            "time": "2022-02-10T19:29:50+00:00"
         },
         {
             "name": "laravel/framework",
@@ -1833,6 +1899,57 @@
                 }
             ],
             "time": "2021-07-05T08:18:36+00:00"
+        },
+        {
+            "name": "napaeduhub/eskiz-sms-client",
+            "version": "v1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/NapaEduHub/Eskiz-Sms-Client.git",
+                "reference": "3f9a24cd198bae19ca992061f50a39910f289d34"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/NapaEduHub/Eskiz-Sms-Client/zipball/3f9a24cd198bae19ca992061f50a39910f289d34",
+                "reference": "3f9a24cd198bae19ca992061f50a39910f289d34",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^6.0|^7.0",
+                "illuminate/contracts": "^5.0|^6.0|^7.0|^8.0|^9.0",
+                "php": ">=5.4.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Napa\\R19\\SmsServiceProvider"
+                    ],
+                    "aliases": {
+                        "Sms": "Napa\\R19\\Sms"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Napa\\R19\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "keywords": [
+                "eskiz",
+                "framework",
+                "laravel",
+                "sms"
+            ],
+            "support": {
+                "issues": "https://github.com/NapaEduHub/Eskiz-Sms-Client/issues",
+                "source": "https://github.com/NapaEduHub/Eskiz-Sms-Client/tree/v1.0"
+            },
+            "time": "2020-10-22T14:58:10+00:00"
         },
         {
             "name": "nesbot/carbon",
