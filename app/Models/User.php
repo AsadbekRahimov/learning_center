@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
+use App\Orchid\Presenters\UserPresenter;
+use Illuminate\Support\Facades\Hash;
 use Orchid\Platform\Models\User as Authenticatable;
+use Orchid\Support\Facades\Dashboard;
 
 class User extends Authenticatable
 {
@@ -16,6 +19,7 @@ class User extends Authenticatable
         'email',
         'password',
         'permissions',
+        'branch_id',
     ];
 
     /**
@@ -63,4 +67,31 @@ class User extends Authenticatable
         'updated_at',
         'created_at',
     ];
+
+    /**
+     * @param string $name
+     * @param string $email
+     * @param string $password
+     *
+     * @throws \Throwable
+     */
+    public static function createAdmin(string $name, string $email, string $password)
+    {
+        throw_if(static::where('email', $email)->exists(), 'User exist');
+
+        static::create([
+            'name'        => $name,
+            'email'       => $email,
+            'password'    => Hash::make($password),
+            'permissions' => Dashboard::getAllowAllPermission(),
+        ]);
+    }
+
+    /**
+     * @return UserPresenter
+     */
+    public function presenter()
+    {
+        return new UserPresenter($this);
+    }
 }

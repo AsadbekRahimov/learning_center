@@ -33,6 +33,10 @@ class UserEditLayout extends Rows
                 ->required()
                 ->title(__('Email'))
                 ->placeholder(__('Email')),
+            Select::make('user.branch_id')
+                ->fromModel(Branch::class, 'name')
+                ->title('Filial')
+                ->empty('Barchasi')
         ];
     }
 }
