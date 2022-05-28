@@ -2,35 +2,69 @@
 
 namespace App\Orchid\Resources;
 
+use App\Models\Branch;
 use App\Orchid\Filters\WithTrashed;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use Orchid\Crud\Filters\DefaultSorted;
 use Orchid\Crud\Resource;
+use Orchid\Crud\ResourceRequest;
 use Orchid\Screen\Fields\Input;
+use Orchid\Screen\Fields\Relation;
 use Orchid\Screen\Sight;
 use Orchid\Screen\TD;
 
-class BranchResource extends Resource
+class SubjectResource extends Resource
 {
+    /**
+     * The model the resource corresponds to.
+     *
+     * @var string
+     */
+    public static $model = \App\Models\Subject::class;
 
-    public static $model = \App\Models\Branch::class;
-
+    /**
+     * Get the fields displayed by the resource.
+     *
+     * @return array
+     */
     public function fields(): array
     {
         return [
             Input::make('name')
-                ->title('Filial nomi')
-                ->placeholder('O`quv markazining filial nomini kiriting')
-                ->required(),
+                ->title('Fan nomi')
+                ->required()
+                ->cantHide()
+                ->placeholder('O`qitiladigan fanning nomi kiritiladi'),
+            Input::make('price')
+                ->title('Fan narxi')
+                ->type('number')
+                ->required()
+                ->cantHide(),
+            Input::make('branch_id')
+                ->type('hidden')
+                ->value(Auth::user()->branch_id),
         ];
     }
 
+    /**
+     * Get the columns displayed by the resource.
+     *
+     * @return TD[]
+     */
     public function columns(): array
     {
         return [
             TD::make('id'),
-
             TD::make('name', 'Nomi')->cantHide(),
+            TD::make('price', 'Narxi')->cantHide()
+                ->render(function ($model) {
+                    return number_format($model->price);
+                }),
+            TD::make('branch_id', 'Filial')
+                ->render(function ($model) {
+                    return $model->branch->name;
+                }),
             TD::make('created_at', 'Kiritilgan sana')
                 ->render(function ($model) {
                     return $model->created_at->toDateTimeString();
@@ -43,11 +77,19 @@ class BranchResource extends Resource
         ];
     }
 
+    /**
+     * Get the sights displayed by the resource.
+     *
+     * @return Sight[]
+     */
     public function legend(): array
     {
         return [
             Sight::make('id', 'ID'),
             Sight::make('name', 'Nomi'),
+            Sight::make('branch_id', 'Filial')->render(function ($model) {
+                return $model->branch->name;
+            }),
             Sight::make('created_at', 'Kiritilgan sana')->render(function ($model) {
                 return $model->created_at->toDateTimeString();
             }),
@@ -57,9 +99,10 @@ class BranchResource extends Resource
         ];
     }
 
+
     public function with(): array
     {
-        return [];
+        return ['branch'];
     }
 
     public function filters(): array
@@ -74,19 +117,21 @@ class BranchResource extends Resource
     {
         return [
             'name' => ['required'],
+            'price' => ['required'],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'name.required' => 'Filial nomi kiritilishi shart!'
+            'name.required' => 'Fan nomi kiritilishi shart!',
+            'price.required' => 'Fan narxi kiritilishi shart!'
         ];
     }
 
     public static function icon(): string
     {
-        return 'building';
+        return 'book-open';
     }
 
     public static function perPage(): int
@@ -96,33 +141,33 @@ class BranchResource extends Resource
 
     public static function permission(): ?string
     {
-        return 'platform.branches';
+        return 'platform.subjects';
     }
 
     public static function label(): string
     {
-        return 'Filiallar';
+        return 'Fanlar';
     }
 
 
     public static function description(): ?string
     {
-        return 'O`quv markazining filillari ro`yhati';
+        return 'O`quv markazining fanlari ro`yhati';
     }
 
     public static function singularLabel(): string
     {
-        return 'Filial';
+        return 'Fan';
     }
 
     public static function createButtonLabel(): string
     {
-        return 'Yangi filial qo`shish';
+        return 'Yangi fan qo`shish';
     }
 
     public static function createToastMessage(): string
     {
-        return 'Yangi filial qo`shildi';
+        return 'Yangi fan qo`shildi';
     }
 
     public static function updateButtonLabel(): string
@@ -132,17 +177,17 @@ class BranchResource extends Resource
 
     public static function updateToastMessage(): string
     {
-        return 'Filial malumotlari o`zgartirildi';
+        return 'Fan malumotlari o`zgartirildi';
     }
 
     public static function deleteButtonLabel(): string
     {
-        return 'Filialni o`chirish';
+        return 'Fanni o`chirish';
     }
 
     public static function deleteToastMessage(): string
     {
-        return 'Filial o`chirildi';
+        return 'Fan o`chirildi';
     }
 
     public static function saveButtonLabel(): string
@@ -152,22 +197,22 @@ class BranchResource extends Resource
 
     public static function restoreButtonLabel(): string
     {
-        return 'Filialni qayta tiklash';
+        return 'Fanni qayta tiklash';
     }
 
     public static function restoreToastMessage(): string
     {
-        return 'Filial malumotlari qayta tiklandi';
+        return 'Fan malumotlari qayta tiklandi';
     }
 
     public static function createBreadcrumbsMessage(): string
     {
-        return 'Yangi filial';
+        return 'Yangi fan';
     }
 
     public static function editBreadcrumbsMessage(): string
     {
-        return 'Filialni o`zgartirish';
+        return 'Fanni o`zgartirish';
     }
 
     public static function emptyResourceForAction(): string
