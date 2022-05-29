@@ -62,7 +62,7 @@ class SubjectResource extends Resource
             TD::make('branch_id', 'Filial')
                 ->render(function ($model) {
                     return $model->branch->name;
-                })->defaultHidden(),
+                })->filter(Relation::make()->fromModel(Branch::class, 'name'))->defaultHidden(),
             TD::make('created_at', 'Kiritilgan sana')
                 ->render(function ($model) {
                     return $model->created_at->toDateTimeString();

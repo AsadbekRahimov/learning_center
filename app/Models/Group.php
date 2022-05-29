@@ -26,4 +26,8 @@ class Group extends Model
     {
         return $this->belongsTo(Branch::class, 'branch_id', 'id')->withTrashed();
     }
+
+    protected $allowedFilters = [
+        'branch_id'
+    ];
 }

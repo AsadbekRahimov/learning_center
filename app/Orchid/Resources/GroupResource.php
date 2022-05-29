@@ -2,6 +2,7 @@
 
 namespace App\Orchid\Resources;
 
+use App\Models\Branch;
 use App\Models\Subject;
 use App\Orchid\Filters\WithTrashed;
 use Illuminate\Database\Eloquent\Model;
@@ -9,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Orchid\Crud\Filters\DefaultSorted;
 use Orchid\Crud\Resource;
 use Orchid\Screen\Fields\Input;
+use Orchid\Screen\Fields\Relation;
 use Orchid\Screen\Fields\Select;
 use Orchid\Screen\Sight;
 use Orchid\Screen\TD;
@@ -61,7 +63,7 @@ class GroupResource extends Resource
             TD::make('branch_id', 'Filial')
                 ->render(function ($model) {
                     return $model->branch->name;
-                })->defaultHidden(),
+                })->filter(Relation::make()->fromModel(Branch::class, 'name'))->defaultHidden(),
             TD::make('created_at', 'Kiritilgan sana')
                 ->render(function ($model) {
                     return $model->created_at->toDateTimeString();
