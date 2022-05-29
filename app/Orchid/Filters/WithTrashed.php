@@ -21,7 +21,7 @@ class WithTrashed extends Filter
      */
     public function name(): string
     {
-        return 'Deleted entries';
+        return 'O`chirilganlar';
     }
 
     /**

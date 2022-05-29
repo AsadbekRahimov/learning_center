@@ -2,26 +2,25 @@
 
 namespace App\Orchid\Resources;
 
-use App\Models\Branch;
+use App\Models\Subject;
 use App\Orchid\Filters\WithTrashed;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Orchid\Crud\Filters\DefaultSorted;
 use Orchid\Crud\Resource;
-use Orchid\Crud\ResourceRequest;
 use Orchid\Screen\Fields\Input;
-use Orchid\Screen\Fields\Relation;
+use Orchid\Screen\Fields\Select;
 use Orchid\Screen\Sight;
 use Orchid\Screen\TD;
 
-class SubjectResource extends Resource
+class GroupResource extends Resource
 {
     /**
      * The model the resource corresponds to.
      *
      * @var string
      */
-    public static $model = \App\Models\Subject::class;
+    public static $model = \App\Models\Group::class;
 
     /**
      * Get the fields displayed by the resource.
@@ -32,12 +31,12 @@ class SubjectResource extends Resource
     {
         return [
             Input::make('name')
-                ->title('Fan nomi')
+                ->title('Gurux nomi')
                 ->required()
-                ->placeholder('O`qitiladigan fanning nomi kiritiladi'),
-            Input::make('price')
-                ->title('Fan narxi')
-                ->type('number')
+                ->placeholder('Gurux nomini kiriting'),
+            Select::make('subject_id')
+                ->title('Fan')
+                ->fromQuery(Subject::where('branch_id', '=', Auth::user()->branch_id), 'name')
                 ->required(),
             Input::make('branch_id')
                 ->type('hidden')
@@ -55,10 +54,10 @@ class SubjectResource extends Resource
         return [
             TD::make('id'),
             TD::make('name', 'Nomi')->cantHide(),
-            TD::make('price', 'Narxi')->cantHide()
+            TD::make('subject_id', 'Fan')
                 ->render(function ($model) {
-                    return number_format($model->price);
-                }),
+                    return $model->subject->name;
+                })->cantHide(),
             TD::make('branch_id', 'Filial')
                 ->render(function ($model) {
                     return $model->branch->name;
@@ -85,6 +84,9 @@ class SubjectResource extends Resource
         return [
             Sight::make('id', 'ID'),
             Sight::make('name', 'Nomi'),
+            Sight::make('subject_id', 'Fan')->render(function ($model) {
+                return $model->subject->name;
+            }),
             Sight::make('branch_id', 'Filial')->render(function ($model) {
                 return $model->branch->name;
             }),
@@ -97,10 +99,9 @@ class SubjectResource extends Resource
         ];
     }
 
-
     public function with(): array
     {
-        return ['branch'];
+        return ['subject', 'branch'];
     }
 
     public function filters(): array
@@ -115,21 +116,21 @@ class SubjectResource extends Resource
     {
         return [
             'name' => ['required'],
-            'price' => ['required'],
+            'subject_id' => ['required'],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'name.required' => 'Fan nomi kiritilishi shart!',
-            'price.required' => 'Fan narxi kiritilishi shart!'
+            'name.required' => 'Gurux nomi kiritilishi shart!',
+            'subject_id.required' => 'Fan kiritilishi shart!'
         ];
     }
 
     public static function icon(): string
     {
-        return 'book-open';
+        return 'people';
     }
 
     public static function perPage(): int
@@ -139,33 +140,33 @@ class SubjectResource extends Resource
 
     public static function permission(): ?string
     {
-        return 'platform.subjects';
+        return 'platform.groups';
     }
 
     public static function label(): string
     {
-        return 'Fanlar';
+        return 'Guruxlar';
     }
 
 
     public static function description(): ?string
     {
-        return 'O`quv markazining fanlari ro`yhati';
+        return 'O`quv markazining guruxlar ro`yhati';
     }
 
     public static function singularLabel(): string
     {
-        return 'Fan';
+        return 'Gurux';
     }
 
     public static function createButtonLabel(): string
     {
-        return 'Yangi fan qo`shish';
+        return 'Yangi gurux qo`shish';
     }
 
     public static function createToastMessage(): string
     {
-        return 'Yangi fan qo`shildi';
+        return 'Yangi gurux qo`shildi';
     }
 
     public static function updateButtonLabel(): string
@@ -175,17 +176,17 @@ class SubjectResource extends Resource
 
     public static function updateToastMessage(): string
     {
-        return 'Fan malumotlari o`zgartirildi';
+        return 'Gurux malumotlari o`zgartirildi';
     }
 
     public static function deleteButtonLabel(): string
     {
-        return 'Fanni o`chirish';
+        return 'Guruxni o`chirish';
     }
 
     public static function deleteToastMessage(): string
     {
-        return 'Fan o`chirildi';
+        return 'Gurux o`chirildi';
     }
 
     public static function saveButtonLabel(): string
@@ -195,22 +196,22 @@ class SubjectResource extends Resource
 
     public static function restoreButtonLabel(): string
     {
-        return 'Fanni qayta tiklash';
+        return 'Guruxni qayta tiklash';
     }
 
     public static function restoreToastMessage(): string
     {
-        return 'Fan malumotlari qayta tiklandi';
+        return 'Gurux malumotlari qayta tiklandi';
     }
 
     public static function createBreadcrumbsMessage(): string
     {
-        return 'Yangi fan';
+        return 'Yangi gurux';
     }
 
     public static function editBreadcrumbsMessage(): string
     {
-        return 'Fanni o`zgartirish';
+        return 'Guruxni o`zgartirish';
     }
 
     public static function emptyResourceForAction(): string

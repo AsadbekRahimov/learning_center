@@ -83,13 +83,13 @@ class PlatformProvider extends OrchidServiceProvider
                     return Dashboard::version();
                 }, Color::DARK()),
 
-            Menu::make(__('Users'))
+            Menu::make('Foydalanuvchilar')
                 ->icon('user')
                 ->route('platform.systems.users')
                 ->permission('platform.systems.users')
-                ->title(__('Access rights')),
+                ->title('Maxsus vazifalar'),
 
-            Menu::make(__('Roles'))
+            Menu::make('Rollar')
                 ->icon('lock')
                 ->route('platform.systems.roles')
                 ->permission('platform.systems.roles'),

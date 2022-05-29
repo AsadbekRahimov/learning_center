@@ -3,12 +3,14 @@
 namespace App\Models;
 
 use App\Orchid\Presenters\UserPresenter;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Hash;
 use Orchid\Platform\Models\User as Authenticatable;
 use Orchid\Support\Facades\Dashboard;
 
 class User extends Authenticatable
 {
+    use SoftDeletes;
     /**
      * The attributes that are mass assignable.
      *

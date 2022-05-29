@@ -48,7 +48,7 @@ Route::screen('users/{user}/edit', UserEditScreen::class)
     ->breadcrumbs(function (Trail $trail, $user) {
         return $trail
             ->parent('platform.systems.users')
-            ->push(__('User'), route('platform.systems.users.edit', $user));
+            ->push('Foydalanuvchini o`zgartirish', route('platform.systems.users.edit', $user));
     });
 
 // Platform > System > Users > Create
@@ -57,7 +57,7 @@ Route::screen('users/create', UserEditScreen::class)
     ->breadcrumbs(function (Trail $trail) {
         return $trail
             ->parent('platform.systems.users')
-            ->push(__('Create'), route('platform.systems.users.create'));
+            ->push('Yangi foydalanuvchi', route('platform.systems.users.create'));
     });
 
 // Platform > System > Users > User
@@ -66,7 +66,7 @@ Route::screen('users', UserListScreen::class)
     ->breadcrumbs(function (Trail $trail) {
         return $trail
             ->parent('platform.index')
-            ->push(__('Users'), route('platform.systems.users'));
+            ->push('Foydalanuvchilar', route('platform.systems.users'));
     });
 
 // Platform > System > Roles > Role
