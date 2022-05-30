@@ -5,10 +5,12 @@ namespace App\Orchid\Resources;
 use App\Models\Branch;
 use App\Models\Subject;
 use App\Orchid\Filters\WithTrashed;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Orchid\Crud\Filters\DefaultSorted;
 use Orchid\Crud\Resource;
+use Orchid\Crud\ResourceRequest;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\Relation;
 use Orchid\Screen\Fields\Select;
@@ -219,5 +221,16 @@ class GroupResource extends Resource
     public static function emptyResourceForAction(): string
     {
         return 'Bu amallarni bajarish uchun malumotlar mavjud emas';
+    }
+
+
+    public function modelQuery(ResourceRequest $request, Model $model): Builder
+    {
+        return $model->query()->where('branch_id', Auth::user()->branch_id);
+    }
+
+    public function paginationQuery(ResourceRequest $request, Model $model): Builder
+    {
+        return $model->query()->where('branch_id', Auth::user()->branch_id);
     }
 }

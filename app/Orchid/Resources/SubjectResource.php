@@ -4,6 +4,7 @@ namespace App\Orchid\Resources;
 
 use App\Models\Branch;
 use App\Orchid\Filters\WithTrashed;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Orchid\Crud\Filters\DefaultSorted;
@@ -216,5 +217,15 @@ class SubjectResource extends Resource
     public static function emptyResourceForAction(): string
     {
         return 'Bu amallarni bajarish uchun malumotlar mavjud emas';
+    }
+
+    public function modelQuery(ResourceRequest $request, Model $model): Builder
+    {
+        return $model->query()->where('branch_id', Auth::user()->branch_id);
+    }
+
+    public function paginationQuery(ResourceRequest $request, Model $model): Builder
+    {
+        return $model->query()->where('branch_id', Auth::user()->branch_id);
     }
 }
