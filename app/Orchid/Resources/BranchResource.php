@@ -2,11 +2,13 @@
 
 namespace App\Orchid\Resources;
 
+use App\Models\Branch;
 use App\Orchid\Filters\WithTrashed;
 use Illuminate\Database\Eloquent\Model;
 use Orchid\Crud\Filters\DefaultSorted;
 use Orchid\Crud\Resource;
 use Orchid\Screen\Fields\Input;
+use Orchid\Screen\Fields\Select;
 use Orchid\Screen\Sight;
 use Orchid\Screen\TD;
 
@@ -22,6 +24,10 @@ class BranchResource extends Resource
                 ->title('Filial nomi')
                 ->placeholder('O`quv markazining filial nomini kiriting')
                 ->required(),
+            Select::make('payment_period')
+                ->title('To\'lov davomiyligi')
+                ->options(Branch::PAYMENT_PERIOD)
+                ->required(),
         ];
     }
 
@@ -31,6 +37,10 @@ class BranchResource extends Resource
             TD::make('id'),
 
             TD::make('name', 'Nomi')->cantHide(),
+            TD::make('payment_period', 'To\'lov davomiyligi')
+                ->render(function ($model) {
+                    return Branch::PAYMENT_PERIOD[$model->payment_period];
+                })->cantHide(),
             TD::make('created_at', 'Kiritilgan sana')
                 ->render(function ($model) {
                     return $model->created_at->toDateTimeString();
@@ -48,6 +58,9 @@ class BranchResource extends Resource
         return [
             Sight::make('id', 'ID'),
             Sight::make('name', 'Nomi'),
+            Sight::make('payment_period', 'To\'lov davomiyligi')->render(function ($model) {
+                return Branch::PAYMENT_PERIOD[$model->payment_period];
+            }),
             Sight::make('created_at', 'Kiritilgan sana')->render(function ($model) {
                 return $model->created_at->toDateTimeString();
             }),

@@ -16,4 +16,9 @@ class Branch extends Model
     use AsSource, Filterable, Attachable;
 
     protected $fillable = ['name'];
+
+    public const PAYMENT_PERIOD = [
+        'daily' => 'Har kunlik',
+        'monthly' => 'Har oylik',
+    ];
 }
