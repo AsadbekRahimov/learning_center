@@ -107,6 +107,7 @@ class StudentResource extends Resource
             TD::make('phone', 'Telefon raqam')->filter(Input::make()->mask('(99) 999-99-99')->title('Telefon raqami'))->defaultHidden(),
             TD::make('birthday', 'Tug`ilgan kun')->filter(Input::make()->type('date')->title('Tug`gan kuni'))->defaultHidden(),
             TD::make('balance', 'Hisob')->cantHide(),
+            TD::make('debt', 'Qarz')->cantHide(),
             TD::make('privilege', 'Saxovat')->render(function ($model) {
                 return $model->privilege ? 'Ha' : 'Yo`q';
             })->sort()->filter(CheckBox::make()->title('Saxovat talabasi')->sendTrueOrFalse())->cantHide(),
@@ -155,8 +156,8 @@ class StudentResource extends Resource
             Sight::make('birthday', 'Tug`ilgan kuni'),
             Sight::make('address', 'Manzili'),
             Sight::make('come_date', 'Kelgan sanasi'),
-            Sight::make('comment', 'Izoh'),
-            Sight::make('hobbies', 'Qizishlari'),
+            Sight::make('balance', 'Hisob'),
+            Sight::make('debt', 'Qarz'),
             Sight::make('status', 'Talim bosqichi')
                 ->render(function ($model) {
                     return Student::STATUS[$model->status];
@@ -176,6 +177,8 @@ class StudentResource extends Resource
             Sight::make('updated_at','O`zgertirilgan sana')->render(function ($model) {
                 return $model->updated_at->toDateTimeString();
             }),
+            Sight::make('comment', 'Izoh'),
+            Sight::make('hobbies', 'Qizishlari'),
         ];
     }
 

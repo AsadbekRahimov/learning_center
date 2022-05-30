@@ -58,6 +58,8 @@ class Student extends Model
         'id',
         'privilege',
         'come_date',
+        'balance',
+        'debt',
         'updated_at',
         'created_at',
     ];
