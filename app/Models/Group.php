@@ -20,7 +20,7 @@ class Group extends Model
         'even' => 'Juft kunlar',
     ];
 
-    protected $fillable = ['name', 'subject_id', 'branch_id', 'day_type'];
+    protected $fillable = ['name', 'subject_id', 'branch_id', 'day_type', 'is_active'];
 
     public function subject()
     {
@@ -35,6 +35,11 @@ class Group extends Model
     protected $allowedFilters = [
         'subject_id',
         'branch_id',
+        'day_type',
+    ];
+
+    protected $allowedSorts = [
+        'is_active',
         'day_type',
     ];
 }

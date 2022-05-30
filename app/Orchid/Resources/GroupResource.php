@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Orchid\Crud\Filters\DefaultSorted;
 use Orchid\Crud\Resource;
 use Orchid\Crud\ResourceRequest;
+use Orchid\Screen\Fields\CheckBox;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\Relation;
 use Orchid\Screen\Fields\Select;
@@ -47,8 +48,11 @@ class GroupResource extends Resource
                 ->type('hidden')
                 ->value(Auth::user()->branch_id),
             Select::make('day_type')
+                ->title('Dars kunlari')
                 ->options(Group::DAY_TYPE)
                 ->required(),
+            CheckBox::make('is_active')->title('Aktiv')
+                ->sendTrueOrFalse()->value(true)->help('Guruxning xozirgi paytdagi aktivligi'),
         ];
     }
 
@@ -73,12 +77,15 @@ class GroupResource extends Resource
             TD::make('day_type', 'Dars kunlari')
                 ->render(function ($model) {
                     return Group::DAY_TYPE[$model->day_type];
-                })->filter(Select::make()->options(Group::DAY_TYPE))->cantHide(),
+                })->sort()->filter(Select::make()->options(Group::DAY_TYPE))->cantHide(),
+            TD::make('is_active', 'Aktiv')
+                ->render(function ($model) {
+                    return $model->is_active ? 'Ha' : 'Yo\'q';
+                })->sort(),
             TD::make('created_at', 'Kiritilgan sana')
                 ->render(function ($model) {
                     return $model->created_at->toDateTimeString();
                 })->defaultHidden(),
-
             TD::make('updated_at', 'O`zgertirilgan sana')
                 ->render(function ($model) {
                     return $model->updated_at->toDateTimeString();
@@ -104,6 +111,9 @@ class GroupResource extends Resource
             }),
             Sight::make('day_type', 'Dars kunlari')->render(function ($model) {
                 return Group::DAY_TYPE[$model->day_type];
+            }),
+            Sight::make('is_active', 'Aktiv')->render(function ($model) {
+                return $model->is_active ? 'Ha' : 'Yo\'q';
             }),
             Sight::make('created_at', 'Kiritilgan sana')->render(function ($model) {
                 return $model->created_at->toDateTimeString();

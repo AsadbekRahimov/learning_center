@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('subject_id');
             $table->integer('branch_id');
             $table->string('day_type');
+            $table->tinyInteger('is_active')->default(1);
             $table->softDeletes();
             $table->timestamps();
         });
