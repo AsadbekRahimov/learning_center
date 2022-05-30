@@ -15,7 +15,12 @@ class Group extends Model
     use HasFactory;
     use AsSource, Filterable, Attachable;
 
-    protected $fillable = ['name', 'subject_id', 'branch_id'];
+    public const DAY_TYPE = [
+        'odd' => 'Toq kunlar',
+        'even' => 'Juft kunlar',
+    ];
+
+    protected $fillable = ['name', 'subject_id', 'branch_id', 'day_type'];
 
     public function subject()
     {
@@ -28,6 +33,8 @@ class Group extends Model
     }
 
     protected $allowedFilters = [
-        'branch_id'
+        'subject_id',
+        'branch_id',
+        'day_type',
     ];
 }

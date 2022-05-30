@@ -3,6 +3,7 @@
 namespace App\Orchid\Resources;
 
 use App\Models\Branch;
+use App\Models\Group;
 use App\Models\Subject;
 use App\Orchid\Filters\WithTrashed;
 use Illuminate\Database\Eloquent\Builder;
@@ -45,6 +46,9 @@ class GroupResource extends Resource
             Input::make('branch_id')
                 ->type('hidden')
                 ->value(Auth::user()->branch_id),
+            Select::make('day_type')
+                ->options(Group::DAY_TYPE)
+                ->required(),
         ];
     }
 
@@ -61,11 +65,15 @@ class GroupResource extends Resource
             TD::make('subject_id', 'Fan')
                 ->render(function ($model) {
                     return $model->subject->name;
-                })->cantHide(),
+                })->filter(Select::make()->fromQuery(Subject::where('branch_id', Auth::user()->branch_id), 'name'))->cantHide(),
             TD::make('branch_id', 'Filial')
                 ->render(function ($model) {
                     return $model->branch->name;
                 })->filter(Relation::make()->fromModel(Branch::class, 'name'))->defaultHidden(),
+            TD::make('day_type', 'Dars kunlari')
+                ->render(function ($model) {
+                    return Group::DAY_TYPE[$model->day_type];
+                })->filter(Select::make()->options(Group::DAY_TYPE))->cantHide(),
             TD::make('created_at', 'Kiritilgan sana')
                 ->render(function ($model) {
                     return $model->created_at->toDateTimeString();
@@ -94,6 +102,9 @@ class GroupResource extends Resource
             Sight::make('branch_id', 'Filial')->render(function ($model) {
                 return $model->branch->name;
             }),
+            Sight::make('day_type', 'Dars kunlari')->render(function ($model) {
+                return Group::DAY_TYPE[$model->day_type];
+            }),
             Sight::make('created_at', 'Kiritilgan sana')->render(function ($model) {
                 return $model->created_at->toDateTimeString();
             }),
@@ -121,6 +132,7 @@ class GroupResource extends Resource
         return [
             'name' => ['required'],
             'subject_id' => ['required'],
+            'day_type' => ['required'],
         ];
     }
 
@@ -128,7 +140,8 @@ class GroupResource extends Resource
     {
         return [
             'name.required' => 'Gurux nomi kiritilishi shart!',
-            'subject_id.required' => 'Fan kiritilishi shart!'
+            'subject_id.required' => 'Fan kiritilishi shart!',
+            'day_type.required' => 'Dars kuni kiritilishi shart!'
         ];
     }
 

@@ -106,8 +106,8 @@ class StudentResource extends Resource
             TD::make('lastname', 'Otasining ismi')->filter(Input::make()->title('Otasining ismi'))->defaultHidden(),
             TD::make('phone', 'Telefon raqam')->filter(Input::make()->mask('(99) 999-99-99')->title('Telefon raqami'))->defaultHidden(),
             TD::make('birthday', 'Tug`ilgan kun')->filter(Input::make()->type('date')->title('Tug`gan kuni'))->defaultHidden(),
-            TD::make('balance', 'Hisob')->cantHide(),
-            TD::make('debt', 'Qarz')->cantHide(),
+            TD::make('balance', 'Hisob')->sort()->cantHide(),
+            TD::make('debt', 'Qarz')->sort()->cantHide(),
             TD::make('privilege', 'Saxovat')->render(function ($model) {
                 return $model->privilege ? 'Ha' : 'Yo`q';
             })->sort()->filter(CheckBox::make()->title('Saxovat talabasi')->sendTrueOrFalse())->cantHide(),
