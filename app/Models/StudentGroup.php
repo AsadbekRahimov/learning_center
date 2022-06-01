@@ -16,6 +16,7 @@ class StudentGroup extends Model
     protected $fillable = [
         'student_id',
         'group_id',
+        'lesson_limit',
     ];
 
     public function group()

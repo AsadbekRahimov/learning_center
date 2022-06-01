@@ -205,7 +205,7 @@ class StudentResource extends Resource
     public function actions(): array
     {
         return [
-            CustomAction::class,
+
         ];
     }
 

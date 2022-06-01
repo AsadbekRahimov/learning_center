@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->integer('student_id');
             $table->integer('group_id');
+            $table->integer('lesson_limit')->default(0);
             $table->timestamps();
         });
     }
