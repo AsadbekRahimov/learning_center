@@ -25,4 +25,8 @@ class Subject extends Model
     protected $allowedFilters = [
         'branch_id'
     ];
+
+    protected $allowedSorts = [
+        'id',
+    ];
 }

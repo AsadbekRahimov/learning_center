@@ -54,7 +54,7 @@ class SubjectResource extends Resource
     public function columns(): array
     {
         return [
-            TD::make('id'),
+            TD::make('id')->sort(),
             TD::make('name', 'Nomi')->cantHide(),
             TD::make('price', 'Narxi')->cantHide()
                 ->render(function ($model) {

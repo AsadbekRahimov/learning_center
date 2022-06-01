@@ -29,6 +29,7 @@ return new class extends Migration
             $table->text('hobbies')->nullable();
             $table->integer('balance')->default(0);
             $table->integer('debt')->default(0);
+            $table->integer('discount')->default(0);
             $table->string('status')->default('accepted');
             $table->tinyInteger('privilege');
             $table->softDeletes();

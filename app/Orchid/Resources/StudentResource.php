@@ -6,6 +6,7 @@ use App\Models\Branch;
 use App\Models\Source;
 use App\Models\Student;
 use App\Models\User;
+use App\Orchid\Actions\CustomAction;
 use App\Orchid\Filters\WithTrashed;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -13,6 +14,8 @@ use Illuminate\Support\Facades\Auth;
 use Orchid\Crud\Filters\DefaultSorted;
 use Orchid\Crud\Resource;
 use Orchid\Crud\ResourceRequest;
+use Orchid\Screen\Actions\Link;
+use Orchid\Screen\Actions\ModalToggle;
 use Orchid\Screen\Fields\CheckBox;
 use Orchid\Screen\Fields\DateTimer;
 use Orchid\Screen\Fields\Input;
@@ -73,11 +76,11 @@ class StudentResource extends Resource
                 ->value(date('Y-m-d'))
                 ->required()
                 ->help('To`ldirish majburiy'),
-            Select::make('status')
+            /*Select::make('status')
                 ->title('Talabaning ta`lim bosqichi')
                 ->options(Student::STATUS)
                 ->required()
-                ->help('To`ldirish majburiy'),
+                ->help('To`ldirish majburiy'),*/
             CheckBox::make('privilege')
                 ->title('Saxovat talabasimi?')
                 ->sendTrueOrFalse()->horizontal(),
@@ -101,7 +104,10 @@ class StudentResource extends Resource
     {
         return [
             TD::make('id')->sort(),
-            TD::make('name', 'Ismi')->filter(Input::make()->title('Ismi'))->cantHide(),
+            TD::make('name', 'Ismi')->filter(Input::make()->title('Ismi'))
+                ->render(function ($model) {
+                    return Link::make($model->name)->route('platform.addStudentToGroup', ['student' => $model->id]);
+                })->cantHide(),
             TD::make('surname', 'Familiyasi')->filter(Input::make()->title('Familiyasi'))->defaultHidden(),
             TD::make('lastname', 'Otasining ismi')->filter(Input::make()->title('Otasining ismi'))->defaultHidden(),
             TD::make('phone', 'Telefon raqam')->filter(Input::make()->mask('(99) 999-99-99')->title('Telefon raqami'))->defaultHidden(),
@@ -193,6 +199,13 @@ class StudentResource extends Resource
         return [
             new DefaultSorted('id', 'desc'),
             WithTrashed::class,
+        ];
+    }
+
+    public function actions(): array
+    {
+        return [
+            CustomAction::class,
         ];
     }
 

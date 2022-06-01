@@ -122,8 +122,9 @@ class PlatformProvider extends OrchidServiceProvider
                 ->addPermission('platform.branches', 'Filial')
                 ->addPermission('platform.subjects', 'Fan')
                 ->addPermission('platform.groups', 'Gurux')
-                ->addPermission('platform.sources', 'Tarmoqlar')
+                ->addPermission('platform.sources', 'Hamkorlar')
                 ->addPermission('platform.students', 'Talabalar')
+                ->addPermission('platform.addStudentToGroup', 'Talabalarni guruxga biriktirish')
 
         ];
     }
