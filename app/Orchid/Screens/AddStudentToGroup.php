@@ -9,6 +9,7 @@ use App\Orchid\Layouts\GroupListener;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Orchid\Screen\Actions\Button;
+use Orchid\Screen\Actions\ModalToggle;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\Select;
 use Orchid\Screen\Screen;
@@ -62,10 +63,20 @@ class AddStudentToGroup extends Screen
     public function commandBar(): iterable
     {
         return [
-
+            ModalToggle::make('Hisobni toldirish')
+                ->modal('paymentModal')
+                ->method('studentPayment')
+                ->icon('dollar'),
         ];
     }
 
+    public function studentPayment(Request $request)
+    {
+        $student = Student::query()->find($request->student_id);
+        $student->balance += $request->sum;
+        $student->save();
+        Alert::success('Talaba muaffaqiyatli tolovni amalga oshirdi');
+    }
     public function goToGroup(Request $request)
     {
         if($request->has('group_id')) {
@@ -143,6 +154,12 @@ class AddStudentToGroup extends Screen
                 ]),
             ])->title('Talabani guruxdan chiqarish'),
 
+            Layout::modal('paymentModal', [
+                Layout::rows([
+                    Input::make('sum')->type('number')->title('To\'lov summasini kiriting'),
+                    Input::make('student_id')->type('hidden')->value($this->student->id),
+                ]),
+            ])->applyButton('To\'ldirish')->closeButton('Yopish')->title('Talaba hisobini to\'ldirish'),
         ];
     }
 }
