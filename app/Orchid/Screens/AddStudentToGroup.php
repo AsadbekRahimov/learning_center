@@ -3,6 +3,7 @@
 namespace App\Orchid\Screens;
 
 use App\Models\Group;
+use App\Models\Payment;
 use App\Models\Student;
 use App\Models\StudentGroup;
 use App\Orchid\Layouts\GroupListener;
@@ -75,6 +76,12 @@ class AddStudentToGroup extends Screen
         $student = Student::query()->find($request->student_id);
         $student->balance += $request->sum;
         $student->save();
+
+        Payment::query()->create([
+            'student_id' => $request->student_id,
+            'sum' => $request->sum,
+            'type' => $request->type,
+        ]);
         Alert::success('Talaba muaffaqiyatli tolovni amalga oshirdi');
     }
     public function goToGroup(Request $request)
@@ -92,7 +99,8 @@ class AddStudentToGroup extends Screen
 
     public function deleteFromGroup(Request $request)
     {
-        if($request->has('group_id')) {
+        //dd($request->all());
+        if($request->has('group')) {
             StudentGroup::query()->where('student_id', $request->student_id)
                 ->where('group_id', $request->group)->delete();
             Alert::success('Talaba guruxdan o\'chirildi');
@@ -132,7 +140,7 @@ class AddStudentToGroup extends Screen
 
                     Input::make('student_id')->value($this->student->id)->hidden(),
 
-                    Button::make('Saqlash')
+                    Button::make('Biriktirish')
                         ->method('goToGroup')
                         ->type(Color::PRIMARY())
                         ->icon('action-redo'),
@@ -158,6 +166,7 @@ class AddStudentToGroup extends Screen
                 Layout::rows([
                     Input::make('sum')->type('number')->title('To\'lov summasini kiriting'),
                     Input::make('student_id')->type('hidden')->value($this->student->id),
+                    Select::make('type')->options(Payment::TYPES)->required()->title('To\'lov turi'),
                 ]),
             ])->applyButton('To\'ldirish')->closeButton('Yopish')->title('Talaba hisobini to\'ldirish'),
         ];
