@@ -20,4 +20,14 @@ class Payment extends Model
          'card' => 'Bank kartasi',
          'digital' => 'Click/Payme/...'
     ];
+
+    protected $allowedSorts = [
+        'id'
+    ];
+
+    public function student()
+    {
+        return $this->belongsTo(Student::class, 'student_id', 'id');
+    }
+
 }

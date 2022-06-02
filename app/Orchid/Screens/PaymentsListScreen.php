@@ -2,6 +2,8 @@
 
 namespace App\Orchid\Screens;
 
+use App\Models\Payment;
+use App\Orchid\Layouts\Payments\PaymentsListTable;
 use Orchid\Screen\Screen;
 
 class PaymentsListScreen extends Screen
@@ -13,7 +15,9 @@ class PaymentsListScreen extends Screen
      */
     public function query(): iterable
     {
-        return [];
+        return [
+            'payments' => Payment::query()->defaultSort('id', 'desc')->paginate(15),
+        ];
     }
 
     /**
@@ -23,7 +27,12 @@ class PaymentsListScreen extends Screen
      */
     public function name(): ?string
     {
-        return 'PaymentsListScreen';
+        return 'To\'lovlar';
+    }
+
+    public function description(): ?string
+    {
+        return 'Talabalaring qilgan tolovlari ro\'yhati';
     }
 
     /**
@@ -43,6 +52,8 @@ class PaymentsListScreen extends Screen
      */
     public function layout(): iterable
     {
-        return [];
+        return [
+            PaymentsListTable::class,
+        ];
     }
 }

@@ -115,10 +115,20 @@ Route::screen('example-advanced', ExampleFieldsAdvancedScreen::class)->name('pla
 
 //Route::screen('idea', Idea::class, 'platform.screens.idea');
 
+// Talabaning malumotlari
 Route::screen('students/{student?}', AddStudentToGroup::class)
     ->name('platform.addStudentToGroup')
     ->breadcrumbs(function (Trail $trail) {
         return $trail
             ->parent('platform.index')
             ->push('Guruxga talaba qo\'shish', route('platform.addStudentToGroup'));
+    });
+
+// Hisob kitob bolimi
+Route::screen('payments', \App\Orchid\Screens\PaymentsListScreen::class)
+    ->name('platform.payments.list')
+    ->breadcrumbs(function (Trail $trail) {
+        return $trail
+            ->parent('platform.index')
+            ->push('To\'lovlar', route('platform.payments.list'));
     });

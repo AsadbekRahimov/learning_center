@@ -32,7 +32,7 @@ class AddStudentToGroup extends Screen
         return [
             'student' => $student,
             'metrics' => [
-                'pay'    => number_format(65661),
+                'pay'    => number_format(Payment::query()->where('student_id', $student->id)->sum('sum')),
                 'balance' => number_format($student->balance),
                 'debt'   => number_format($student->debt),
                 'discount'    => number_format($student->discount),

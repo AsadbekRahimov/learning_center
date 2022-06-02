@@ -83,6 +83,12 @@ class PlatformProvider extends OrchidServiceProvider
                     return Dashboard::version();
                 }, Color::DARK()),*/
 
+            Menu::make('To\'lovlar')
+                ->icon('money')
+                ->route('platform.payments.list')
+                ->permission('platform.payments.list')
+                ->title('To\'lovlar'),
+
             Menu::make('Foydalanuvchilar')
                 ->icon('user')
                 ->route('platform.systems.users')
@@ -124,8 +130,10 @@ class PlatformProvider extends OrchidServiceProvider
                 ->addPermission('platform.groups', 'Gurux')
                 ->addPermission('platform.sources', 'Hamkorlar')
                 ->addPermission('platform.students', 'Talabalar')
-                ->addPermission('platform.addStudentToGroup', 'Talabalarni guruxga biriktirish')
+                ->addPermission('platform.addStudentToGroup', 'Talabalarni guruxga biriktirish'),
 
+            ItemPermission::group('Hisobotlar')
+                ->addPermission('platform.payments.list', 'To\'lovlar'),
         ];
     }
 }
