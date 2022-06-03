@@ -94,7 +94,7 @@ Route::screen('roles', RoleListScreen::class)
     ->breadcrumbs(function (Trail $trail) {
         return $trail
             ->parent('platform.index')
-            ->push(__('Roles'), route('platform.systems.roles'));
+            ->push('Rollar', route('platform.systems.roles'));
     });
 
 // Example...
