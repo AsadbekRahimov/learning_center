@@ -20,7 +20,9 @@ return new class extends Migration
             $table->string('lastname')->nullable();
             $table->string('phone')->nullable();
             $table->date('birthday')->nullable();
-            $table->string('address');
+            $table->string('address')->nullable();
+            $table->string('tg_username')->nullable();
+            $table->string('parent_phone')->nullable();
             $table->integer('source_id');
             $table->integer('branch_id');
             $table->integer('registered_id');

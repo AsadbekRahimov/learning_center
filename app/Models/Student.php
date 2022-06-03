@@ -22,6 +22,8 @@ class Student extends Model
         'phone',
         'birthday',
         'address',
+        'tg_username',
+        'parent_phone',
         'source_id',
         'branch_id',
         'registered_id',
@@ -53,6 +55,10 @@ class Student extends Model
         'stopped' => 'Vaqtincha to`xtatilgan',
         'finished' => 'Yakunlangan'
     ];
+
+    public static function telephone($number) {
+        return '+998' . str_replace(['(', ')', '-', ' '], '', $number);
+    }
 
     protected $allowedSorts = [
         'id',

@@ -62,9 +62,15 @@ class StudentResource extends Resource
                 ->title('Talabaning tug`ilgan kun sanasi'),
             Input::make('address')
                 ->title('Manzil')
-                ->placeholder('Talabaning yashash manzili kiritiladi')
-                ->required()
-                ->help('To`ldirish majburiy'),
+                ->placeholder('Talabaning yashash manzili kiritiladi'),
+            Input::make('parent_phone')
+                ->title('Talabaning otasi yoki onasi raqami')
+                ->mask('(99) 999-99-99')
+                ->placeholder('Talabaning telefon raqami kiritiladi'),
+            Input::make('tg_username')
+                ->title('Telegram username')
+                ->placeholder('Talabaning telegram username kiritiladi')
+                ->help('Masalan: https://t.me/student_username dagi student_username kirtiladi'),
             Relation::make('source_id')
                 ->fromModel(Source::class, 'name')
                 ->title('Talabani jalb qilgan hamkor')
@@ -110,16 +116,27 @@ class StudentResource extends Resource
                 })->cantHide(),
             TD::make('surname', 'Familiyasi')->filter(Input::make()->title('Familiyasi'))->defaultHidden(),
             TD::make('lastname', 'Otasining ismi')->filter(Input::make()->title('Otasining ismi'))->defaultHidden(),
-            TD::make('phone', 'Telefon raqam')->filter(Input::make()->mask('(99) 999-99-99')->title('Telefon raqami'))->defaultHidden(),
+            TD::make('phone', 'Telefon raqam')->filter(Input::make()->mask('(99) 999-99-99')->title('Telefon raqami'))
+                ->render(function ($model) {
+                    return Link::make($model->phone)->href('tel:' . Student::telephone($model->phone));
+                })->defaultHidden(),
             TD::make('birthday', 'Tug`ilgan kun')->filter(Input::make()->type('date')->title('Tug`gan kuni'))->defaultHidden(),
+            TD::make('tg_username', 'Telegram')->filter(Input::make()->title('Telegram'))
+                ->render(function ($model) {
+                    return Link::make($model->tg_username)->href('https://t.me/' . $model->tg_username)->target('_blank');
+                })->defaultHidden(),
+            TD::make('parent_phone', 'Ota Ona raqami')->filter(Input::make()->type('number')->mask('(99) 999-99-99')->title('Ota Ona raqami'))
+                ->render(function ($model) {
+                    return Link::make($model->parent_phone)->href('tel:' . Student::telephone($model->parent_phone));
+                })->defaultHidden(),
             TD::make('balance', 'Hisob')->sort()->cantHide(),
             TD::make('debt', 'Qarz')->sort()->cantHide(),
             TD::make('privilege', 'Saxovat')->render(function ($model) {
                 return $model->privilege ? 'Ha' : 'Yo`q';
-            })->sort()->filter(CheckBox::make()->title('Saxovat talabasi')->sendTrueOrFalse())->cantHide(),
+                })->sort()->filter(CheckBox::make()->title('Saxovat talabasi')->sendTrueOrFalse())->cantHide(),
             TD::make('status', 'Talim bosqichi')->render(function ($model) {
                 return Student::STATUS[$model->status];
-            })->cantHide(),
+                })->cantHide(),
             TD::make('source_id', 'Hamkor')->render(function ($model) {
                     return $model->source->name;
                 })->filter(Relation::make()->fromModel(Source::class, 'name'))->cantHide(),
@@ -158,9 +175,20 @@ class StudentResource extends Resource
             Sight::make('name', 'Ismi'),
             Sight::make('surname', 'Familiyasi'),
             Sight::make('lastname', 'Otasining ismi'),
-            Sight::make('phone', 'Telefon raqami'),
+            Sight::make('phone', 'Telefon raqami')
+                ->render(function ($model) {
+                    return Link::make($model->phone)->href('tel:' . Student::telephone($model->phone));
+                }),
             Sight::make('birthday', 'Tug`ilgan kuni'),
             Sight::make('address', 'Manzili'),
+            Sight::make('tg_username', 'Telegram username')
+                ->render(function ($model) {
+                    return Link::make($model->tg_username)->href('https://t.me/' . Student::telephone($model->tg_username))->target('_blank');
+                }),
+            Sight::make('parent_phone', 'Ota Ona raqami')
+                ->render(function ($model) {
+                    return Link::make($model->parent_phone)->href('tel:' . Student::telephone($model->parent_phone));
+                }),
             Sight::make('come_date', 'Kelgan sanasi'),
             Sight::make('balance', 'Hisob'),
             Sight::make('debt', 'Qarz'),
