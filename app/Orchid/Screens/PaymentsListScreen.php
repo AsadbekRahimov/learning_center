@@ -16,7 +16,7 @@ class PaymentsListScreen extends Screen
     public function query(): iterable
     {
         return [
-            'payments' => Payment::query()->defaultSort('id', 'desc')->paginate(15),
+            'payments' => Payment::query()->filters()->defaultSort('id', 'desc')->with(['branch'])->paginate(15),
         ];
     }
 

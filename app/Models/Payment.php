@@ -13,7 +13,7 @@ class Payment extends Model
     use HasFactory;
     use AsSource, Filterable, Attachable;
 
-    protected $fillable = ['student_id', 'sum', 'type'];
+    protected $fillable = ['student_id', 'sum', 'type', 'branch_id'];
 
     public const TYPES = [
          'paper' => 'Naqt',
@@ -22,12 +22,24 @@ class Payment extends Model
     ];
 
     protected $allowedSorts = [
-        'id'
+        'id',
+        'sum',
+    ];
+
+    protected $allowedFilters = [
+        'student_id',
+        'sum',
+        'type',
+        'branch_id'
     ];
 
     public function student()
     {
         return $this->belongsTo(Student::class, 'student_id', 'id');
+    }
+
+    public function branch() {
+        return $this->belongsTo(Branch::class, 'branch_id', 'id');
     }
 
 }

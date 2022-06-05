@@ -18,6 +18,7 @@ return new class extends Migration
             $table->integer('student_id');
             $table->integer('sum');
             $table->string('type')->default('paper');
+            $table->integer('branch_id');
             $table->timestamps();
         });
     }
