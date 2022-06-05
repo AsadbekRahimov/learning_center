@@ -50,6 +50,10 @@ class Student extends Model
         return $this->belongsTo(User::class, 'branch_id', 'id')->withTrashed();
     }
 
+    public function groups() {
+        return $this->hasMany(StudentGroup::class, 'student_id', 'id');
+    }
+
     public const STATUS = [
         'accepted' => 'Qabul qilingan',
         'stopped' => 'Vaqtincha to`xtatilgan',

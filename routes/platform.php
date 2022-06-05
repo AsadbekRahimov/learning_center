@@ -17,7 +17,7 @@ use App\Orchid\Screens\User\UserListScreen;
 use App\Orchid\Screens\User\UserProfileScreen;
 use Illuminate\Support\Facades\Route;
 use Tabuna\Breadcrumbs\Trail;
-use App\Orchid\Screens\AddStudentToGroup;
+use App\Orchid\Screens\StudentInfoScreen;
 
 /*
 |--------------------------------------------------------------------------
@@ -116,12 +116,12 @@ Route::screen('example-advanced', ExampleFieldsAdvancedScreen::class)->name('pla
 //Route::screen('idea', Idea::class, 'platform.screens.idea');
 
 // Talabaning malumotlari
-Route::screen('students/{student?}', AddStudentToGroup::class)
+Route::screen('students/{student?}', StudentInfoScreen::class)
     ->name('platform.addStudentToGroup')
     ->breadcrumbs(function (Trail $trail) {
         return $trail
             ->parent('platform.index')
-            ->push('Guruxga talaba qo\'shish', route('platform.addStudentToGroup'));
+            ->push('Talaba malumotlari', route('platform.addStudentToGroup'));
     });
 
 // Hisob kitob bolimi
