@@ -253,13 +253,13 @@ class StudentResource extends Resource
     public function messages(): array
     {
         return [
-            'name' => 'Talabaning ismi kiritilishi shart',
-            'address' => 'Talabaning manzili kiritilishi shart',
-            'source_id' => 'Talabaning jalb qilgan hamkor kiritilishi shart',
-            'branch_id' => 'Talabaning o`quv filiali kiritilishi shart',
-            'registered_id' => 'Talabaning royhatga olgan odam kiritilishi shart',
-            'come_date' => 'Talabaning kelgan vaqti kiritilishi shart',
-            'privilege' => 'Talabaning imtiyozi kiritilishi shart',
+            'name.required' => 'Talabaning ismi kiritilishi shart',
+            'address.required' => 'Talabaning manzili kiritilishi shart',
+            'source_id.required' => 'Talabaning jalb qilgan hamkor kiritilishi shart',
+            'branch_id.required' => 'Talabaning o`quv filiali kiritilishi shart',
+            'registered_id.required' => 'Talabaning royhatga olgan odam kiritilishi shart',
+            'come_date.required' => 'Talabaning kelgan vaqti kiritilishi shart',
+            'privilege.required' => 'Talabaning imtiyozi kiritilishi shart',
         ];
     }
 
