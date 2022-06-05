@@ -2,6 +2,7 @@
 
 namespace App\Orchid\Resources;
 
+use App\Models\Branch;
 use App\Orchid\Filters\WithTrashed;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -10,6 +11,8 @@ use Orchid\Crud\Filters\DefaultSorted;
 use Orchid\Crud\Resource;
 use Orchid\Crud\ResourceRequest;
 use Orchid\Screen\Fields\Input;
+use Orchid\Screen\Fields\Relation;
+use Orchid\Screen\Fields\Select;
 use Orchid\Screen\Sight;
 use Orchid\Screen\TD;
 
@@ -21,6 +24,12 @@ class RedDayResource extends Resource
      * @var string
      */
     public static $model = \App\Models\RedDay::class;
+    public $branch_user;
+
+    public function __construct()
+    {
+        $this->branch_user = Auth::user()->branch_id ? true : false;
+    }
 
     /**
      * Get the fields displayed by the resource.
@@ -34,7 +43,9 @@ class RedDayResource extends Resource
                 ->help('Yakshanba kunidan tashqari ishlanmaydigan kun kiritiladi, va aynan shu kunda o`quvchilarning davomati hisobga olinmaydi')
                 ->required(),
             Input::make('name')->type('text')->title('Tasnifi')->required(),
-            Input::make('branch_id')->type('hidden')->value(Auth::user()->branch_id)->required(),
+            Input::make('branch_id')->type('hidden')->value(Auth::user()->branch_id)->required()->canSee($this->branch_user),
+            Select::make('branch_id')->fromModel(Branch::class, 'name')
+                ->value(Auth::user()->branch_id)->title('Filialni tanlang')->canSee(!$this->branch_user),
         ];
     }
 
@@ -47,8 +58,12 @@ class RedDayResource extends Resource
     {
         return [
             TD::make('id')->sort(),
-            TD::make('date', 'Sana')->cantHide(),
-            TD::make('name', 'Tasnifi')->cantHide(),
+            TD::make('date', 'Sana')->filter(Input::make('date')->type('date'))->cantHide(),
+            TD::make('name', 'Tasnifi')->filter(Input::make('date')->type('date'))->cantHide(),
+            TD::make('branch_id', 'Filial')->filter(Relation::make('branch_id')->fromModel(Branch::class, 'name'))
+                ->render(function ($model) {
+                    return $model->branch->name;
+                })->canSee(!$this->branch_user),
             TD::make('created_at', 'Kiritilgan sana')
                 ->render(function ($model) {
                     return $model->created_at->toDateTimeString();
@@ -71,6 +86,10 @@ class RedDayResource extends Resource
         return [
             Sight::make('date', 'Sana'),
             Sight::make('name', 'Tasnif'),
+            Sight::make('branch_id', 'Filial')
+                ->render(function ($model) {
+                    return $model->branch->name;
+                })->canSee(!$this->branch_user),
         ];
     }
 
@@ -206,11 +225,15 @@ class RedDayResource extends Resource
 
     public function modelQuery(ResourceRequest $request, Model $model): Builder
     {
-        return $model->query()->where('branch_id', Auth::user()->branch_id);
+        return $model->query()->when($this->branch_user, function ($query) {
+            return $query->where('branch_id', Auth::user()->branch_id);
+        });
     }
 
     public function paginationQuery(ResourceRequest $request, Model $model): Builder
     {
-        return $model->query()->where('branch_id', Auth::user()->branch_id);
+        return $model->query()->when($this->branch_user, function ($query) {
+            return $query->where('branch_id', Auth::user()->branch_id);
+        });
     }
 }

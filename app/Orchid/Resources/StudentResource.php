@@ -34,6 +34,13 @@ class StudentResource extends Resource
      */
     public static $model = \App\Models\Student::class;
 
+    public $branch_user;
+
+    public function __construct()
+    {
+        $this->branch_user = Auth::user()->branch_id ? true : false;
+    }
+
     /**
      * Get the fields displayed by the resource.
      *
@@ -92,12 +99,12 @@ class StudentResource extends Resource
                 ->sendTrueOrFalse()->horizontal(),
             TextArea::make('comment')->title('Talaba uchun izoh'),
             TextArea::make('hobbies')->title('Talabaning qizishlari (Hobbiy)'),
-            Input::make('branch_id')
-                ->type('hidden')
-                ->value(Auth::user()->branch_id),
             Input::make('registered_id')
                 ->type('hidden')
                 ->value(Auth::id()),
+            Input::make('branch_id')->type('hidden')->value(Auth::user()->branch_id)->required()->canSee($this->branch_user),
+            Select::make('branch_id')->fromModel(Branch::class, 'name')
+                ->value(Auth::user()->branch_id)->title('Filialni tanlang')->canSee(!$this->branch_user),
         ];
     }
 
@@ -147,10 +154,10 @@ class StudentResource extends Resource
                 })->filter(Relation::make()->fromModel(User::class, 'name'))->defaultHidden(),
             TD::make('come_date', 'Kelgan sanasi')->filter(Input::make()->type('date')->title('Tug`gan kuni'))
                 ->sort()->defaultHidden(),
-            TD::make('branch_id', 'Filial')
+            TD::make('branch_id', 'Filial')->filter(Relation::make('branch_id')->fromModel(Branch::class, 'name'))
                 ->render(function ($model) {
                     return $model->branch->name;
-                })->filter(Relation::make()->fromModel(Branch::class, 'name'))->defaultHidden(),
+                })->canSee(!$this->branch_user),
             TD::make('created_at', 'Kiritilgan sana')
                 ->render(function ($model) {
                     return $model->created_at->toDateTimeString();
@@ -199,9 +206,10 @@ class StudentResource extends Resource
             Sight::make('source_id', 'Hamkor')->render(function ($model) {
                 return $model->source->name;
             }),
-            Sight::make('branch_id', 'Filial')->render(function ($model) {
-                return $model->branch->name;
-            }),
+            Sight::make('branch_id', 'Filial')
+                ->render(function ($model) {
+                    return $model->branch->name;
+                })->canSee(!$this->branch_user),
             Sight::make('registered_id', 'Ro`yhatga oluvchi')->render(function ($model) {
                 return $model->registered->name;
             }),
@@ -356,11 +364,15 @@ class StudentResource extends Resource
 
     public function modelQuery(ResourceRequest $request, Model $model): Builder
     {
-        return $model->query()->where('branch_id', Auth::user()->branch_id);
+        return $model->query()->when($this->branch_user, function ($query) {
+            return $query->where('branch_id', Auth::user()->branch_id);
+        });
     }
 
     public function paginationQuery(ResourceRequest $request, Model $model): Builder
     {
-        return $model->query()->where('branch_id', Auth::user()->branch_id);
+        return $model->query()->when($this->branch_user, function ($query) {
+            return $query->where('branch_id', Auth::user()->branch_id);
+        });
     }
 }

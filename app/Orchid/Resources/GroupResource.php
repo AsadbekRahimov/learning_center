@@ -28,6 +28,13 @@ class GroupResource extends Resource
      */
     public static $model = \App\Models\Group::class;
 
+    public $branch_user;
+
+    public function __construct()
+    {
+        $this->branch_user = Auth::user()->branch_id ? true : false;
+    }
+
     /**
      * Get the fields displayed by the resource.
      *
@@ -44,15 +51,15 @@ class GroupResource extends Resource
                 ->title('Fan')
                 ->fromQuery(Subject::where('branch_id', '=', Auth::user()->branch_id), 'name')
                 ->required(),
-            Input::make('branch_id')
-                ->type('hidden')
-                ->value(Auth::user()->branch_id),
             Select::make('day_type')
                 ->title('Dars kunlari')
                 ->options(Group::DAY_TYPE)
                 ->required(),
             CheckBox::make('is_active')->title('Aktiv')
                 ->sendTrueOrFalse()->value(true)->help('Guruxning xozirgi paytdagi aktivligi'),
+            Input::make('branch_id')->type('hidden')->value(Auth::user()->branch_id)->required()->canSee($this->branch_user),
+            Select::make('branch_id')->fromModel(Branch::class, 'name')
+                ->value(Auth::user()->branch_id)->title('Filialni tanlang')->canSee(!$this->branch_user),
         ];
     }
 
@@ -70,10 +77,10 @@ class GroupResource extends Resource
                 ->render(function ($model) {
                     return $model->subject->name;
                 })->filter(Select::make()->fromQuery(Subject::where('branch_id', Auth::user()->branch_id), 'name'))->cantHide(),
-            TD::make('branch_id', 'Filial')
+            TD::make('branch_id', 'Filial')->filter(Relation::make('branch_id')->fromModel(Branch::class, 'name'))
                 ->render(function ($model) {
                     return $model->branch->name;
-                })->filter(Relation::make()->fromModel(Branch::class, 'name'))->defaultHidden(),
+                })->canSee(!$this->branch_user),
             TD::make('day_type', 'Dars kunlari')
                 ->render(function ($model) {
                     return Group::DAY_TYPE[$model->day_type];
@@ -106,9 +113,10 @@ class GroupResource extends Resource
             Sight::make('subject_id', 'Fan')->render(function ($model) {
                 return $model->subject->name;
             }),
-            Sight::make('branch_id', 'Filial')->render(function ($model) {
-                return $model->branch->name;
-            }),
+            Sight::make('branch_id', 'Filial')
+                ->render(function ($model) {
+                    return $model->branch->name;
+                })->canSee(!$this->branch_user),
             Sight::make('day_type', 'Dars kunlari')->render(function ($model) {
                 return Group::DAY_TYPE[$model->day_type];
             }),
@@ -249,11 +257,15 @@ class GroupResource extends Resource
 
     public function modelQuery(ResourceRequest $request, Model $model): Builder
     {
-        return $model->query()->where('branch_id', Auth::user()->branch_id);
+        return $model->query()->when($this->branch_user, function ($query) {
+            return $query->where('branch_id', Auth::user()->branch_id);
+        });
     }
 
     public function paginationQuery(ResourceRequest $request, Model $model): Builder
     {
-        return $model->query()->where('branch_id', Auth::user()->branch_id);
+        return $model->query()->when($this->branch_user, function ($query) {
+            return $query->where('branch_id', Auth::user()->branch_id);
+        });
     }
 }

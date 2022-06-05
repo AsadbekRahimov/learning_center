@@ -26,7 +26,8 @@ class RedDay extends Model
 
     protected $allowedFilters = [
         'name',
-        'date'
+        'date',
+        'branch_id'
     ];
 
     public function branch()
