@@ -41,7 +41,7 @@ class StudentInfoScreen extends Screen
                 'debt' => number_format($student->debt),
                 'discount' => number_format($student->discount),
             ],
-            'student_groups' => StudentGroup::query()->with('group', 'student')->where('student_id', $student->id)->get(),
+            'student_groups' => StudentGroup::query()->with('group.subject', 'student')->where('student_id', $student->id)->get(),
             'groups' => StudentGroup::query()->where('student_id', $student->id)->pluck('group_id'),
         ];
     }
@@ -73,11 +73,35 @@ class StudentInfoScreen extends Screen
                 ->modal('addToGroupModal')
                 ->method('addToGroup')
                 ->icon('organization'),
+            ModalToggle::make('Guruxni almashtirish')
+                ->modal('changeGroupModal')
+                ->method('changeGroup')
+                ->icon('refresh'),
             ModalToggle::make('Hisobni toldirish')
                 ->modal('paymentModal')
                 ->method('studentPayment')
                 ->icon('dollar'),
         ];
+    }
+
+    public function changeGroup(Request $request)
+    {
+        //dd($request->all());
+        $source_group = Group::query()->find($request->source_group);
+        $target_group = Group::query()->find($request->target_group);
+
+        if ($source_group->subject->price == $target_group->subject->price) {
+            $student_group = StudentGroup::query()->where('student_id', $request->student_id)
+                ->where('group_id', $source_group->id)->first();
+            $student_group->group_id = $target_group->id;
+            $student_group->save();
+            Alert::success('Talabaning guruxi ' . $source_group->name . ' dan ' . $target_group->name . ' ga o\'zgartirildi, '
+                . $source_group->name . ' guruxi xisobidagi ' . $student_group->lesson_limit . ' ta dars limiti ' . $target_group->name . ' guruxi xisobiga o\'tkazildi');
+        } else {
+            Alert::error('Guruxni ozgartirish uchun tanlangan guruxlardagi fanlarning narxi bir xil bo\'lishi kerak,
+            bunday bo\'lmagan taqdirda talabani guruxdan chiqarib uni qayta guruxga biriktirish kerak boladi!');
+        }
+
     }
 
     public function studentPayment(Request $request)
@@ -90,6 +114,7 @@ class StudentInfoScreen extends Screen
             'student_id' => $request->student_id,
             'sum' => $request->sum,
             'type' => $request->type,
+            'branch_id' => $student->branch_id,
         ]);
         Alert::success('Talaba muaffaqiyatli tolovni amalga oshirdi');
     }
@@ -110,8 +135,13 @@ class StudentInfoScreen extends Screen
 
     public function deleteFromGroup(Request $request)
     {
-        StudentGroup::destroy($request->id);
-        Alert::success('Talaba guruxdan o\'chirildi');
+        $student_group = StudentGroup::query()->find($request->id);
+        $student = Student::query()->find($student_group->student_id);
+        $returned_balance = round(($student_group->group->subject->price / 12) * $student_group->lesson_limit);
+        $student->balance += (int)$returned_balance;
+        $student->save();
+        $student_group->delete();
+        Alert::success('Talaba guruxdan o\'chirildi, uning xisobiga qolgan dars limitlari xisobidan ' . $returned_balance . ' so\'m qaytarildi');
     }
 
 
@@ -142,6 +172,18 @@ class StudentInfoScreen extends Screen
                     Input::make('student_id')->value($this->student->id)->hidden(),
                 ]),
             ])->applyButton('Qo\'shish')->closeButton('Yopish')->title('Talabani guruxga qo\'shish'),
+
+            Layout::modal('changeGroupModal', [
+                Layout::rows([
+                    Select::make('source_group')
+                        ->fromQuery(\App\Models\Group::where('branch_id', Auth::user()->branch_id)->whereIn('id', $this->groups), 'name')
+                        ->title('Guruxni tanlang'),
+                    Select::make('target_group')
+                        ->fromQuery(\App\Models\Group::where('branch_id', Auth::user()->branch_id)->whereNotIn('id', $this->groups), 'name')
+                        ->title('Guruxni tanlang'),
+                    Input::make('student_id')->value($this->student->id)->hidden(),
+                ]),
+            ])->applyButton('Almashtirish')->closeButton('Yopish')->title('Talaba guruxini o\'zgartirish'),
 
 
             Layout::modal('paymentModal', [

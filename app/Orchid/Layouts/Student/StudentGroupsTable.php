@@ -34,6 +34,9 @@ class StudentGroupsTable extends Table
             TD::make('group_id', 'Gurux')->render(function (StudentGroup $student_groups) {
                 return $student_groups->group->name;
             }),
+            TD::make('subject', 'Fan')->render(function (StudentGroup $student_groups) {
+                return $student_groups->group->subject->name;
+            }),
             TD::make('lesson_limit', 'Dars limit'),
             TD::make('Amallar')
                 ->align(TD::ALIGN_CENTER)
