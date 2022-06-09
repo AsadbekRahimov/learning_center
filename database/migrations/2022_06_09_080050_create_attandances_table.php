@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->integer('lesson_id');
             $table->integer('student_id');
-            $table->boolean('attand');
+            $table->boolean('attand')->default(false);
             $table->timestamps();
         });
     }
