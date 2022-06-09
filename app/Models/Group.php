@@ -33,6 +33,7 @@ class Group extends Model
     }
 
     protected $allowedFilters = [
+        'name',
         'subject_id',
         'branch_id',
         'day_type',

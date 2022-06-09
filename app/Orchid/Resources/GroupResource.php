@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Orchid\Crud\Filters\DefaultSorted;
 use Orchid\Crud\Resource;
 use Orchid\Crud\ResourceRequest;
+use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Fields\CheckBox;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\Relation;
@@ -72,7 +73,10 @@ class GroupResource extends Resource
     {
         return [
             TD::make('id'),
-            TD::make('name', 'Nomi')->cantHide(),
+            TD::make('name', 'Nomi')->filter(Input::make()->title('Nomi'))
+                ->render(function ($model) {
+                    return Link::make($model->name)->route('platform.groupInfo', ['group' => $model->id]);
+                })->cantHide(),
             TD::make('subject_id', 'Fan')
                 ->render(function ($model) {
                     return $model->subject->name;

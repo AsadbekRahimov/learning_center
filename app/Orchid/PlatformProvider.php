@@ -130,8 +130,10 @@ class PlatformProvider extends OrchidServiceProvider
                 ->addPermission('platform.groups', 'Gurux')
                 ->addPermission('platform.sources', 'Hamkorlar')
                 ->addPermission('platform.students', 'Talabalar')
-                ->addPermission('platform.addStudentToGroup', 'Talabalarni guruxga biriktirish')
-                ->addPermission('platform.redDays', 'Ishlanmaydigan kunlar'),
+                ->addPermission('platform.addStudentToGroup', 'Talaba malumotlari')
+                ->addPermission('platform.redDays', 'Ishlanmaydigan kunlar')
+                ->addPermission('platform.payments', 'To\'lovlar')
+                ->addPermission('platform.groupInfo', 'Gurux ma\'lumotlari'),
 
             ItemPermission::group('Hisobotlar')
                 ->addPermission('platform.payments.list', 'To\'lovlar'),

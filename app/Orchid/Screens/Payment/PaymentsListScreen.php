@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Orchid\Screens;
+namespace App\Orchid\Screens\Payment;
 
 use App\Models\Payment;
 use App\Orchid\Layouts\Payments\PaymentsListTable;
@@ -33,6 +33,13 @@ class PaymentsListScreen extends Screen
     public function description(): ?string
     {
         return 'Talabalaring qilgan tolovlari ro\'yhati';
+    }
+
+    public function permission(): ?iterable
+    {
+        return [
+            'platform.payments'
+        ];
     }
 
     /**

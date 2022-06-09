@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Orchid\Screens;
+namespace App\Orchid\Screens\Student;
 
 use App\Models\Group;
 use App\Models\Payment;
@@ -59,6 +59,13 @@ class StudentInfoScreen extends Screen
     public function description(): ?string
     {
         return 'Talaba uchun xizmatar';
+    }
+
+    public function permission(): ?iterable
+    {
+        return [
+            'platform.addStudentToGroup'
+        ];
     }
 
     /**

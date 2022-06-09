@@ -17,7 +17,7 @@ use App\Orchid\Screens\User\UserListScreen;
 use App\Orchid\Screens\User\UserProfileScreen;
 use Illuminate\Support\Facades\Route;
 use Tabuna\Breadcrumbs\Trail;
-use App\Orchid\Screens\StudentInfoScreen;
+use App\Orchid\Screens\Student\StudentInfoScreen;
 
 /*
 |--------------------------------------------------------------------------
@@ -125,10 +125,18 @@ Route::screen('students/{student?}', StudentInfoScreen::class)
     });
 
 // Hisob kitob bolimi
-Route::screen('payments', \App\Orchid\Screens\PaymentsListScreen::class)
+Route::screen('payments', \App\Orchid\Screens\Payment\PaymentsListScreen::class)
     ->name('platform.payments.list')
     ->breadcrumbs(function (Trail $trail) {
         return $trail
             ->parent('platform.index')
             ->push('To\'lovlar', route('platform.payments.list'));
+    });
+
+Route::screen('groups/{group?}', \App\Orchid\Screens\Group\GroupInfoScreen::class)
+    ->name('platform.groupInfo')
+    ->breadcrumbs(function (Trail $trail) {
+        return $trail
+            ->parent('platform.index')
+            ->push('Gurux ma\'lumotlari', route('platform.groupInfo'));
     });
