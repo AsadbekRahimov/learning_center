@@ -19,7 +19,6 @@ class GroupInfoScreen extends Screen
 {
     public $group;
     public $lesson;
-    public $attand;
     /**
      * Query data.
      *
@@ -114,6 +113,9 @@ class GroupInfoScreen extends Screen
         $lesson = Lesson::query()->find($request->id);
         $lesson->finish = true;
         $lesson->save();
+
+        $ids = Attandance::query()->where('lesson_id', $lesson->id)->where('attand', 1)->pluck('student_id');
+        StudentGroup::query()->where('group_id', $lesson->group_id)->whereIn('student_id', $ids)->decrement('lesson_limit');
         Alert::info('Davomat yakunlandi!');
     }
 
