@@ -10,10 +10,10 @@ use App\Orchid\Layouts\Group\GroupAttandTable;
 use App\Orchid\Layouts\Group\GroupStudentsTable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Alert;
 use Orchid\Support\Facades\Layout;
-use Orchid\Support\Facades\Toast;
 
 class GroupInfoScreen extends Screen
 {
@@ -69,7 +69,13 @@ class GroupInfoScreen extends Screen
     public function commandBar(): iterable
     {
         return [
-
+            Button::make('Davomatni yakunlash')
+                ->icon('check')
+                ->method('attandanceFinish')
+                ->canSee(Auth::user()->hasAccess('platform.attandance') && !is_null($this->lesson) && !$this->lesson->finish)
+                ->parameters([
+                    'id' => $this->lesson->id,
+                ]),
         ];
     }
 
@@ -80,7 +86,7 @@ class GroupInfoScreen extends Screen
      */
     public function layout(): iterable
     {
-        if (Auth::user()->hasAccess('platform.attandance') && !is_null($this->lesson)) {
+        if (Auth::user()->hasAccess('platform.attandance') && !is_null($this->lesson) && !$this->lesson->finish) {
             return [
                 Layout::columns([
                     GroupAttandTable::class,
@@ -101,6 +107,14 @@ class GroupInfoScreen extends Screen
         $attandance->save();
         // TODO: Add sms notification for student parent
         Alert::info($attandance->student->name . ' bugun darsga kelmadi, bu xaqida uning ota onasiga xabar yuborildi!');
+    }
+
+    public function attandanceFinish(Request $request)
+    {
+        $lesson = Lesson::query()->find($request->id);
+        $lesson->finish = true;
+        $lesson->save();
+        Alert::info('Davomat yakunlandi!');
     }
 
     public function none()

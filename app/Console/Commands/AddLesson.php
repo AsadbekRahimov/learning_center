@@ -54,6 +54,7 @@ class AddLesson extends Command
                         Lesson::query()->create([
                             'date' => date('Y-m-d'),
                             'group_id' => $group->id,
+                            'finish' => false,
                         ]);
                     }
                 }
