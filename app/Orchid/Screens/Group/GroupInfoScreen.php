@@ -2,14 +2,24 @@
 
 namespace App\Orchid\Screens\Group;
 
+use App\Models\Attandance;
 use App\Models\Group;
+use App\Models\Lesson;
 use App\Models\StudentGroup;
+use App\Orchid\Layouts\Group\GroupAttandTable;
 use App\Orchid\Layouts\Group\GroupStudentsTable;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Orchid\Screen\Screen;
+use Orchid\Support\Facades\Alert;
+use Orchid\Support\Facades\Layout;
+use Orchid\Support\Facades\Toast;
 
 class GroupInfoScreen extends Screen
 {
     public $group;
+    public $lesson;
+    public $attand;
     /**
      * Query data.
      *
@@ -17,9 +27,15 @@ class GroupInfoScreen extends Screen
      */
     public function query(Group $group): iterable
     {
+        $lesson = Lesson::query()
+            ->where('group_id', $group->id)
+            ->where('date', '=', date('Y-m-d'))->first();
+
         return [
+            'lesson' => $lesson,
             'students' => StudentGroup::query()->with(['student'])->where('group_id', $group->id)->get(),
             'group' => $group,
+            'attand' => Attandance::query()->where('lesson_id', $lesson->id ?? '')->get(),
         ];
     }
 
@@ -52,7 +68,9 @@ class GroupInfoScreen extends Screen
      */
     public function commandBar(): iterable
     {
-        return [];
+        return [
+
+        ];
     }
 
     /**
@@ -62,9 +80,27 @@ class GroupInfoScreen extends Screen
      */
     public function layout(): iterable
     {
-        return [
-            GroupStudentsTable::class,
-        ];
+        if (Auth::user()->hasAccess('platform.attandance') && !is_null($this->lesson)) {
+            return [
+                Layout::columns([
+                    GroupAttandTable::class,
+                    GroupStudentsTable::class,
+                ])
+            ];
+        } else {
+            return [
+                GroupStudentsTable::class,
+            ];
+        }
+    }
+
+    public function notComing(Request $request)
+    {
+        $attandance = Attandance::query()->find($request->id);
+        $attandance->attand = false;
+        $attandance->save();
+        // TODO: Add sms notification for student parent
+        Alert::info($attandance->student->name . ' bugun darsga kelmadi, bu xaqida uning ota onasiga xabar yuborildi!');
     }
 
     public function none()

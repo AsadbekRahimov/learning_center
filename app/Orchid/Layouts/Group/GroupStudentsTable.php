@@ -25,6 +25,9 @@ class GroupStudentsTable extends Table
      *
      * @return TD[]
      */
+
+    protected $title = "Guruxdagi talabalar ro'yhati";
+
     protected function columns(): iterable
     {
         return [

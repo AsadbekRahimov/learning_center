@@ -14,7 +14,7 @@ class LessonObserver
             Attandance::query()->create([
                 'lesson_id' => $lesson->id,
                 'student_id' => $student->student_id,
-                'attand' => false,
+                'attand' => true,
             ]);
         }
     }

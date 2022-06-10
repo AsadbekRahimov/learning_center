@@ -23,7 +23,7 @@ class Lesson extends Model
         return $this->belongsTo(Group::class, 'group_id', 'id');
     }
 
-    public function  students()
+    public function students()
     {
         return $this->hasMany(StudentGroup::class, 'group_id', 'group_id');
     }
