@@ -32,6 +32,11 @@ class Group extends Model
         return $this->belongsTo(Branch::class, 'branch_id', 'id')->withTrashed();
     }
 
+    public function students()
+    {
+        return $this->hasMany(StudentGroup::class, 'group_id', 'id');
+    }
+
     protected $allowedFilters = [
         'name',
         'subject_id',

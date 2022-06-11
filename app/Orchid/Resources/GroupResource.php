@@ -81,6 +81,10 @@ class GroupResource extends Resource
                 ->render(function ($model) {
                     return $model->subject->name;
                 })->filter(Select::make()->fromQuery(Subject::where('branch_id', Auth::user()->branch_id), 'name'))->cantHide(),
+            TD::make('students', 'O\'quvchilar soni')
+                ->render(function ($model) {
+                    return $model->students->count();
+                })->cantHide(),
             TD::make('branch_id', 'Filial')->filter(Relation::make('branch_id')->fromModel(Branch::class, 'name'))
                 ->render(function ($model) {
                     return $model->branch->name;

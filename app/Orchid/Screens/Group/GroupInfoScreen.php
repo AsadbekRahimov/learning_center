@@ -73,7 +73,7 @@ class GroupInfoScreen extends Screen
                 ->method('attandanceFinish')
                 ->canSee(Auth::user()->hasAccess('platform.attandance') && !is_null($this->lesson) && !$this->lesson->finish)
                 ->parameters([
-                    'id' => $this->lesson->id,
+                    'id' => $this->lesson->id ?? '',
                 ]),
         ];
     }
