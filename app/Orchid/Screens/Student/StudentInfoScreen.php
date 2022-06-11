@@ -2,11 +2,13 @@
 
 namespace App\Orchid\Screens\Student;
 
+use App\Models\Attandance;
 use App\Models\Group;
 use App\Models\Payment;
 use App\Models\Student;
 use App\Models\StudentGroup;
 use App\Orchid\Layouts\GroupListener;
+use App\Orchid\Layouts\Student\StudentAttandanceTable;
 use App\Orchid\Layouts\Student\StudentGroupsTable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -45,6 +47,8 @@ class StudentInfoScreen extends Screen
             'student_groups' => StudentGroup::query()->with('group.subject', 'student')
                 ->where('student_id', $student->id)->get(),
             'groups' => StudentGroup::query()->where('student_id', $student->id)->pluck('group_id'),
+            'attandances' => Attandance::query()->with(['lesson.group'])->where('student_id', $student->id)
+                ->orderByDesc('id')->paginate(10),
         ];
     }
 
@@ -171,6 +175,7 @@ class StudentInfoScreen extends Screen
             ]),
 
             StudentGroupsTable::class,
+            StudentAttandanceTable::class,
 
             Layout::modal('addToGroupModal', [
                 Layout::rows([
