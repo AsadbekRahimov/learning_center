@@ -7,6 +7,7 @@ use App\Models\Group;
 use App\Models\Lesson;
 use App\Models\StudentGroup;
 use App\Orchid\Layouts\Group\GroupAttandTable;
+use App\Orchid\Layouts\Group\GroupLessonsTable;
 use App\Orchid\Layouts\Group\GroupStudentsTable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -35,6 +36,7 @@ class GroupInfoScreen extends Screen
             'students' => StudentGroup::query()->with(['student'])->where('group_id', $group->id)->get(),
             'group' => $group,
             'attand' => Attandance::query()->where('lesson_id', $lesson->id ?? '')->get(),
+            'lessons' => Lesson::query()->with(['attandances'])->orderByDesc('id')->paginate(10),
         ];
     }
 
@@ -90,11 +92,13 @@ class GroupInfoScreen extends Screen
                 Layout::columns([
                     GroupAttandTable::class,
                     GroupStudentsTable::class,
-                ])
+                ]),
+                GroupLessonsTable::class,
             ];
         } else {
             return [
                 GroupStudentsTable::class,
+                GroupLessonsTable::class,
             ];
         }
     }

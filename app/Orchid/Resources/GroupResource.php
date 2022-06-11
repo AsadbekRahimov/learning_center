@@ -85,6 +85,10 @@ class GroupResource extends Resource
                 ->render(function ($model) {
                     return $model->students->count();
                 })->cantHide(),
+            TD::make('attand', 'O\'tilgan darslar')
+                ->render(function ($model) {
+                    return $model->lessons->count();
+                })->cantHide(),
             TD::make('branch_id', 'Filial')->filter(Relation::make('branch_id')->fromModel(Branch::class, 'name'))
                 ->render(function ($model) {
                     return $model->branch->name;
@@ -142,7 +146,7 @@ class GroupResource extends Resource
 
     public function with(): array
     {
-        return ['subject', 'branch'];
+        return ['subject', 'branch', 'lessons', 'students'];
     }
 
     public function filters(): array
