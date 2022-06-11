@@ -88,4 +88,19 @@ class Student extends Model
         'come_date',
         'branch_id',
     ];
+
+    public function attandances()
+    {
+        return $this->hasMany(Attandance::class, 'student_id', 'id');
+    }
+
+    public function attand_count()
+    {
+        return $this->attandances->where('attand', '=', 1)->count() . ' / ' . $this->attandances->count();
+    }
+
+    public function attand_percent()
+    {
+        return ($this->attandances->where('attand', '=', 1)->count() / $this->attandances->count()) * 100;
+    }
 }

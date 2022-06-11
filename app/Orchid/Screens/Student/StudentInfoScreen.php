@@ -37,6 +37,10 @@ class StudentInfoScreen extends Screen
                 'balance' => number_format($student->balance),
                 'debt' => number_format($student->debt),
                 'discount' => number_format($student->discount),
+                'attandances' => [
+                    'value' => $student->attand_count(),
+                    'diff' => $student->attand_percent()
+                ]
             ],
             'student_groups' => StudentGroup::query()->with('group.subject', 'student')
                 ->where('student_id', $student->id)->get(),
@@ -163,6 +167,7 @@ class StudentInfoScreen extends Screen
                 'Hisob' => 'metrics.balance',
                 'Qarz' => 'metrics.debt',
                 'Chegirma' => 'metrics.discount',
+                'Davomat' => 'metrics.attandances',
             ]),
 
             StudentGroupsTable::class,
