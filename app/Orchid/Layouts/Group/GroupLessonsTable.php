@@ -18,6 +18,7 @@ class GroupLessonsTable extends Table
      */
     protected $target = 'lessons';
 
+    protected $title = "Guruxdagi o'tilgan darslar ro'yhati";
     /**
      * Get the table cells to be displayed.
      *

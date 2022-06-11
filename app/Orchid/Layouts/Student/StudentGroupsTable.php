@@ -5,6 +5,7 @@ namespace App\Orchid\Layouts\Student;
 use App\Models\StudentGroup;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\DropDown;
+use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Layouts\Table;
 use Orchid\Screen\TD;
 
@@ -20,6 +21,7 @@ class StudentGroupsTable extends Table
      */
     protected $target = 'student_groups';
 
+    protected $title = 'Talaba qo\'shilgan guruxlar';
     /**
      * Get the table cells to be displayed.
      *
@@ -29,7 +31,7 @@ class StudentGroupsTable extends Table
     {
         return [
             TD::make('group_id', 'Gurux')->render(function (StudentGroup $student_groups) {
-                return $student_groups->group->name;
+                return Link::make($student_groups->group->name)->route('platform.groupInfo', ['group' => $student_groups->group_id]);
             }),
             TD::make('subject', 'Fan')->render(function (StudentGroup $student_groups) {
                 return $student_groups->group->subject->name;

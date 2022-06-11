@@ -10,15 +10,12 @@ use App\Orchid\Layouts\GroupListener;
 use App\Orchid\Layouts\Student\StudentGroupsTable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\ModalToggle;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\Select;
 use Orchid\Screen\Screen;
-use Orchid\Support\Color;
 use Orchid\Support\Facades\Alert;
 use Orchid\Support\Facades\Layout;
-use PHPUnit\TextUI\XmlConfiguration\Groups;
 
 class StudentInfoScreen extends Screen
 {
@@ -41,7 +38,8 @@ class StudentInfoScreen extends Screen
                 'debt' => number_format($student->debt),
                 'discount' => number_format($student->discount),
             ],
-            'student_groups' => StudentGroup::query()->with('group.subject', 'student')->where('student_id', $student->id)->get(),
+            'student_groups' => StudentGroup::query()->with('group.subject', 'student')
+                ->where('student_id', $student->id)->get(),
             'groups' => StudentGroup::query()->where('student_id', $student->id)->pluck('group_id'),
         ];
     }
