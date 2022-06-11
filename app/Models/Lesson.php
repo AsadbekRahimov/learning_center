@@ -16,6 +16,7 @@ class Lesson extends Model
     protected $fillable = [
        'date',
        'group_id',
+       'finish'
     ];
 
     public function group()

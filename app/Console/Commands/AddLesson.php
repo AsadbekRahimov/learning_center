@@ -48,13 +48,14 @@ class AddLesson extends Command
                         Lesson::query()->create([
                             'date' => date('Y-m-d'),
                             'group_id' => $group->id,
+                            'finish' => 0,
                         ]);
                     } elseif ($group->day_type === 'even' and in_array(date('l'), ["Tuesday", "Thursday", "Saturday"]))
                     {
                         Lesson::query()->create([
                             'date' => date('Y-m-d'),
                             'group_id' => $group->id,
-                            'finish' => false,
+                            'finish' => 0,
                         ]);
                     }
                 }
