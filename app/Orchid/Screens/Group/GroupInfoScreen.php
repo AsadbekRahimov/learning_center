@@ -5,6 +5,7 @@ namespace App\Orchid\Screens\Group;
 use App\Models\Attandance;
 use App\Models\Group;
 use App\Models\Lesson;
+use App\Models\Student;
 use App\Models\StudentGroup;
 use App\Orchid\Layouts\Group\GroupAttandTable;
 use App\Orchid\Layouts\Group\GroupLessonsTable;
@@ -120,7 +121,30 @@ class GroupInfoScreen extends Screen
         $lesson->save();
 
         $ids = Attandance::query()->where('lesson_id', $lesson->id)->where('attand', 1)->pluck('student_id');
-        StudentGroup::query()->where('group_id', $lesson->group_id)->whereIn('student_id', $ids)->decrement('lesson_limit');
+        //StudentGroup::query()->where('group_id', $lesson->group_id)->whereIn('student_id', $ids)->decrement('lesson_limit');
+
+        foreach (StudentGroup::query()->where('group_id', $lesson->group_id)->whereIn('student_id', $ids)->get() as $studentGroup)
+        {
+            $studentGroup->decrement('lesson_limit');
+            if ($studentGroup->lesson_limit === 0) {
+                $student = Student::query()->find($studentGroup->student_id);
+                $subject_price = $studentGroup->group->subject->price;
+                if ($student->balance > $subject_price) {
+                    $student->balance -= $subject_price;
+                } else {
+                    if ($student->balance > 0) {
+                        $student->debt = $subject_price - $student->balance;
+                        $student->balance = 0;
+                    } else {
+                        $student->debt += $subject_price;
+                    }
+                }
+                $student->save();
+                $studentGroup->update([
+                    'lesson_limit' => 12
+                ]);
+            }
+        }
         Alert::info('Davomat yakunlandi!');
     }
 
