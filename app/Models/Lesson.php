@@ -37,11 +37,17 @@ class Lesson extends Model
 
     public function attand_count()
     {
-        return $this->attandances->where('attand', '=', 1)->count() . ' / ' . $this->attandances->count();
+        if ($this->attandances->count())
+            return $this->attandances->where('attand', '=', 1)->count() . ' / ' . $this->attandances->count();
+        else
+            return 0;
     }
 
     public function attand_percent()
     {
-        return ($this->attandances->where('attand', '=', 1)->count() / $this->attandances->count()) * 100 . ' %';
+        if ($this->attandances->count())
+            return ($this->attandances->where('attand', '=', 1)->count() / $this->attandances->count()) * 100;
+        else
+            return 0;
     }
 }

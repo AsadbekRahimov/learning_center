@@ -6,6 +6,7 @@ use App\Models\Attandance;
 use App\Models\StudentGroup;
 use Illuminate\Support\Facades\Auth;
 use Orchid\Screen\Actions\Button;
+use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Fields\CheckBox;
 use Orchid\Screen\Layouts\Table;
 use Orchid\Screen\Repository;
@@ -35,7 +36,7 @@ class GroupAttandTable extends Table
     {
         return [
             TD::make('student_id', 'Talaba')->render(function (Attandance $attandance) {
-                return $attandance->student->name;
+                return Link::make($attandance->student->name)->route('platform.addStudentToGroup', ['student' => $attandance->student_id]);
             })->cantHide(),
             TD::make('attand', 'Davomat')->render(function (Attandance $attandance) {
                 return Button::make($attandance->attand ? 'Keldi' : 'Kelmadi')
