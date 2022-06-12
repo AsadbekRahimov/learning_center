@@ -120,7 +120,16 @@ class StudentInfoScreen extends Screen
     public function studentPayment(Request $request)
     {
         $student = Student::query()->find($request->student_id);
-        $student->balance += $request->sum;
+        if ($student->debt > 0) { // 300 qarz -- 200 toladi | 300 qarz -- 400 toladi
+            if ($student->debt > $request->sum) {
+                $student->debt -= $request->sum;
+            } else {
+                $student->balance += ($request->sum - $student->debt);
+                $student->debt = 0;
+            }
+        }else {
+            $student->balance += $request->sum;
+        }
         $student->save();
 
         Payment::query()->create([
