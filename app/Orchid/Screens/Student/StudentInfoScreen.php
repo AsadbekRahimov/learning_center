@@ -64,7 +64,7 @@ class StudentInfoScreen extends Screen
 
     public function description(): ?string
     {
-        return 'Talaba uchun xizmatar';
+        return 'Filial: ' . $this->student->branch->name;
     }
 
     public function permission(): ?iterable
@@ -86,10 +86,10 @@ class StudentInfoScreen extends Screen
                 ->modal('addToGroupModal')
                 ->method('addToGroup')
                 ->icon('organization'),
-            ModalToggle::make('Guruxni almashtirish')
+            /*ModalToggle::make('Guruxni almashtirish')
                 ->modal('changeGroupModal')
                 ->method('changeGroup')
-                ->icon('refresh'),
+                ->icon('refresh'),*/
             ModalToggle::make('Hisobni toldirish')
                 ->modal('paymentModal')
                 ->method('studentPayment')
@@ -147,7 +147,7 @@ class StudentInfoScreen extends Screen
             StudentGroup::query()->create([
                 'student_id' => $request->student_id,
                 'group_id' => $request->group_id,
-                'lesson_limit' => $request->lesson_limit,
+                'lesson_limit' => $request->has('lesson_limit') ? $request->lesson_limit : 0,
             ]);
             Alert::success('Talaba guruxga qo\'shildi');
         } else {
@@ -192,7 +192,7 @@ class StudentInfoScreen extends Screen
                         ->fromQuery(\App\Models\Group::where('branch_id', $this->student->branch_id)->whereNotIn('id', $this->groups), 'name')
                         ->title('Guruxni tanlang'),
                     Input::make('lesson_limit')->type('number')->required()->value(0)
-                        ->title('Dars limiti'),
+                        ->title('Dars limiti')->canSee(Auth::user()->hasAccess('platform.editLesson')),
                     Input::make('student_id')->value($this->student->id)->hidden(),
                 ]),
             ])->applyButton('Qo\'shish')->closeButton('Yopish')->title('Talabani guruxga qo\'shish'),
