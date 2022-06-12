@@ -7,12 +7,12 @@ use App\Models\Group;
 use App\Models\Payment;
 use App\Models\Student;
 use App\Models\StudentGroup;
-use App\Orchid\Layouts\GroupListener;
 use App\Orchid\Layouts\Student\StudentAttandanceTable;
 use App\Orchid\Layouts\Student\StudentGroupsTable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Orchid\Screen\Actions\ModalToggle;
+use Orchid\Screen\Fields\CheckBox;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\Select;
 use Orchid\Screen\Screen;
@@ -143,12 +143,18 @@ class StudentInfoScreen extends Screen
 
     public function addToGroup(Request $request)
     {
+        //dd($request->all());
         if ($request->has('group_id')) {
             StudentGroup::query()->create([
                 'student_id' => $request->student_id,
                 'group_id' => $request->group_id,
                 'lesson_limit' => $request->has('lesson_limit') ? $request->lesson_limit : 0,
             ]);
+            if ($request->has('payed')) {
+                if ($request->payed === '0') {
+                    $this->getMonthlyPayFromBalance($request->student_id, $request->group_id);
+                }
+            }
             Alert::success('Talaba guruxga qo\'shildi');
         } else {
             Alert::warning('Talabani guruxga qo\'shish uchun gurux mavjud emas');
@@ -192,8 +198,11 @@ class StudentInfoScreen extends Screen
                         ->fromQuery(\App\Models\Group::where('branch_id', $this->student->branch_id)->whereNotIn('id', $this->groups), 'name')
                         ->title('Guruxni tanlang'),
                     Input::make('lesson_limit')->type('number')->required()->value(0)
-                        ->title('Dars limiti')->canSee(Auth::user()->hasAccess('platform.editLesson')),
+                        ->title('Dars limiti')
+                        ->canSee(Auth::user()->hasAccess('platform.editLesson') && $this->student->branch->payment_period === 'daily'),
                     Input::make('student_id')->value($this->student->id)->hidden(),
+                    CheckBox::make('payed')->title('Oyni oxirigacha to\'lagan')->sendTrueOrFalse()
+                        ->canSee(Auth::user()->hasAccess('platform.editLesson') && $this->student->branch->payment_period === 'monthly'),
                 ]),
             ])->applyButton('Qo\'shish')->closeButton('Yopish')->title('Talabani guruxga qo\'shish'),
 
@@ -218,5 +227,13 @@ class StudentInfoScreen extends Screen
                 ]),
             ])->applyButton('To\'ldirish')->closeButton('Yopish')->title('Talaba hisobini to\'ldirish'),
         ];
+    }
+
+    private function getMonthlyPayFromBalance($student_id, $group_id)
+    {
+        $student = Student::query()->find($student_id);
+        $group = Group::query()->find($group_id);
+        $today = date('j');
+        $last_day = date('t');
     }
 }
