@@ -5,8 +5,10 @@ namespace App\Orchid\Screens\Group;
 use App\Models\Attandance;
 use App\Models\Group;
 use App\Models\Lesson;
+use App\Models\Student;
 use App\Models\StudentGroup;
 use App\Orchid\Layouts\Group\GroupAttandTable;
+use App\Orchid\Layouts\Group\GroupLessonsTable;
 use App\Orchid\Layouts\Group\GroupStudentsTable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -35,6 +37,8 @@ class GroupInfoScreen extends Screen
             'students' => StudentGroup::query()->with(['student'])->where('group_id', $group->id)->get(),
             'group' => $group,
             'attand' => Attandance::query()->where('lesson_id', $lesson->id ?? '')->get(),
+            'lessons' => Lesson::query()->with(['attandances'])->where('group_id', $group->id)
+                ->orderByDesc('id')->paginate(10),
         ];
     }
 
@@ -73,7 +77,7 @@ class GroupInfoScreen extends Screen
                 ->method('attandanceFinish')
                 ->canSee(Auth::user()->hasAccess('platform.attandance') && !is_null($this->lesson) && !$this->lesson->finish)
                 ->parameters([
-                    'id' => $this->lesson->id,
+                    'id' => $this->lesson->id ?? '',
                 ]),
         ];
     }
@@ -90,11 +94,13 @@ class GroupInfoScreen extends Screen
                 Layout::columns([
                     GroupAttandTable::class,
                     GroupStudentsTable::class,
-                ])
+                ]),
+                GroupLessonsTable::class,
             ];
         } else {
             return [
                 GroupStudentsTable::class,
+                GroupLessonsTable::class,
             ];
         }
     }
@@ -115,7 +121,30 @@ class GroupInfoScreen extends Screen
         $lesson->save();
 
         $ids = Attandance::query()->where('lesson_id', $lesson->id)->where('attand', 1)->pluck('student_id');
-        StudentGroup::query()->where('group_id', $lesson->group_id)->whereIn('student_id', $ids)->decrement('lesson_limit');
+        //StudentGroup::query()->where('group_id', $lesson->group_id)->whereIn('student_id', $ids)->decrement('lesson_limit');
+
+        foreach (StudentGroup::query()->where('group_id', $lesson->group_id)->whereIn('student_id', $ids)->get() as $studentGroup)
+        {
+            $studentGroup->decrement('lesson_limit');
+            if ($studentGroup->lesson_limit === 0) {
+                $student = Student::query()->find($studentGroup->student_id);
+                $subject_price = $studentGroup->group->subject->price;
+                if ($student->balance > $subject_price) {
+                    $student->balance -= $subject_price;
+                } else {
+                    if ($student->balance > 0) {
+                        $student->debt = $subject_price - $student->balance;
+                        $student->balance = 0;
+                    } else {
+                        $student->debt += $subject_price;
+                    }
+                }
+                $student->save();
+                $studentGroup->update([
+                    'lesson_limit' => 12
+                ]);
+            }
+        }
         Alert::info('Davomat yakunlandi!');
     }
 

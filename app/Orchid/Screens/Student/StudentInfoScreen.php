@@ -2,23 +2,22 @@
 
 namespace App\Orchid\Screens\Student;
 
+use App\Models\Attandance;
 use App\Models\Group;
 use App\Models\Payment;
 use App\Models\Student;
 use App\Models\StudentGroup;
 use App\Orchid\Layouts\GroupListener;
+use App\Orchid\Layouts\Student\StudentAttandanceTable;
 use App\Orchid\Layouts\Student\StudentGroupsTable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\ModalToggle;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\Select;
 use Orchid\Screen\Screen;
-use Orchid\Support\Color;
 use Orchid\Support\Facades\Alert;
 use Orchid\Support\Facades\Layout;
-use PHPUnit\TextUI\XmlConfiguration\Groups;
 
 class StudentInfoScreen extends Screen
 {
@@ -40,9 +39,16 @@ class StudentInfoScreen extends Screen
                 'balance' => number_format($student->balance),
                 'debt' => number_format($student->debt),
                 'discount' => number_format($student->discount),
+                'attandances' => [
+                    'value' => $student->attand_count(),
+                    'diff' => $student->attand_percent()
+                ]
             ],
-            'student_groups' => StudentGroup::query()->with('group.subject', 'student')->where('student_id', $student->id)->get(),
+            'student_groups' => StudentGroup::query()->with('group.subject', 'student')
+                ->where('student_id', $student->id)->get(),
             'groups' => StudentGroup::query()->where('student_id', $student->id)->pluck('group_id'),
+            'attandances' => Attandance::query()->with(['lesson.group'])->where('student_id', $student->id)
+                ->orderByDesc('id')->paginate(10),
         ];
     }
 
@@ -165,9 +171,11 @@ class StudentInfoScreen extends Screen
                 'Hisob' => 'metrics.balance',
                 'Qarz' => 'metrics.debt',
                 'Chegirma' => 'metrics.discount',
+                'Davomat' => 'metrics.attandances',
             ]),
 
             StudentGroupsTable::class,
+            StudentAttandanceTable::class,
 
             Layout::modal('addToGroupModal', [
                 Layout::rows([

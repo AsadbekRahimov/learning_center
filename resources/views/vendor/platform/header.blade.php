@@ -1,7 +1,7 @@
 @push('head')
     <meta name="robots" content="noindex" />
     <link
-          href="{{ asset('/vendor/orchid/favicon.svg') }}"
+          href="{{ asset('/vendor/orchid/icon/icon1.png') }}"
           sizes="any"
           type="image/svg+xml"
           id="favicon"
