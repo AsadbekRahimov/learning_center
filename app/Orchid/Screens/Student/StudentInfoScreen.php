@@ -189,7 +189,7 @@ class StudentInfoScreen extends Screen
             Layout::modal('addToGroupModal', [
                 Layout::rows([
                     Select::make('group_id')
-                        ->fromQuery(\App\Models\Group::where('branch_id', Auth::user()->branch_id)->whereNotIn('id', $this->groups), 'name')
+                        ->fromQuery(\App\Models\Group::where('branch_id', $this->student->branch_id)->whereNotIn('id', $this->groups), 'name')
                         ->title('Guruxni tanlang'),
                     Input::make('lesson_limit')->type('number')->required()->value(0)
                         ->title('Dars limiti'),
@@ -200,10 +200,10 @@ class StudentInfoScreen extends Screen
             Layout::modal('changeGroupModal', [
                 Layout::rows([
                     Select::make('source_group')
-                        ->fromQuery(\App\Models\Group::where('branch_id', Auth::user()->branch_id)->whereIn('id', $this->groups), 'name')
+                        ->fromQuery(\App\Models\Group::where('branch_id', $this->student->branch_id)->whereIn('id', $this->groups), 'name')
                         ->title('Guruxni tanlang'),
                     Select::make('target_group')
-                        ->fromQuery(\App\Models\Group::where('branch_id', Auth::user()->branch_id)->whereNotIn('id', $this->groups), 'name')
+                        ->fromQuery(\App\Models\Group::where('branch_id', $this->student->branch_id)->whereNotIn('id', $this->groups), 'name')
                         ->title('Guruxni tanlang'),
                     Input::make('student_id')->value($this->student->id)->hidden(),
                 ]),
