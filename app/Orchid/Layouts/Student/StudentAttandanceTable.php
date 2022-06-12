@@ -3,6 +3,7 @@
 namespace App\Orchid\Layouts\Student;
 
 use App\Models\Attandance;
+use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Layouts\Table;
 use Orchid\Screen\TD;
 
@@ -31,7 +32,8 @@ class StudentAttandanceTable extends Table
                 return $attandance->created_at->format('Y-m-d');
             }),
             TD::make('lesson_id', 'Gurux')->render(function (Attandance $attandance) {
-                 return $attandance->lesson->group->name;
+                 // return $attandance->lesson->group->name;
+                return Link::make($attandance->lesson->group->name)->route('platform.groupInfo', ['group' => $attandance->lesson->group_id]);
             }),
             TD::make('attand', 'Davomat')->render(function (Attandance $attandance) {
                 return $attandance->attand ? 'Bor' : 'Yo\'q';

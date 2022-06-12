@@ -36,7 +36,8 @@ class GroupInfoScreen extends Screen
             'students' => StudentGroup::query()->with(['student'])->where('group_id', $group->id)->get(),
             'group' => $group,
             'attand' => Attandance::query()->where('lesson_id', $lesson->id ?? '')->get(),
-            'lessons' => Lesson::query()->with(['attandances'])->orderByDesc('id')->paginate(10),
+            'lessons' => Lesson::query()->with(['attandances'])->where('group_id', $group->id)
+                ->orderByDesc('id')->paginate(10),
         ];
     }
 
