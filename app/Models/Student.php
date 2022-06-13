@@ -47,7 +47,7 @@ class Student extends Model
 
     public function registered()
     {
-        return $this->belongsTo(User::class, 'branch_id', 'id')->withTrashed();
+        return $this->belongsTo(User::class, 'registered_id', 'id')->withTrashed();
     }
 
     public function groups() {

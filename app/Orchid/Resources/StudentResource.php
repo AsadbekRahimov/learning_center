@@ -14,16 +14,16 @@ use Illuminate\Support\Facades\Auth;
 use Orchid\Crud\Filters\DefaultSorted;
 use Orchid\Crud\Resource;
 use Orchid\Crud\ResourceRequest;
+use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\Link;
-use Orchid\Screen\Actions\ModalToggle;
 use Orchid\Screen\Fields\CheckBox;
-use Orchid\Screen\Fields\DateTimer;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\Relation;
 use Orchid\Screen\Fields\Select;
 use Orchid\Screen\Fields\TextArea;
 use Orchid\Screen\Sight;
 use Orchid\Screen\TD;
+use Orchid\Support\Color;
 
 class StudentResource extends Resource
 {
@@ -136,8 +136,12 @@ class StudentResource extends Resource
                 ->render(function ($model) {
                     return Link::make($model->parent_phone)->href('tel:' . Student::telephone($model->parent_phone));
                 })->defaultHidden(),
-            TD::make('balance', 'Hisob')->sort()->cantHide(),
-            TD::make('debt', 'Qarz')->sort()->cantHide(),
+            TD::make('balance', 'Hisob')->render(function ($model) {
+                return Button::make($model->balance)->method('none')->type(Color::SUCCESS())->canSee($model->balance > 0);
+            })->sort()->cantHide(),
+            TD::make('debt', 'Qarz')->render(function ($model) {
+                return Button::make($model->debt)->type(Color::DANGER())->canSee($model->debt > 0);
+            })->sort()->cantHide(),
             TD::make('privilege', 'Saxovat')->render(function ($model) {
                 return $model->privilege ? 'Ha' : 'Yo`q';
                 })->sort()->filter(CheckBox::make()->title('Saxovat talabasi')->sendTrueOrFalse())->cantHide(),
@@ -243,6 +247,11 @@ class StudentResource extends Resource
         return [
 
         ];
+    }
+
+    public function none()
+    {
+
     }
 
     public function rules(Model $model): array

@@ -7,12 +7,12 @@ use App\Models\Group;
 use App\Models\Payment;
 use App\Models\Student;
 use App\Models\StudentGroup;
-use App\Orchid\Layouts\GroupListener;
 use App\Orchid\Layouts\Student\StudentAttandanceTable;
 use App\Orchid\Layouts\Student\StudentGroupsTable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Orchid\Screen\Actions\ModalToggle;
+use Orchid\Screen\Fields\CheckBox;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\Select;
 use Orchid\Screen\Screen;
@@ -64,7 +64,7 @@ class StudentInfoScreen extends Screen
 
     public function description(): ?string
     {
-        return 'Talaba uchun xizmatar';
+        return 'Filial: ' . $this->student->branch->name;
     }
 
     public function permission(): ?iterable
@@ -86,10 +86,10 @@ class StudentInfoScreen extends Screen
                 ->modal('addToGroupModal')
                 ->method('addToGroup')
                 ->icon('organization'),
-            ModalToggle::make('Guruxni almashtirish')
+            /*ModalToggle::make('Guruxni almashtirish')
                 ->modal('changeGroupModal')
                 ->method('changeGroup')
-                ->icon('refresh'),
+                ->icon('refresh'),*/
             ModalToggle::make('Hisobni toldirish')
                 ->modal('paymentModal')
                 ->method('studentPayment')
@@ -120,7 +120,16 @@ class StudentInfoScreen extends Screen
     public function studentPayment(Request $request)
     {
         $student = Student::query()->find($request->student_id);
-        $student->balance += $request->sum;
+        if ($student->debt > 0) { // 300 qarz -- 200 toladi | 300 qarz -- 400 toladi
+            if ($student->debt > $request->sum) {
+                $student->debt -= $request->sum;
+            } else {
+                $student->balance += ($request->sum - $student->debt);
+                $student->debt = 0;
+            }
+        }else {
+            $student->balance += $request->sum;
+        }
         $student->save();
 
         Payment::query()->create([
@@ -134,12 +143,18 @@ class StudentInfoScreen extends Screen
 
     public function addToGroup(Request $request)
     {
+        //dd($request->all());
         if ($request->has('group_id')) {
             StudentGroup::query()->create([
                 'student_id' => $request->student_id,
                 'group_id' => $request->group_id,
-                'lesson_limit' => $request->lesson_limit,
+                'lesson_limit' => $request->has('lesson_limit') ? $request->lesson_limit : 0,
             ]);
+            if ($request->has('payed')) {
+                if ($request->payed === '0') {
+                    $this->getMonthlyPayFromBalance($request->student_id, $request->group_id);
+                }
+            }
             Alert::success('Talaba guruxga qo\'shildi');
         } else {
             Alert::warning('Talabani guruxga qo\'shish uchun gurux mavjud emas');
@@ -180,21 +195,24 @@ class StudentInfoScreen extends Screen
             Layout::modal('addToGroupModal', [
                 Layout::rows([
                     Select::make('group_id')
-                        ->fromQuery(\App\Models\Group::where('branch_id', Auth::user()->branch_id)->whereNotIn('id', $this->groups), 'name')
+                        ->fromQuery(\App\Models\Group::where('branch_id', $this->student->branch_id)->whereNotIn('id', $this->groups), 'name')
                         ->title('Guruxni tanlang'),
                     Input::make('lesson_limit')->type('number')->required()->value(0)
-                        ->title('Dars limiti'),
+                        ->title('Dars limiti')
+                        ->canSee(Auth::user()->hasAccess('platform.editLesson') && $this->student->branch->payment_period === 'daily'),
                     Input::make('student_id')->value($this->student->id)->hidden(),
+                    CheckBox::make('payed')->title('Oyni oxirigacha to\'lagan')->sendTrueOrFalse()
+                        ->canSee(Auth::user()->hasAccess('platform.editLesson') && $this->student->branch->payment_period === 'monthly'),
                 ]),
             ])->applyButton('Qo\'shish')->closeButton('Yopish')->title('Talabani guruxga qo\'shish'),
 
             Layout::modal('changeGroupModal', [
                 Layout::rows([
                     Select::make('source_group')
-                        ->fromQuery(\App\Models\Group::where('branch_id', Auth::user()->branch_id)->whereIn('id', $this->groups), 'name')
+                        ->fromQuery(\App\Models\Group::where('branch_id', $this->student->branch_id)->whereIn('id', $this->groups), 'name')
                         ->title('Guruxni tanlang'),
                     Select::make('target_group')
-                        ->fromQuery(\App\Models\Group::where('branch_id', Auth::user()->branch_id)->whereNotIn('id', $this->groups), 'name')
+                        ->fromQuery(\App\Models\Group::where('branch_id', $this->student->branch_id)->whereNotIn('id', $this->groups), 'name')
                         ->title('Guruxni tanlang'),
                     Input::make('student_id')->value($this->student->id)->hidden(),
                 ]),
@@ -209,5 +227,13 @@ class StudentInfoScreen extends Screen
                 ]),
             ])->applyButton('To\'ldirish')->closeButton('Yopish')->title('Talaba hisobini to\'ldirish'),
         ];
+    }
+
+    private function getMonthlyPayFromBalance($student_id, $group_id)
+    {
+        $student = Student::query()->find($student_id);
+        $group = Group::query()->find($group_id);
+        $today = date('j');
+        $last_day = date('t');
     }
 }
