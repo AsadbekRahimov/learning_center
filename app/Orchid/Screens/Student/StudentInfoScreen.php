@@ -152,6 +152,7 @@ class StudentInfoScreen extends Screen
             ]);
             if ($request->has('payed')) {
                 if ($request->payed === '0') {
+                    // Kurs oldin tolanganlar
                     $this->getMonthlyPayFromBalance($request->student_id, $request->group_id);
                 }
             }
@@ -233,7 +234,18 @@ class StudentInfoScreen extends Screen
     {
         $student = Student::query()->find($student_id);
         $group = Group::query()->find($group_id);
-        $today = date('j');
-        $last_day = date('t');
+        $today = date('j'); // 14
+        $last_day = date('t'); // 30
+        $count = 0;
+        for($i = $today; $i <= $last_day; $i++)
+        {
+            $day = date('l', mktime(0, 0, 0, date('m'), $today, date('Y'))); // day name of the week
+            if ($group->day_type === 'even' and in_array($day, ['Tuesday', 'Thursday', 'Saturday'])) {
+                $count++;
+            }elseif ($group->day_type === 'odd' and in_array($day, ['Monday', 'Wednesday', 'Friday'])) {
+                $count++;
+            }
+            $date = date('Y-m-' . $i);
+        }
     }
 }
