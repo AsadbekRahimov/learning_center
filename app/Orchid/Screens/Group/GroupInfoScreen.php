@@ -12,6 +12,7 @@ use App\Orchid\Layouts\Group\GroupLessonsTable;
 use App\Orchid\Layouts\Group\GroupStudentsTable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Napa\R19\Sms;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Alert;
@@ -110,7 +111,7 @@ class GroupInfoScreen extends Screen
         $attandance = Attandance::query()->find($request->id);
         $attandance->attand = false;
         $attandance->save();
-        // TODO: Add sms notification for student parent
+        $this->sendMessageToStudent($attandance->student);
         Alert::info($attandance->student->name . ' bugun darsga kelmadi, bu xaqida uning ota onasiga xabar yuborildi!');
     }
 
@@ -151,5 +152,12 @@ class GroupInfoScreen extends Screen
     public function none()
     {
 
+    }
+
+    private function sendMessageToStudent(Student $student)
+    {
+        $phone = Student::telephoneFormMessage($student->phone);
+        $message = 'Farzandingiz: ' . $student->name . ' bugungi darsga kelmadi!' . "\n" . 'Xurmat bilan Saxovat ta\'lim';
+        Sms::send($phone, $message);
     }
 }

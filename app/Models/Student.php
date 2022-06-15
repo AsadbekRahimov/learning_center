@@ -63,6 +63,9 @@ class Student extends Model
     public static function telephone($number) {
         return '+998' . str_replace(['(', ')', '-', ' '], '', $number);
     }
+    public static function telephoneFormMessage($number) {
+        return '998' . str_replace(['(', ')', '-', ' '], '', $number);
+    }
 
     protected $allowedSorts = [
         'id',
