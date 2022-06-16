@@ -7,11 +7,13 @@ use App\Models\Group;
 use App\Models\Lesson;
 use App\Models\Student;
 use App\Models\StudentGroup;
+use App\Notifications\AdminNotify;
 use App\Orchid\Layouts\Group\GroupAttandTable;
 use App\Orchid\Layouts\Group\GroupLessonsTable;
 use App\Orchid\Layouts\Group\GroupStudentsTable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
 use Napa\R19\Sms;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Screen;
@@ -157,12 +159,13 @@ class GroupInfoScreen extends Screen
     private function sendMessageToStudent(Student $student)
     {
         $phone = Student::telephoneFormMessage($student->phone);
+        $erro_message = 'Talaba davomati haqida sms yuborishda xatolik. Raqam: ' . $phone;
         # TODO change sms text
         $message = 'Farzandingiz: ' . $student->name . ' bugungi darsga kelmadi!' . "\n" . 'Xurmat bilan Saxovat ta\'lim';
         try {
             Sms::send($phone, $message);
         }catch (\Exception $e){
-            # TODO send notify to telegram
+            Notification::send($erro_message, new AdminNotify()); // TODO check notify working
         }
     }
 }
