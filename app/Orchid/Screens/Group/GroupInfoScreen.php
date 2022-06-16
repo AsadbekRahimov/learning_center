@@ -157,7 +157,12 @@ class GroupInfoScreen extends Screen
     private function sendMessageToStudent(Student $student)
     {
         $phone = Student::telephoneFormMessage($student->phone);
+        # TODO change sms text
         $message = 'Farzandingiz: ' . $student->name . ' bugungi darsga kelmadi!' . "\n" . 'Xurmat bilan Saxovat ta\'lim';
-        Sms::send($phone, $message);
+        try {
+            Sms::send($phone, $message);
+        }catch (\Exception $e){
+            # TODO send notify to telegram
+        }
     }
 }
