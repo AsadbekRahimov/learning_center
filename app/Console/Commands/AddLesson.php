@@ -6,7 +6,9 @@ use App\Models\Branch;
 use App\Models\Group;
 use App\Models\Lesson;
 use App\Models\RedDay;
+use App\Notifications\AdminNotify;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Notification;
 
 class AddLesson extends Command
 {
@@ -60,7 +62,8 @@ class AddLesson extends Command
                     }
                 }
             } else {
-                // TODO : red days notifier
+                $message = 'Bugungi sana ishlanmaydigan kunlar sirasiga kiradi, shu sababdan bu kun uchun darslar qo\'yilmadi!';
+                Notification::send($message, new AdminNotify()); // TODO check notify working
             }
         }
     }
