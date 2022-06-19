@@ -183,6 +183,7 @@ class StudentInfoScreen extends Screen
 
     public function deleteFromGroup(Request $request)
     {
+        // TODO add delete from group logic for branches
         $student_group = StudentGroup::query()->find($request->id);
         $student = Student::query()->find($student_group->student_id);
         $returned_balance = round(($student_group->group->subject->price / 12) * $student_group->lesson_limit);

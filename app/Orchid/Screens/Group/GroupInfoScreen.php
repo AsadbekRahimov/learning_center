@@ -119,6 +119,7 @@ class GroupInfoScreen extends Screen
 
     public function attandanceFinish(Request $request)
     {
+        // TODO don`t increment if branch payment is monthly
         $lesson = Lesson::query()->find($request->id);
         $lesson->finish = true;
         $lesson->save();
