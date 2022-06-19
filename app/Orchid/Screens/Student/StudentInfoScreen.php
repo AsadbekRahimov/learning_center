@@ -145,13 +145,15 @@ class StudentInfoScreen extends Screen
     {
         //dd($request->all());
         if ($request->has('group_id')) {
-
+            $student = Student::query()->find($request->student_id);
+            $group = Group::query()->with(['subject'])->find($request->group_id);
             StudentGroup::query()->create([
                 'student_id' => $request->student_id,
                 'group_id' => $request->group_id,
-                'lesson_limit' => $request->has('lesson_limit') ? $request->lesson_limit : 0,
+                'lesson_limit' => $request->has('lesson_limit') ? $request->lesson_limit : 12,
             ]);
-            if ($request->has('payed')) {
+
+            if ($request->has('payed')) { // Talaba oylik rejimda royhatdan o`tganda | oydi oxirigacha tolovni xisoblash
                 if ($request->payed === '0') {
                     // Kurs oldin tolanganlar
                     $results = $this->getMonthlyPayFromBalance($request->student_id, $request->group_id);
@@ -159,7 +161,19 @@ class StudentInfoScreen extends Screen
                         ' ta dars xisobidan ' . $results['price'] . ' so\'m talabaning xisobidan yechildi');
                 }
             } else {
-                Alert::success('Talaba guruxga qo\'shildi');
+                if (!$request->has('lesson_limit')) { // qolgan dars limiti kiritilmagandagi xolatda
+                    if ($student->balance >= $group->subject->price) {
+                        $student->balance -= $group->subject->price;
+                    } else {
+                        $student->debt += ($group->subject->price - $student->balance);
+                        $student->balance = 0;
+                    }
+                    $student->save();
+                    Alert::success('Talaba guruxga qo\'shildi, Uning xisobidan 12 ta dars uchun ' . $group->subject->price
+                        . ' miqdoridagi pul yechib olindi');
+                } else {
+                    Alert::success('Talaba guruxga qo\'shildi');
+                }
             }
 
         } else {
