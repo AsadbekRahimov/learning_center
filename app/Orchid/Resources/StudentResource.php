@@ -137,13 +137,15 @@ class StudentResource extends Resource
                     return Link::make($model->parent_phone)->href('tel:' . Student::telephone($model->parent_phone));
                 })->defaultHidden(),
             TD::make('balance', 'Hisob')->render(function ($model) {
-                return Button::make($model->balance)->method('none')->type(Color::SUCCESS())->canSee($model->balance > 0);
+                return Button::make($model->balance)->method('none')->type(Color::SUCCESS())
+                    ->canSee($model->balance > 0)->disabled();
             })->sort()->cantHide(),
             TD::make('debt', 'Qarz')->render(function ($model) {
-                return Button::make($model->debt)->type(Color::DANGER())->canSee($model->debt > 0);
+                return Button::make($model->debt)->type(Color::DANGER())->canSee($model->debt > 0)->disabled();
             })->sort()->cantHide(),
             TD::make('privilege', 'Saxovat')->render(function ($model) {
-                return $model->privilege ? 'Ha' : 'Yo`q';
+                return Button::make($model->privilege ? 'Ha' : 'Yo`q')
+                    ->type($model->privilege ? Color::WARNING() : Color::PRIMARY())->disabled();
                 })->sort()->filter(CheckBox::make()->title('Saxovat talabasi')->sendTrueOrFalse())->cantHide(),
             TD::make('status', 'Talim bosqichi')->render(function ($model) {
                 return Student::STATUS[$model->status];

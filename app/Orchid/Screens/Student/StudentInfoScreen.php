@@ -145,6 +145,7 @@ class StudentInfoScreen extends Screen
     {
         //dd($request->all());
         if ($request->has('group_id')) {
+
             StudentGroup::query()->create([
                 'student_id' => $request->student_id,
                 'group_id' => $request->group_id,
@@ -153,10 +154,14 @@ class StudentInfoScreen extends Screen
             if ($request->has('payed')) {
                 if ($request->payed === '0') {
                     // Kurs oldin tolanganlar
-                    $this->getMonthlyPayFromBalance($request->student_id, $request->group_id);
+                    $results = $this->getMonthlyPayFromBalance($request->student_id, $request->group_id);
+                    Alert::success('Talaba guruxga qo\'shildi. Bu guruxda oy oxirigacha qolgan ' . $results['days'] .
+                        ' ta dars xisobidan ' . $results['price'] . ' so\'m talabaning xisobidan yechildi');
                 }
+            } else {
+                Alert::success('Talaba guruxga qo\'shildi');
             }
-            Alert::success('Talaba guruxga qo\'shildi');
+
         } else {
             Alert::warning('Talabani guruxga qo\'shish uchun gurux mavjud emas');
         }
@@ -204,6 +209,8 @@ class StudentInfoScreen extends Screen
                     Input::make('student_id')->value($this->student->id)->hidden(),
                     CheckBox::make('payed')->title('Oyni oxirigacha to\'lagan')->sendTrueOrFalse()
                         ->canSee(Auth::user()->hasAccess('platform.editLesson') && $this->student->branch->payment_period === 'monthly'),
+                    Input::make('payed')->hidden()->value(0)->canSee(!Auth::user()->hasAccess('platform.editLesson')
+                        && $this->student->branch->payment_period === 'monthly')
                 ]),
             ])->applyButton('Qo\'shish')->closeButton('Yopish')->title('Talabani guruxga qo\'shish'),
 
@@ -233,19 +240,45 @@ class StudentInfoScreen extends Screen
     private function getMonthlyPayFromBalance($student_id, $group_id)
     {
         $student = Student::query()->find($student_id);
-        $group = Group::query()->find($group_id);
-        $today = date('j'); // 14
-        $last_day = date('t'); // 30
-        $count = 0;
-        for($i = $today; $i <= $last_day; $i++)
+        $group = Group::query()->with(['subject'])->find($group_id);
+        $today = date('j'); // number of  current date this month
+        $last_day = date('t'); // number of last day in month
+        $remaining_lessons = 0;
+        $lessons_this_month = 0;
+        for($i = $today + 1; $i <= $last_day; $i++) // calculate remaining lessons
         {
-            $day = date('l', mktime(0, 0, 0, date('m'), $today, date('Y'))); // day name of the week
+            $day = date('l', mktime(0, 0, 0, date('m'), $i, date('Y'))); // day name of the week
             if ($group->day_type === 'even' and in_array($day, ['Tuesday', 'Thursday', 'Saturday'])) {
-                $count++;
+                $remaining_lessons++;
             }elseif ($group->day_type === 'odd' and in_array($day, ['Monday', 'Wednesday', 'Friday'])) {
-                $count++;
+                $remaining_lessons++;
             }
-            $date = date('Y-m-' . $i);
         }
+
+        for($i = 1; $i <= $last_day; $i++) // calculate all lessons count in this month
+        {
+            $day = date('l', mktime(0, 0, 0, date('m'), $i, date('Y'))); // day name of the week
+            if ($group->day_type === 'even' and in_array($day, ['Tuesday', 'Thursday', 'Saturday'])) {
+                $lessons_this_month++;
+            }elseif ($group->day_type === 'odd' and in_array($day, ['Monday', 'Wednesday', 'Friday'])) {
+                $lessons_this_month++;
+            }
+        }
+
+        $remaining_payment_for_this_month = round(($group->subject->price / $lessons_this_month) * $remaining_lessons, -3);
+        if ($student->balance >= $remaining_payment_for_this_month) {
+            $student->balance -= $remaining_payment_for_this_month;
+        } else {
+            $student->debt += $remaining_payment_for_this_month - $student->balance;
+            $student->balance = 0;
+        }
+        $student->save();
+
+        $results = [
+            'days' => $lessons_this_month,
+            'price' => $remaining_payment_for_this_month,
+        ];
+
+        return $results;
     }
 }
