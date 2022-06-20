@@ -218,7 +218,9 @@ class StudentInfoScreen extends Screen
                 }
             }
 
-            $returning_payment_for_this_month = round(($group->group->subject->price / $lessons_this_month) * $returning_lessons, -3);
+            if ($lessons_this_month) {
+                $returning_payment_for_this_month = round(($group->group->subject->price / $lessons_this_month) * $returning_lessons, -3);
+            }
 
             if ($student->debt >= $returning_payment_for_this_month) {
                 $student->debt -= $returning_payment_for_this_month;
@@ -320,7 +322,10 @@ class StudentInfoScreen extends Screen
             }
         }
 
-        $remaining_payment_for_this_month = round(($group->subject->price / $lessons_this_month) * $remaining_lessons, -3);
+        if ($lessons_this_month) {
+            $remaining_payment_for_this_month = round(($group->subject->price / $lessons_this_month) * $remaining_lessons, -3);
+        }
+
         if ($student->balance >= $remaining_payment_for_this_month) {
             $student->balance -= $remaining_payment_for_this_month;
         } else {
