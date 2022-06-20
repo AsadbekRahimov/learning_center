@@ -186,11 +186,14 @@ class StudentInfoScreen extends Screen
         // TODO add delete from group logic for branches
         $student_group = StudentGroup::query()->find($request->id);
         $student = Student::query()->find($student_group->student_id);
-        $returned_balance = round(($student_group->group->subject->price / 12) * $student_group->lesson_limit);
-        $student->balance += (int)$returned_balance;
-        $student->save();
-        $student_group->delete();
-        Alert::success('Talaba guruxdan o\'chirildi, uning xisobiga qolgan dars limitlari xisobidan ' . $returned_balance . ' so\'m qaytarildi');
+        if ($student->branch->payment_period == 'daily')
+        {
+            $returned_balance = round(($student_group->group->subject->price / 12) * $student_group->lesson_limit, -3);
+            $student->balance += (int)$returned_balance;
+            $student->save();
+            $student_group->delete();
+            Alert::success('Talaba guruxdan o\'chirildi, uning xisobida qolgan dars limitlari xisobidan ' . $returned_balance . ' so\'m qaytarildi');
+        }
     }
 
 
