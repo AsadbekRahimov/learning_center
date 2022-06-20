@@ -119,7 +119,7 @@ class GroupInfoScreen extends Screen
 
     public function attandanceFinish(Request $request)
     {
-        // TODO don`t increment if branch payment is monthly
+
         $lesson = Lesson::query()->find($request->id);
         $lesson->finish = true;
         $lesson->save();
@@ -127,26 +127,29 @@ class GroupInfoScreen extends Screen
         $ids = Attandance::query()->where('lesson_id', $lesson->id)->where('attand', 1)->pluck('student_id');
         //StudentGroup::query()->where('group_id', $lesson->group_id)->whereIn('student_id', $ids)->decrement('lesson_limit');
 
-        foreach (StudentGroup::query()->where('group_id', $lesson->group_id)->whereIn('student_id', $ids)->get() as $studentGroup)
+        foreach (StudentGroup::query()->with(['student.branch'])->where('group_id', $lesson->group_id)
+                     ->whereIn('student_id', $ids)->get() as $studentGroup)
         {
-            $studentGroup->decrement('lesson_limit');
-            if ($studentGroup->lesson_limit === 0) {
-                $student = Student::query()->find($studentGroup->student_id);
-                $subject_price = $studentGroup->group->subject->price;
-                if ($student->balance > $subject_price) {
-                    $student->balance -= $subject_price;
-                } else {
-                    if ($student->balance > 0) {
-                        $student->debt = $subject_price - $student->balance;
-                        $student->balance = 0;
+            if ($studentGroup->student->branch->payment_period === 'daily') {
+                $studentGroup->decrement('lesson_limit');
+                if ($studentGroup->lesson_limit === 0) {
+                    $student = Student::query()->find($studentGroup->student_id);
+                    $subject_price = $studentGroup->group->subject->price;
+                    if ($student->balance > $subject_price) {
+                        $student->balance -= $subject_price;
                     } else {
-                        $student->debt += $subject_price;
+                        if ($student->balance > 0) {
+                            $student->debt = $subject_price - $student->balance;
+                            $student->balance = 0;
+                        } else {
+                            $student->debt += $subject_price;
+                        }
                     }
+                    $student->save();
+                    $studentGroup->update([
+                        'lesson_limit' => 12
+                    ]);
                 }
-                $student->save();
-                $studentGroup->update([
-                    'lesson_limit' => 12
-                ]);
             }
         }
         Alert::info('Davomat yakunlandi!');
