@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Student;
 use App\Notifications\AdminNotify;
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Notification;
 use Napa\R19\Sms;
 
@@ -31,11 +32,13 @@ class PaymentInfo extends Command
      */
     public function handle()
     {
-        // TODO parent phone or student phone, sms text | only monthly branch
+        // TODO  sms text replace
         $numbers = [];
         $message = 'O\'qish uchun to\'lov muddati keldi, tolovni tezroq amalga oshirishingizni soraymiz. Saxovat ta\'lim';
-        if (date('d') == 16) {
-            $numbers = Student::query()->whereNotNull('parent_phone')->pluck('parent_phone');
+        if (date('j') === date('t')) {
+            $numbers = Student::query()->with(['branch'])->whereHas('branch', function (Builder $query) {
+                 $query->where('payment_period', '=', 'monthly');
+            })->whereNotNull('phone')->pluck('phone');
         }
 
         foreach ($numbers as $number)
@@ -44,8 +47,9 @@ class PaymentInfo extends Command
             try {
                 Sms::send(Student::telephoneFormMessage($number), $message);
             }catch (\Exception $e){
-                Notification::send($erro_message, new AdminNotify()); // TODO check notify working
+                //Notification::send($erro_message, new AdminNotify()); // TODO check notify working
             }
+            sleep(3);
         }
     }
 }
