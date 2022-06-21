@@ -335,7 +335,7 @@ class StudentInfoScreen extends Screen
         $student->save();
 
         $results = [
-            'days' => $lessons_this_month,
+            'days' => $remaining_lessons,
             'price' => $remaining_payment_for_this_month,
         ];
 
