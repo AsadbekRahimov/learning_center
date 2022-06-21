@@ -44,23 +44,27 @@ class GroupResource extends Resource
     public function fields(): array
     {
         return [
-            Input::make('name')
-                ->title('Gurux nomi')
-                ->required()
-                ->placeholder('Gurux nomini kiriting'),
-            Select::make('subject_id')
-                ->title('Fan')
-                ->fromQuery(Subject::where('branch_id', '=', Auth::user()->branch_id), 'name')
-                ->required(),
-            Select::make('day_type')
-                ->title('Dars kunlari')
-                ->options(Group::DAY_TYPE)
-                ->required(),
-            CheckBox::make('is_active')->title('Aktiv')
-                ->sendTrueOrFalse()->value(true)->help('Guruxning xozirgi paytdagi aktivligi'),
-            Input::make('branch_id')->type('hidden')->value(Auth::user()->branch_id)->required()->canSee($this->branch_user),
-            Select::make('branch_id')->fromModel(Branch::class, 'name')
-                ->value(Auth::user()->branch_id)->title('Filialni tanlang')->canSee(!$this->branch_user),
+            \Orchid\Screen\Fields\Group::make([
+                Input::make('name')
+                    ->title('Gurux nomi')
+                    ->required()
+                    ->placeholder('Gurux nomini kiriting'),
+                Select::make('subject_id')
+                    ->title('Fan')
+                    ->fromQuery(Subject::where('branch_id', '=', Auth::user()->branch_id), 'name')
+                    ->required(),
+                Select::make('day_type')
+                    ->title('Dars kunlari')
+                    ->options(Group::DAY_TYPE)
+                    ->required(),
+            ]),
+            \Orchid\Screen\Fields\Group::make([
+                Select::make('branch_id')->fromModel(Branch::class, 'name')
+                    ->value(Auth::user()->branch_id)->title('Filialni tanlang')->canSee(!$this->branch_user),
+                CheckBox::make('is_active')->title('Aktiv')
+                    ->sendTrueOrFalse()->value(true)->help('Guruxning xozirgi paytdagi aktivligi'),
+                Input::make('branch_id')->type('hidden')->value(Auth::user()->branch_id)->required()->canSee($this->branch_user),
+            ]),
         ];
     }
 

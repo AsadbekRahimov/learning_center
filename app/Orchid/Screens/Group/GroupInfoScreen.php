@@ -94,16 +94,18 @@ class GroupInfoScreen extends Screen
     {
         if (Auth::user()->hasAccess('platform.attandance') && !is_null($this->lesson) && !$this->lesson->finish) {
             return [
-                Layout::columns([
-                    GroupAttandTable::class,
-                    GroupStudentsTable::class,
+                Layout::tabs([
+                   'Guruxning bugungi davomati' => GroupAttandTable::class,
+                   'Guruxdagi talabalar ro\'yhati' => GroupStudentsTable::class,
+                   'Guruxdagi o\'tilgan darslar ro\'yhati' => GroupLessonsTable::class,
                 ]),
-                GroupLessonsTable::class,
             ];
         } else {
             return [
-                GroupStudentsTable::class,
-                GroupLessonsTable::class,
+                Layout::tabs([
+                    'Guruxdagi talabalar ro\'yhati' => GroupStudentsTable::class,
+                    'Guruxdagi o\'tilgan darslar ro\'yhati' => GroupLessonsTable::class,
+                ]),
             ];
         }
     }

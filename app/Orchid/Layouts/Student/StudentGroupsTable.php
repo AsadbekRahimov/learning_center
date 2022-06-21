@@ -20,8 +20,6 @@ class StudentGroupsTable extends Table
      * @var string
      */
     protected $target = 'student_groups';
-
-    protected $title = 'Talaba qo\'shilgan guruxlar';
     /**
      * Get the table cells to be displayed.
      *
