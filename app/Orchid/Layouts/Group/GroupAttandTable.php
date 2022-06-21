@@ -30,7 +30,6 @@ class GroupAttandTable extends Table
      *
      * @return TD[]
      */
-    protected $title = "Guruxning bugungi davomati";
 
     protected function columns(): iterable
     {

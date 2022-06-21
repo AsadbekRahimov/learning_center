@@ -45,10 +45,10 @@ class StudentInfoScreen extends Screen
                 ]
             ],
             'student_groups' => StudentGroup::query()->with('group.subject', 'student')
-                ->where('student_id', $student->id)->get(),
+                ->where('student_id', $student->id)->paginate(15),
             'groups' => StudentGroup::query()->where('student_id', $student->id)->pluck('group_id'),
             'attandances' => Attandance::query()->with(['lesson.group'])->where('student_id', $student->id)
-                ->orderByDesc('id')->paginate(10),
+                ->orderByDesc('id')->paginate(15),
         ];
     }
 
@@ -252,8 +252,10 @@ class StudentInfoScreen extends Screen
                 'Davomat' => 'metrics.attandances',
             ]),
 
-            StudentGroupsTable::class,
-            StudentAttandanceTable::class,
+            Layout::tabs([
+                 'Talaba qo\'shilgan guruxlar' => StudentGroupsTable::class,
+                 'Talabaning davomati' => StudentAttandanceTable::class,
+            ]),
 
             Layout::modal('addToGroupModal', [
                 Layout::rows([
@@ -335,7 +337,7 @@ class StudentInfoScreen extends Screen
         $student->save();
 
         $results = [
-            'days' => $lessons_this_month,
+            'days' => $remaining_lessons,
             'price' => $remaining_payment_for_this_month,
         ];
 

@@ -7,6 +7,7 @@ use App\Orchid\Filters\WithTrashed;
 use Illuminate\Database\Eloquent\Model;
 use Orchid\Crud\Filters\DefaultSorted;
 use Orchid\Crud\Resource;
+use Orchid\Screen\Fields\Group;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\Select;
 use Orchid\Screen\Sight;
@@ -20,14 +21,16 @@ class BranchResource extends Resource
     public function fields(): array
     {
         return [
-            Input::make('name')
-                ->title('Filial nomi')
-                ->placeholder('O`quv markazining filial nomini kiriting')
-                ->required(),
-            Select::make('payment_period')
-                ->title('To\'lov davomiyligi')
-                ->options(Branch::PAYMENT_PERIOD)
-                ->required(),
+            Group::make([
+                Input::make('name')
+                    ->title('Filial nomi')
+                    ->placeholder('O`quv markazining filial nomini kiriting')
+                    ->required(),
+                Select::make('payment_period')
+                    ->title('To\'lov davomiyligi')
+                    ->options(Branch::PAYMENT_PERIOD)
+                    ->required(),
+            ]),
         ];
     }
 
