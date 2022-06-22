@@ -41,7 +41,7 @@ class GroupAttandTable extends Table
                 return Button::make($attandance->attand ? 'Keldi' : 'Kelmadi')
                     ->method('notComing')->type($attandance->attand ? Color::SUCCESS() : Color::DANGER())->parameters([
                         'id' => $attandance->id,
-                    ]);
+                    ])->disabled($attandance->student->status === 'stopped');
             })->cantHide(),
         ];
     }
