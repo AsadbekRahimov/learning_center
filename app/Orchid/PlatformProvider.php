@@ -135,7 +135,8 @@ class PlatformProvider extends OrchidServiceProvider
                 ->addPermission('platform.payments', 'To\'lovlar')
                 ->addPermission('platform.groupInfo', 'Gurux ma\'lumotlari')
                 ->addPermission('platform.attandance', 'Yo\'qlama qilish')
-                ->addPermission('platform.editLesson', 'Dars limitini o`zgartirish'),
+                ->addPermission('platform.editLesson', 'Dars limitini o`zgartirish')
+                ->addPermission('platform.editStudentStatus', 'Talabaning talim bosqichini o`zgartirish'),
 
             ItemPermission::group('Hisobotlar')
                 ->addPermission('platform.payments.list', 'To\'lovlar'),

@@ -98,21 +98,19 @@ class StudentResource extends Resource
                     ->required()
                     ->help('To`ldirish majburiy'),
             ]),
-            /*Select::make('status')
-                ->title('Talabaning ta`lim bosqichi')
-                ->options(Student::STATUS)
-                ->required()
-                ->help('To`ldirish majburiy'),*/
-            Group::make([
-                TextArea::make('comment')->title('Talaba uchun izoh'),
-                TextArea::make('hobbies')->title('Talabaning qizishlari (Hobbiy)'),
-            ]),
             Group::make([
                 Select::make('branch_id')->fromModel(Branch::class, 'name')
                     ->value(Auth::user()->branch_id)->title('Filialni tanlang')->canSee(!$this->branch_user),
+                Select::make('status')->options(Student::STATUS)->title('Talim bosqichi')
+                    ->help('To`ldirish majburiy')
+                    ->required()->canSee(Auth::user()->hasAccess('platform.editStudentStatus')),
                 CheckBox::make('privilege')
                     ->title('Saxovat talabasimi?')
                     ->sendTrueOrFalse()->vertical(),
+            ]),
+            Group::make([
+                TextArea::make('comment')->title('Talaba uchun izoh'),
+                TextArea::make('hobbies')->title('Talabaning qizishlari (Hobbiy)'),
             ]),
             Input::make('registered_id')
                 ->type('hidden')
@@ -161,7 +159,7 @@ class StudentResource extends Resource
                     ->type($model->privilege ? Color::WARNING() : Color::PRIMARY())->disabled();
                 })->sort()->filter(CheckBox::make()->title('Saxovat talabasi')->sendTrueOrFalse())->cantHide(),
             TD::make('status', 'Talim bosqichi')->render(function ($model) {
-                return Student::STATUS[$model->status];
+                    return  Student::STATUS[$model->status];
                 })->cantHide(),
             TD::make('source_id', 'Hamkor')->render(function ($model) {
                     return $model->source->name;
@@ -198,6 +196,10 @@ class StudentResource extends Resource
     {
         return [
             Sight::make('id', 'ID'),
+            Sight::make('status', 'Talim bosqichi')
+                ->render(function ($model) {
+                    return Student::STATUS[$model->status];
+                }),
             Sight::make('name', 'Ismi'),
             Sight::make('surname', 'Familiyasi'),
             Sight::make('lastname', 'Otasining ismi'),
@@ -209,7 +211,7 @@ class StudentResource extends Resource
             Sight::make('address', 'Manzili'),
             Sight::make('tg_username', 'Telegram username')
                 ->render(function ($model) {
-                    return Link::make($model->tg_username)->href('https://t.me/' . Student::telephone($model->tg_username))->target('_blank');
+                    return Link::make($model->tg_username)->href('https://t.me/' . $model->tg_username)->target('_blank');
                 }),
             Sight::make('parent_phone', 'Ota Ona raqami')
                 ->render(function ($model) {
@@ -218,10 +220,6 @@ class StudentResource extends Resource
             Sight::make('come_date', 'Kelgan sanasi'),
             Sight::make('balance', 'Hisob'),
             Sight::make('debt', 'Qarz'),
-            Sight::make('status', 'Talim bosqichi')
-                ->render(function ($model) {
-                    return Student::STATUS[$model->status];
-                }),
             Sight::make('source_id', 'Hamkor')->render(function ($model) {
                 return $model->source->name;
             }),
