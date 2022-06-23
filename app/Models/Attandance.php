@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Orchid\Attachment\Attachable;
 use Orchid\Filters\Filterable;
 use Orchid\Screen\AsSource;
+use Orchid\Support\Color;
 
 class Attandance extends Model
 {
@@ -17,6 +18,12 @@ class Attandance extends Model
         'lesson_id',
         'student_id',
         'attand',
+    ];
+
+    public const STATUS = [
+        1 => 'Keldi',
+        2 => 'To`xtatilgan',
+        0 => 'Kelmadi'
     ];
 
     public function lesson()

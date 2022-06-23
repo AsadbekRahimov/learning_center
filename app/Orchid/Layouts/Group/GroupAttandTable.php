@@ -3,13 +3,9 @@
 namespace App\Orchid\Layouts\Group;
 
 use App\Models\Attandance;
-use App\Models\StudentGroup;
-use Illuminate\Support\Facades\Auth;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\Link;
-use Orchid\Screen\Fields\CheckBox;
 use Orchid\Screen\Layouts\Table;
-use Orchid\Screen\Repository;
 use Orchid\Screen\TD;
 use Orchid\Support\Color;
 
@@ -38,10 +34,10 @@ class GroupAttandTable extends Table
                 return Link::make($attandance->student->name)->route('platform.addStudentToGroup', ['student' => $attandance->student_id]);
             })->cantHide(),
             TD::make('attand', 'Davomat')->render(function (Attandance $attandance) {
-                return Button::make($attandance->attand ? 'Keldi' : 'Kelmadi')
+                return Button::make(Attandance::STATUS[$attandance->attand])
                     ->method('notComing')->type($attandance->attand ? Color::SUCCESS() : Color::DANGER())->parameters([
                         'id' => $attandance->id,
-                    ])->disabled($attandance->student->status === 'stopped');
+                    ])->disabled(in_array($attandance->attand, [0, 2]));
             })->cantHide(),
         ];
     }
