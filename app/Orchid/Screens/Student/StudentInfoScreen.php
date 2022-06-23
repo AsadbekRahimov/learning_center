@@ -59,7 +59,7 @@ class StudentInfoScreen extends Screen
      */
     public function name(): ?string
     {
-        return $this->student->name;
+        return $this->student->name . ' | Ta\'lim bosqichi: ' . Student::STATUS[$this->student->status];
     }
 
     public function description(): ?string
@@ -81,11 +81,13 @@ class StudentInfoScreen extends Screen
      */
     public function commandBar(): iterable
     {
+        $modal_title = $this->student->status == 'accepted' ? 'Guruxga qo\'shish' : 'Talabaning ta\'lim bosqichi faol bolishi kerak!';
         return [
             ModalToggle::make('Guruxga qo\'shish')
                 ->modal('addToGroupModal')
                 ->method('addToGroup')
-                ->icon('organization'),
+                ->icon('organization')
+                ->modalTitle($modal_title),
             /*ModalToggle::make('Guruxni almashtirish')
                 ->modal('changeGroupModal')
                 ->method('changeGroup')
@@ -261,8 +263,8 @@ class StudentInfoScreen extends Screen
                 Layout::rows([
                     Select::make('group_id')
                         ->fromQuery(\App\Models\Group::where('branch_id', $this->student->branch_id)->whereNotIn('id', $this->groups), 'name')
-                        ->title('Guruxni tanlang'),
-                    Input::make('lesson_limit')->type('number')->required()->value(0)
+                        ->title('Guruxni tanlang')->disabled($this->student->status != 'accepted'),
+                    Input::make('lesson_limit')->type('number')->required()->value(12)
                         ->title('Dars limiti')
                         ->canSee(Auth::user()->hasAccess('platform.editLesson') && $this->student->branch->payment_period === 'daily'),
                     Input::make('student_id')->value($this->student->id)->hidden(),
@@ -271,7 +273,7 @@ class StudentInfoScreen extends Screen
                     Input::make('payed')->hidden()->value(0)->canSee(!Auth::user()->hasAccess('platform.editLesson')
                         && $this->student->branch->payment_period === 'monthly')
                 ]),
-            ])->applyButton('Qo\'shish')->closeButton('Yopish')->title('Talabani guruxga qo\'shish'),
+            ])->applyButton('Qo\'shish')->closeButton('Yopish')->title('Talabani guruxga qo\'shish')->withoutApplyButton($this->student->status != 'accepted'),
 
             Layout::modal('changeGroupModal', [
                 Layout::rows([
