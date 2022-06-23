@@ -7,6 +7,7 @@ use App\Models\Group;
 use App\Models\Lesson;
 use App\Models\RedDay;
 use App\Notifications\AdminNotify;
+use App\Services\TelegramNotify;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Notification;
 
@@ -63,7 +64,7 @@ class AddLesson extends Command
                 }
             } else {
                 $message = 'Bugungi sana ishlanmaydigan kunlar sirasiga kiradi, shu sababdan bu kun uchun darslar qo\'yilmadi!';
-                Notification::send($message, new AdminNotify()); // TODO check notify working
+                TelegramNotify::sendMessage($message, 'ishlanmaydigan_kun', $branch->name);
             }
         }
     }
