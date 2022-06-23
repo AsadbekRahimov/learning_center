@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Orchid\Layouts\User;
 
 use App\Models\Branch;
+use Illuminate\Support\Facades\Auth;
 use Orchid\Screen\Field;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\Relation;
@@ -36,7 +37,7 @@ class UserEditLayout extends Rows
             Select::make('user.branch_id')
                 ->fromModel(Branch::class, 'name')
                 ->title('Filial')
-                ->empty('Barchasi')
+                ->empty('Barchasi')->canSee(Auth::user()->hasAccess('platform.branches'))
         ];
     }
 }

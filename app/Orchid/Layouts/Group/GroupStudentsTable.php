@@ -2,6 +2,7 @@
 
 namespace App\Orchid\Layouts\Group;
 
+use App\Models\Student;
 use App\Models\StudentGroup;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\Link;
@@ -48,6 +49,9 @@ class GroupStudentsTable extends Table
             TD::make('attand', 'Davomat foizi')->render(function (StudentGroup $student) {
                 return $student->attand_percent();
             })->cantHide(),
+            TD::make('status', 'Ta\'lim bosqichi')->render(function (StudentGroup $studentGroup){
+                return Button::make(Student::STATUS[$studentGroup->student->status])->method('none')->type($studentGroup->student->status == 'stopped' ? Color::DANGER() : Color::DEFAULT());
+            })->cantHide()
         ];
     }
 }
