@@ -2,11 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Branch;
 use App\Models\Student;
-use App\Notifications\AdminNotify;
+use App\Services\TelegramNotify;
 use Illuminate\Console\Command;
-use Illuminate\Contracts\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Notification;
 use Napa\R19\Sms;
 
 class PaymentInfo extends Command
@@ -35,21 +34,32 @@ class PaymentInfo extends Command
         // TODO  sms text replace
         $numbers = [];
         $message = 'O\'qish uchun to\'lov muddati keldi, tolovni tezroq amalga oshirishingizni soraymiz. Saxovat ta\'lim';
-        if (date('j') === date('t')) {
-            $numbers = Student::query()->with(['branch'])->whereHas('branch', function (Builder $query) {
-                 $query->where('payment_period', '=', 'monthly');
-            })->whereNotNull('phone')->pluck('phone');
-        }
-
-        foreach ($numbers as $number)
+        foreach (Branch::query()->where('payment_period', '=', 'monthly')->get() as $branch)
         {
-            $erro_message = 'Tolov vaqti kelganligi haqida sms yuborishda xatolik. Raqam: ' . $number;
-            try {
-                Sms::send(Student::telephoneFormMessage($number), $message);
-            }catch (\Exception $e){
-                //Notification::send($erro_message, new AdminNotify()); // TODO check notify working
+            $students_info = null;
+            if (date('j') === date('t')) {
+                $students = Student::query()->where('branch_id', $branch->id)->get();
+
+                foreach ($students as $student)
+                {
+                    if (is_null($student->phone)) {
+                        $students_info .=  "\r\n" . 'ID: ' . $student->id . '| F.I.O: ' . $student->fio_name;
+                        //TelegramNotify::sendMessage($error_message, 'oylik_tolov_ogoxlantirish', $student->branch->name);
+                    } else {
+                        try {
+                            Sms::send(Student::telephoneFormMessage($student->phone), $message);
+                        }catch (\Exception $e){
+                            //
+                        }
+                        sleep(3); // TODO change max execution time in server
+                    }
+                }
             }
-            sleep(3);
+            if (!is_null($students_info)) {
+                $error_message = 'Talabaning telefon raqami yo\'qligi sababli to\'lov vaqti kelganligi haqida sms yuborilmadi!';
+                $error_message .= $students_info;
+                TelegramNotify::sendMessage($error_message, 'oylik_tolov_ogoxlantirish', $branch->name);
+            }
         }
     }
 }

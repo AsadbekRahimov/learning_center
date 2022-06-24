@@ -112,4 +112,9 @@ class Student extends Model
         else
             return 0;
     }
+
+    public function getFioNameAttribute()
+    {
+        return $this->name . ' ' . $this->surname . ' ' . $this->lastname;
+    }
 }
