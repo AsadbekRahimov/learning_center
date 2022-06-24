@@ -11,6 +11,7 @@ use App\Notifications\AdminNotify;
 use App\Orchid\Layouts\Group\GroupAttandTable;
 use App\Orchid\Layouts\Group\GroupLessonsTable;
 use App\Orchid\Layouts\Group\GroupStudentsTable;
+use App\Services\TelegramNotify;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
@@ -115,8 +116,14 @@ class GroupInfoScreen extends Screen
         $attandance = Attandance::query()->find($request->id);
         $attandance->attand = false;
         $attandance->save();
-        $this->sendMessageToStudent($attandance->student);
-        Alert::info($attandance->student->name . ' bugun darsga kelmadi, bu xaqida uning ota onasiga xabar yuborildi!');
+        $this->sendMessageToStudent($attandance->student, $attandance->lesson->group);
+        if (is_null($attandance->student->parent_phone))
+        {
+            Alert::warning($attandance->student->name . ' bugun darsga kelmadi, ota-onasini raqami yoqligi sababli bu xaqida uning ota onasiga xabar yuborilmadi!');
+        } else {
+            Alert::info($attandance->student->name . ' bugun darsga kelmadi, bu xaqida uning ota onasiga xabar yuborildi!');
+        }
+
     }
 
     public function attandanceFinish(Request $request)
@@ -162,16 +169,23 @@ class GroupInfoScreen extends Screen
 
     }
 
-    private function sendMessageToStudent(Student $student)
+    private function sendMessageToStudent(Student $student, Group $group)
     {
         $phone = Student::telephoneFormMessage($student->phone);
         $erro_message = 'Talaba davomati haqida sms yuborishda xatolik. Raqam: ' . $phone;
         # TODO change sms text
         $message = 'Farzandingiz: ' . $student->name . ' bugungi darsga kelmadi!' . "\n" . 'Xurmat bilan Saxovat ta\'lim';
-        try {
-            Sms::send($phone, $message);
-        }catch (\Exception $e){
-            Notification::send($erro_message, new AdminNotify()); // TODO check notify working
+        if (!is_null($student->parent_phone))
+        {
+            try {
+                Sms::send($phone, $message);
+            } catch (\Exception $e){}
+        } else {
+            $error_message = 'Talabaning ota-onasini telefon raqami yo\'qligi sababli talaba darsga kelmaganligi haqida oila azolariga sms xabar yuborilmadi!'
+                . "\r\n" . 'Talaba: '  . $student->fio_name . ' | Gurux: ' . $group->name;
+            try {
+                TelegramNotify::sendMessage($error_message, '#davomat_ogoxlantirishda_xatolik', $student->branch->name);
+            } catch (\Exception $e){}
         }
     }
 }
