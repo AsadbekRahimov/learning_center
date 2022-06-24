@@ -133,10 +133,20 @@ Route::screen('payments', \App\Orchid\Screens\Payment\PaymentsListScreen::class)
             ->push('To\'lovlar', route('platform.payments.list'));
     });
 
+// Gurux malumotlari
 Route::screen('groups/{group?}', \App\Orchid\Screens\Group\GroupInfoScreen::class)
     ->name('platform.groupInfo')
     ->breadcrumbs(function (Trail $trail) {
         return $trail
             ->parent('platform.index')
             ->push('Gurux ma\'lumotlari', route('platform.groupInfo'));
+    });
+
+// Sms xabarnomalar
+Route::screen('messages', \App\Orchid\Screens\Message\MessagesScreen::class)
+    ->name('platform.messages')
+    ->breadcrumbs(function (Trail $trail) {
+        return $trail
+            ->parent('platform.index')
+            ->push('SMS xabarnomalar', route('platform.messages'));
     });

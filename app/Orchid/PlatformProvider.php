@@ -99,6 +99,11 @@ class PlatformProvider extends OrchidServiceProvider
                 ->icon('lock')
                 ->route('platform.systems.roles')
                 ->permission('platform.systems.roles'),
+
+            Menu::make('SMS xabarlar')
+                ->icon('envelope')
+                ->route('platform.messages')
+                ->permission('platform.editMessages'),
         ];
     }
 
@@ -122,7 +127,8 @@ class PlatformProvider extends OrchidServiceProvider
         return [
             ItemPermission::group(__('Tizim vakolatlari'))
                 ->addPermission('platform.systems.roles', 'Rollar')
-                ->addPermission('platform.systems.users', __('Foydalanuvchilar')),
+                ->addPermission('platform.systems.users', __('Foydalanuvchilar'))
+                ->addPermission('platform.editMessages', 'Sms xabarlar matnini o`zgartirish'),
 
             ItemPermission::group('Maxsus vakolatlar')
                 ->addPermission('platform.branches', 'Filial')
