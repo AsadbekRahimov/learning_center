@@ -2,7 +2,13 @@
 
 namespace App\Orchid\Screens\Message;
 
+use App\Models\Message;
+use App\Orchid\Layouts\Message\MessageEditLayout;
+use App\Orchid\Layouts\Message\MessagesListTable;
+use Illuminate\Http\Request;
 use Orchid\Screen\Screen;
+use Orchid\Support\Facades\Alert;
+use Orchid\Support\Facades\Layout;
 
 class MessagesScreen extends Screen
 {
@@ -13,7 +19,9 @@ class MessagesScreen extends Screen
      */
     public function query(): iterable
     {
-        return [];
+        return [
+            'messages' => Message::query()->get(),
+        ];
     }
 
     /**
@@ -57,7 +65,22 @@ class MessagesScreen extends Screen
     public function layout(): iterable
     {
         return [
-
+            MessagesListTable::class,
+            Layout::modal('asyncEditMessageModal', MessageEditLayout::class)->async('asyncGetUser')->applyButton('Saqlash')->closeButton('Yopish'),
         ];
+    }
+
+    public function asyncGetUser(Message $message)
+    {
+        return [
+            'message' => $message,
+        ];
+    }
+
+    public function saveMessage(Request $request, Message $message)
+    {
+        $message->message = $request->message['message'];
+        $message->save();
+        Alert::success('SMS matni saqlandi!');
     }
 }

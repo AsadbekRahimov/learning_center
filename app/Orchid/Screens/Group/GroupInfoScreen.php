@@ -172,7 +172,6 @@ class GroupInfoScreen extends Screen
     private function sendMessageToStudent(Student $student, Group $group)
     {
         $phone = Student::telephoneFormMessage($student->phone);
-        $erro_message = 'Talaba davomati haqida sms yuborishda xatolik. Raqam: ' . $phone;
         # TODO change sms text
         $message = 'Farzandingiz: ' . $student->name . ' bugungi darsga kelmadi!' . "\n" . 'Xurmat bilan Saxovat ta\'lim';
         if (!is_null($student->parent_phone))
