@@ -5,6 +5,7 @@ namespace App\Orchid\Screens\Group;
 use App\Models\Attandance;
 use App\Models\Group;
 use App\Models\Lesson;
+use App\Models\Message;
 use App\Models\Student;
 use App\Models\StudentGroup;
 use App\Notifications\AdminNotify;
@@ -172,8 +173,7 @@ class GroupInfoScreen extends Screen
     private function sendMessageToStudent(Student $student, Group $group)
     {
         $phone = Student::telephoneFormMessage($student->phone);
-        # TODO change sms text
-        $message = 'Farzandingiz: ' . $student->name . ' bugungi darsga kelmadi!' . "\n" . 'Xurmat bilan Saxovat ta\'lim';
+        $message = Message::getTextByKey('not_attand', $student->name);
         if (!is_null($student->parent_phone))
         {
             try {
