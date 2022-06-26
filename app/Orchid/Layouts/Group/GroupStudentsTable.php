@@ -2,6 +2,7 @@
 
 namespace App\Orchid\Layouts\Group;
 
+use App\Models\Student;
 use App\Models\StudentGroup;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\Link;
@@ -27,8 +28,6 @@ class GroupStudentsTable extends Table
      * @return TD[]
      */
 
-    protected $title = "Guruxdagi talabalar ro'yhati";
-
     protected function columns(): iterable
     {
         return [
@@ -36,10 +35,12 @@ class GroupStudentsTable extends Table
                 return Link::make($student->student->name)->route('platform.addStudentToGroup', ['student' => $student->student_id]);
             })->cantHide(),
             TD::make('balance', 'Hisob')->render(function (StudentGroup $student) {
-                return Button::make($student->student->balance)->method('none')->type(Color::SUCCESS())->canSee($student->student->balance > 0);
+                return Button::make($student->student->balance)->method('none')->type(Color::SUCCESS())
+                    ->canSee($student->student->balance > 0);
             })->cantHide(),
             TD::make('debt', 'Qarz')->render(function (StudentGroup $student) {
-                return Button::make($student->student->debt)->type(Color::DANGER())->canSee($student->student->debt > 0);
+                return Button::make($student->student->debt)->type(Color::DANGER())
+                    ->canSee($student->student->debt > 0)->method('none');
             })->cantHide(),
             TD::make('lesson_limit', 'Dars limit')->cantHide(),
             TD::make('attand', 'Davomat soni')->render(function (StudentGroup $student) {
@@ -48,6 +49,9 @@ class GroupStudentsTable extends Table
             TD::make('attand', 'Davomat foizi')->render(function (StudentGroup $student) {
                 return $student->attand_percent();
             })->cantHide(),
+            TD::make('status', 'Ta\'lim bosqichi')->render(function (StudentGroup $studentGroup){
+                return Button::make(Student::STATUS[$studentGroup->student->status])->method('none')->type($studentGroup->student->status == 'stopped' ? Color::DANGER() : Color::DEFAULT());
+            })->cantHide()
         ];
     }
 }

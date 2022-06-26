@@ -3,6 +3,7 @@
 namespace App\Orchid\Resources;
 
 use App\Models\Branch;
+use App\Models\Group;
 use App\Orchid\Filters\WithTrashed;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -40,14 +41,16 @@ class SubjectResource extends Resource
     public function fields(): array
     {
         return [
-            Input::make('name')
-                ->title('Fan nomi')
-                ->required()
-                ->placeholder('O`qitiladigan fanning nomi kiritiladi'),
-            Input::make('price')
-                ->title('Fan narxi')
-                ->type('number')
-                ->required(),
+            \Orchid\Screen\Fields\Group::make([
+                Input::make('name')
+                    ->title('Fan nomi')
+                    ->required()
+                    ->placeholder('O`qitiladigan fanning nomi kiritiladi'),
+                Input::make('price')
+                    ->title('Fan narxi')
+                    ->type('number')
+                    ->required(),
+            ]),
             Input::make('branch_id')->type('hidden')->value(Auth::user()->branch_id)->required()->canSee($this->branch_user),
             Select::make('branch_id')->fromModel(Branch::class, 'name')
                 ->value(Auth::user()->branch_id)->title('Filialni tanlang')->canSee(!$this->branch_user),

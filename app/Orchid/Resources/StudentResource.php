@@ -17,6 +17,7 @@ use Orchid\Crud\ResourceRequest;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Fields\CheckBox;
+use Orchid\Screen\Fields\Group;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\Relation;
 use Orchid\Screen\Fields\Select;
@@ -49,62 +50,72 @@ class StudentResource extends Resource
     public function fields(): array
     {
         return [
-            Input::make('name')
-                ->title('Ismi')
-                ->required()
-                ->placeholder('Talabaning ismi kiritiladi')
-                ->help('To`ldirish majburiy'),
-            Input::make('surname')
-                ->title('Familiyasi')
-                ->placeholder('Talabaning familiyasi kiritiladi'),
-            Input::make('lastname')
-                ->title('Otasining ismi')
-                ->placeholder('Talabaning otasin ismi kiritiladi'),
-            Input::make('phone')
-                ->title('Talabaning telefon raqami')
-                ->mask('(99) 999-99-99')
-                ->placeholder('Talabaning telefon raqami kiritiladi'),
-            Input::make('birthday')
-                ->type('date')
-                ->title('Talabaning tug`ilgan kun sanasi'),
-            Input::make('address')
-                ->title('Manzil')
-                ->placeholder('Talabaning yashash manzili kiritiladi'),
-            Input::make('parent_phone')
-                ->title('Talabaning otasi yoki onasi raqami')
-                ->mask('(99) 999-99-99')
-                ->placeholder('Talabaning telefon raqami kiritiladi'),
-            Input::make('tg_username')
-                ->title('Telegram username')
-                ->placeholder('Talabaning telegram username kiritiladi')
-                ->help('Masalan: https://t.me/student_username dagi student_username kirtiladi'),
-            Relation::make('source_id')
-                ->fromModel(Source::class, 'name')
-                ->title('Talabani jalb qilgan hamkor')
-                ->required()
-                ->help('To`ldirish majburiy'),
-            Input::make('come_date')
-                ->type('date')
-                ->title('Talabaning kelgan vaqti')
-                ->value(date('Y-m-d'))
-                ->required()
-                ->help('To`ldirish majburiy'),
-            /*Select::make('status')
-                ->title('Talabaning ta`lim bosqichi')
-                ->options(Student::STATUS)
-                ->required()
-                ->help('To`ldirish majburiy'),*/
-            CheckBox::make('privilege')
-                ->title('Saxovat talabasimi?')
-                ->sendTrueOrFalse()->horizontal(),
-            TextArea::make('comment')->title('Talaba uchun izoh'),
-            TextArea::make('hobbies')->title('Talabaning qizishlari (Hobbiy)'),
+            Group::make([
+                Input::make('name')
+                    ->title('Ismi')
+                    ->required()
+                    ->placeholder('Talabaning ismi kiritiladi')
+                    ->help('To`ldirish majburiy'),
+                Input::make('surname')
+                    ->title('Familiyasi')
+                    ->placeholder('Talabaning familiyasi kiritiladi'),
+                Input::make('lastname')
+                    ->title('Otasining ismi')
+                    ->placeholder('Talabaning otasin ismi kiritiladi'),
+            ]),
+            Group::make([
+                Input::make('phone')
+                    ->title('Talabaning telefon raqami')
+                    ->mask('(99) 999-99-99')
+                    ->placeholder('Talabaning telefon raqami kiritiladi'),
+                Input::make('birthday')
+                    ->type('date')
+                    ->title('Talabaning tug`ilgan kun sanasi'),
+                Input::make('tg_username')
+                    ->title('Telegram username')
+                    ->placeholder('Talabaning telegram username kiritiladi')
+                    ->help('Masalan: https://t.me/student_username dagi student_username kirtiladi'),
+            ]),
+            Group::make([
+                Input::make('address')
+                    ->title('Manzil')
+                    ->placeholder('Talabaning yashash manzili kiritiladi'),
+                Input::make('parent_phone')
+                    ->title('Talabaning otasi yoki onasi raqami')
+                    ->mask('(99) 999-99-99')
+                    ->placeholder('Talabaning telefon raqami kiritiladi'),
+            ]),
+            Group::make([
+                Relation::make('source_id')
+                    ->fromModel(Source::class, 'name')
+                    ->title('Talabani jalb qilgan hamkor')
+                    ->required()
+                    ->help('To`ldirish majburiy'),
+                Input::make('come_date')
+                    ->type('date')
+                    ->title('Talabaning kelgan vaqti')
+                    ->value(date('Y-m-d'))
+                    ->required()
+                    ->help('To`ldirish majburiy'),
+            ]),
+            Group::make([
+                Select::make('branch_id')->fromModel(Branch::class, 'name')
+                    ->value(Auth::user()->branch_id)->title('Filialni tanlang')->canSee(!$this->branch_user),
+                Select::make('status')->options(Student::STATUS)->title('Talim bosqichi')
+                    ->help('To`ldirish majburiy')
+                    ->required()->canSee(Auth::user()->hasAccess('platform.editStudentStatus')),
+                CheckBox::make('privilege')
+                    ->title('Saxovat talabasimi?')
+                    ->sendTrueOrFalse()->vertical(),
+            ]),
+            Group::make([
+                TextArea::make('comment')->title('Talaba uchun izoh'),
+                TextArea::make('hobbies')->title('Talabaning qizishlari (Hobbiy)'),
+            ]),
             Input::make('registered_id')
                 ->type('hidden')
                 ->value(Auth::id()),
             Input::make('branch_id')->type('hidden')->value(Auth::user()->branch_id)->required()->canSee($this->branch_user),
-            Select::make('branch_id')->fromModel(Branch::class, 'name')
-                ->value(Auth::user()->branch_id)->title('Filialni tanlang')->canSee(!$this->branch_user),
         ];
     }
 
@@ -137,16 +148,18 @@ class StudentResource extends Resource
                     return Link::make($model->parent_phone)->href('tel:' . Student::telephone($model->parent_phone));
                 })->defaultHidden(),
             TD::make('balance', 'Hisob')->render(function ($model) {
-                return Button::make($model->balance)->method('none')->type(Color::SUCCESS())->canSee($model->balance > 0);
+                return Button::make($model->balance)->method('none')->type(Color::SUCCESS())
+                    ->canSee($model->balance > 0)->disabled();
             })->sort()->cantHide(),
             TD::make('debt', 'Qarz')->render(function ($model) {
-                return Button::make($model->debt)->type(Color::DANGER())->canSee($model->debt > 0);
+                return Button::make($model->debt)->type(Color::DANGER())->canSee($model->debt > 0)->disabled();
             })->sort()->cantHide(),
             TD::make('privilege', 'Saxovat')->render(function ($model) {
-                return $model->privilege ? 'Ha' : 'Yo`q';
+                return Button::make($model->privilege ? 'Ha' : 'Yo`q')
+                    ->type($model->privilege ? Color::WARNING() : Color::PRIMARY())->disabled();
                 })->sort()->filter(CheckBox::make()->title('Saxovat talabasi')->sendTrueOrFalse())->cantHide(),
             TD::make('status', 'Talim bosqichi')->render(function ($model) {
-                return Student::STATUS[$model->status];
+                    return  Student::STATUS[$model->status];
                 })->cantHide(),
             TD::make('source_id', 'Hamkor')->render(function ($model) {
                     return $model->source->name;
@@ -183,6 +196,10 @@ class StudentResource extends Resource
     {
         return [
             Sight::make('id', 'ID'),
+            Sight::make('status', 'Talim bosqichi')
+                ->render(function ($model) {
+                    return Student::STATUS[$model->status];
+                }),
             Sight::make('name', 'Ismi'),
             Sight::make('surname', 'Familiyasi'),
             Sight::make('lastname', 'Otasining ismi'),
@@ -194,7 +211,7 @@ class StudentResource extends Resource
             Sight::make('address', 'Manzili'),
             Sight::make('tg_username', 'Telegram username')
                 ->render(function ($model) {
-                    return Link::make($model->tg_username)->href('https://t.me/' . Student::telephone($model->tg_username))->target('_blank');
+                    return Link::make($model->tg_username)->href('https://t.me/' . $model->tg_username)->target('_blank');
                 }),
             Sight::make('parent_phone', 'Ota Ona raqami')
                 ->render(function ($model) {
@@ -203,10 +220,6 @@ class StudentResource extends Resource
             Sight::make('come_date', 'Kelgan sanasi'),
             Sight::make('balance', 'Hisob'),
             Sight::make('debt', 'Qarz'),
-            Sight::make('status', 'Talim bosqichi')
-                ->render(function ($model) {
-                    return Student::STATUS[$model->status];
-                }),
             Sight::make('source_id', 'Hamkor')->render(function ($model) {
                 return $model->source->name;
             }),

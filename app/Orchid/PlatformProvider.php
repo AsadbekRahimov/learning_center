@@ -99,6 +99,11 @@ class PlatformProvider extends OrchidServiceProvider
                 ->icon('lock')
                 ->route('platform.systems.roles')
                 ->permission('platform.systems.roles'),
+
+            Menu::make('SMS xabarlar')
+                ->icon('envelope')
+                ->route('platform.messages')
+                ->permission('platform.editMessages'),
         ];
     }
 
@@ -108,7 +113,7 @@ class PlatformProvider extends OrchidServiceProvider
     public function registerProfileMenu(): array
     {
         return [
-            Menu::make('Profile')
+            Menu::make('Shaxsiy profil')
                 ->route('platform.profile')
                 ->icon('user'),
         ];
@@ -122,7 +127,8 @@ class PlatformProvider extends OrchidServiceProvider
         return [
             ItemPermission::group(__('Tizim vakolatlari'))
                 ->addPermission('platform.systems.roles', 'Rollar')
-                ->addPermission('platform.systems.users', __('Foydalanuvchilar')),
+                ->addPermission('platform.systems.users', __('Foydalanuvchilar'))
+                ->addPermission('platform.editMessages', 'Sms xabarlar matnini o`zgartirish'),
 
             ItemPermission::group('Maxsus vakolatlar')
                 ->addPermission('platform.branches', 'Filial')
@@ -135,7 +141,8 @@ class PlatformProvider extends OrchidServiceProvider
                 ->addPermission('platform.payments', 'To\'lovlar')
                 ->addPermission('platform.groupInfo', 'Gurux ma\'lumotlari')
                 ->addPermission('platform.attandance', 'Yo\'qlama qilish')
-                ->addPermission('platform.editLesson', 'Dars limitini o`zgartirish'),
+                ->addPermission('platform.editLesson', 'Dars limitini o`zgartirish')
+                ->addPermission('platform.editStudentStatus', 'Talabaning talim bosqichini o`zgartirish'),
 
             ItemPermission::group('Hisobotlar')
                 ->addPermission('platform.payments.list', 'To\'lovlar'),

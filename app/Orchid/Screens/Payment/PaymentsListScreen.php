@@ -4,6 +4,7 @@ namespace App\Orchid\Screens\Payment;
 
 use App\Models\Payment;
 use App\Orchid\Layouts\Payments\PaymentsListTable;
+use Illuminate\Support\Facades\Auth;
 use Orchid\Screen\Screen;
 
 class PaymentsListScreen extends Screen
@@ -16,7 +17,9 @@ class PaymentsListScreen extends Screen
     public function query(): iterable
     {
         return [
-            'payments' => Payment::query()->filters()->defaultSort('id', 'desc')->with(['branch'])->paginate(15),
+            'payments' => Payment::query()->with(['student'])->when(Auth::user()->branch_id, function ($query){
+                return $query->where('branch_id', Auth::user()->branch_id);
+            })->filters()->defaultSort('id', 'desc')->with(['branch'])->paginate(15),
         ];
     }
 

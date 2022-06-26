@@ -2,7 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Branch;
+use App\Models\Message;
 use App\Models\Student;
+use App\Services\TelegramNotify;
 use Illuminate\Console\Command;
 use Napa\R19\Sms;
 
@@ -29,18 +32,31 @@ class PaymentInfo extends Command
      */
     public function handle()
     {
-        // TODO parent phone or student phone, sms text | only monthly branch
-        $numbers = [];
-        $message = 'O`qish uchun to\'lov muddati keldi, tolovni tezroq amalga oshirishingizni soraymiz. Saxovat ta\'lim';
-        if (date('d') === date('t')) {
-            $numbers = Student::query()->whereNotNull('parent_phone')->pluck('parent_phone');
-        }
-        foreach ($numbers as $number)
+        foreach (Branch::query()->where('payment_period', '=', 'monthly')->get() as $branch)
         {
-            try {
-                Sms::send(Student::telephoneFormMessage($number), $message);
-            }catch (\Exception $e){
-                # TODO send notify to telegram
+            $students_info = null;
+            if (date('j') === date('t')) {
+                $students = Student::query()->where('branch_id', $branch->id)->get();
+
+                foreach ($students as $student)
+                {
+                    if (is_null($student->phone)) {
+                        $students_info .=  "\r\n" . 'ID: ' . $student->id . '| F.I.O: ' . $student->fio_name;
+                    } else {
+                        try {
+                            $message = Message::getTextByKey('for_payment_info', $student->name);
+                            Sms::send(Student::telephoneFormMessage($student->phone), $message);
+                        }catch (\Exception $e){
+                            //
+                        }
+                        sleep(3); // TODO change max execution time in server
+                    }
+                }
+            }
+            if (!is_null($students_info)) {
+                $error_message = 'Talabaning telefon raqami yo\'qligi sababli to\'lov vaqti kelganligi haqida sms yuborilmadi!';
+                $error_message .= $students_info;
+                TelegramNotify::sendMessage($error_message, 'oylik_tolov_ogoxlantirish', $branch->name);
             }
         }
     }

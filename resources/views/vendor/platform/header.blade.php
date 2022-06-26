@@ -13,10 +13,5 @@
 @endpush
 
 <div class="h2 fw-light d-flex align-items-center">
-   <x-orchid-icon path="orchid" width="1.2em" height="1.2em"/>
-
-    <p class="ms-3 my-0 d-none d-sm-block">
-        Saxovat
-        <small class="align-top opacity">Ta`lim</small>
-    </p>
+    <img src="{{ asset('logo2.png') }}" alt="Saxovat ta'lim o`quv markazi" style="width: 175px; height: auto">
 </div>

@@ -5,13 +5,17 @@ namespace App\Orchid\Screens\Group;
 use App\Models\Attandance;
 use App\Models\Group;
 use App\Models\Lesson;
+use App\Models\Message;
 use App\Models\Student;
 use App\Models\StudentGroup;
+use App\Notifications\AdminNotify;
 use App\Orchid\Layouts\Group\GroupAttandTable;
 use App\Orchid\Layouts\Group\GroupLessonsTable;
 use App\Orchid\Layouts\Group\GroupStudentsTable;
+use App\Services\TelegramNotify;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
 use Napa\R19\Sms;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Screen;
@@ -92,16 +96,18 @@ class GroupInfoScreen extends Screen
     {
         if (Auth::user()->hasAccess('platform.attandance') && !is_null($this->lesson) && !$this->lesson->finish) {
             return [
-                Layout::columns([
-                    GroupAttandTable::class,
-                    GroupStudentsTable::class,
+                Layout::tabs([
+                   'Guruxning bugungi davomati' => GroupAttandTable::class,
+                   'Guruxdagi talabalar ro\'yhati' => GroupStudentsTable::class,
+                   'Guruxdagi o\'tilgan darslar ro\'yhati' => GroupLessonsTable::class,
                 ]),
-                GroupLessonsTable::class,
             ];
         } else {
             return [
-                GroupStudentsTable::class,
-                GroupLessonsTable::class,
+                Layout::tabs([
+                    'Guruxdagi talabalar ro\'yhati' => GroupStudentsTable::class,
+                    'Guruxdagi o\'tilgan darslar ro\'yhati' => GroupLessonsTable::class,
+                ]),
             ];
         }
     }
@@ -111,12 +117,19 @@ class GroupInfoScreen extends Screen
         $attandance = Attandance::query()->find($request->id);
         $attandance->attand = false;
         $attandance->save();
-        $this->sendMessageToStudent($attandance->student);
-        Alert::info($attandance->student->name . ' bugun darsga kelmadi, bu xaqida uning ota onasiga xabar yuborildi!');
+        $this->sendMessageToStudent($attandance->student, $attandance->lesson->group);
+        if (is_null($attandance->student->parent_phone))
+        {
+            Alert::warning($attandance->student->name . ' bugun darsga kelmadi, ota-onasini raqami yoqligi sababli bu xaqida uning ota onasiga xabar yuborilmadi!');
+        } else {
+            Alert::info($attandance->student->name . ' bugun darsga kelmadi, bu xaqida uning ota onasiga xabar yuborildi!');
+        }
+
     }
 
     public function attandanceFinish(Request $request)
     {
+
         $lesson = Lesson::query()->find($request->id);
         $lesson->finish = true;
         $lesson->save();
@@ -124,26 +137,29 @@ class GroupInfoScreen extends Screen
         $ids = Attandance::query()->where('lesson_id', $lesson->id)->where('attand', 1)->pluck('student_id');
         //StudentGroup::query()->where('group_id', $lesson->group_id)->whereIn('student_id', $ids)->decrement('lesson_limit');
 
-        foreach (StudentGroup::query()->where('group_id', $lesson->group_id)->whereIn('student_id', $ids)->get() as $studentGroup)
+        foreach (StudentGroup::query()->with(['student.branch'])->where('group_id', $lesson->group_id)
+                     ->whereIn('student_id', $ids)->get() as $studentGroup)
         {
-            $studentGroup->decrement('lesson_limit');
-            if ($studentGroup->lesson_limit === 0) {
-                $student = Student::query()->find($studentGroup->student_id);
-                $subject_price = $studentGroup->group->subject->price;
-                if ($student->balance > $subject_price) {
-                    $student->balance -= $subject_price;
-                } else {
-                    if ($student->balance > 0) {
-                        $student->debt = $subject_price - $student->balance;
-                        $student->balance = 0;
+            if ($studentGroup->student->branch->payment_period === 'daily') {
+                $studentGroup->decrement('lesson_limit');
+                if ($studentGroup->lesson_limit === 0) {
+                    $student = Student::query()->find($studentGroup->student_id);
+                    $subject_price = $studentGroup->group->subject->price;
+                    if ($student->balance > $subject_price) {
+                        $student->balance -= $subject_price;
                     } else {
-                        $student->debt += $subject_price;
+                        if ($student->balance > 0) {
+                            $student->debt = $subject_price - $student->balance;
+                            $student->balance = 0;
+                        } else {
+                            $student->debt += $subject_price;
+                        }
                     }
+                    $student->save();
+                    $studentGroup->update([
+                        'lesson_limit' => 12
+                    ]);
                 }
-                $student->save();
-                $studentGroup->update([
-                    'lesson_limit' => 12
-                ]);
             }
         }
         Alert::info('Davomat yakunlandi!');
@@ -154,15 +170,21 @@ class GroupInfoScreen extends Screen
 
     }
 
-    private function sendMessageToStudent(Student $student)
+    private function sendMessageToStudent(Student $student, Group $group)
     {
         $phone = Student::telephoneFormMessage($student->phone);
-        # TODO change sms text
-        $message = 'Farzandingiz: ' . $student->name . ' bugungi darsga kelmadi!' . "\n" . 'Xurmat bilan Saxovat ta\'lim';
-        try {
-            Sms::send($phone, $message);
-        }catch (\Exception $e){
-            # TODO send notify to telegram
+        $message = Message::getTextByKey('not_attand', $student->name);
+        if (!is_null($student->parent_phone))
+        {
+            try {
+                Sms::send($phone, $message);
+            } catch (\Exception $e){}
+        } else {
+            $error_message = 'Talabaning ota-onasini telefon raqami yo\'qligi sababli talaba darsga kelmaganligi haqida oila azolariga sms xabar yuborilmadi!'
+                . "\r\n" . 'Talaba: '  . $student->fio_name . ' | Gurux: ' . $group->name;
+            try {
+                TelegramNotify::sendMessage($error_message, '#davomat_ogoxlantirishda_xatolik', $student->branch->name);
+            } catch (\Exception $e){}
         }
     }
 }

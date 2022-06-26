@@ -59,7 +59,7 @@ class RedDayResource extends Resource
         return [
             TD::make('id')->sort(),
             TD::make('date', 'Sana')->filter(Input::make('date')->type('date'))->cantHide(),
-            TD::make('name', 'Tasnifi')->filter(Input::make('date')->type('date'))->cantHide(),
+            TD::make('name', 'Tasnifi')->filter(Input::make('name'))->cantHide(),
             TD::make('branch_id', 'Filial')->filter(Relation::make('branch_id')->fromModel(Branch::class, 'name'))
                 ->render(function ($model) {
                     return $model->branch->name;

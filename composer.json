@@ -10,6 +10,7 @@
         "laravel-notification-channels/telegram": "^2.0",
         "laravel/framework": "^9.11",
         "laravel/sanctum": "^2.14.1",
+        "laravel/telescope": "^4.9",
         "laravel/tinker": "^2.7",
         "napaeduhub/eskiz-sms-client": "^1.0",
         "orchid/crud": "^3.7",
@@ -52,7 +53,9 @@
     },
     "extra": {
         "laravel": {
-            "dont-discover": []
+            "dont-discover": [
+                "laravel/telescope"
+            ]
         }
     },
     "config": {

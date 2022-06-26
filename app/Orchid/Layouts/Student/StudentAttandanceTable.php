@@ -20,8 +20,6 @@ class StudentAttandanceTable extends Table
      * @var string
      */
     protected $target = 'attandances';
-
-    protected $title = 'Talabaning davomati';
     /**
      * Get the table cells to be displayed.
      *

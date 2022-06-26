@@ -45,10 +45,10 @@ class StudentInfoScreen extends Screen
                 ]
             ],
             'student_groups' => StudentGroup::query()->with('group.subject', 'student')
-                ->where('student_id', $student->id)->get(),
+                ->where('student_id', $student->id)->paginate(15),
             'groups' => StudentGroup::query()->where('student_id', $student->id)->pluck('group_id'),
             'attandances' => Attandance::query()->with(['lesson.group'])->where('student_id', $student->id)
-                ->orderByDesc('id')->paginate(10),
+                ->orderByDesc('id')->paginate(15),
         ];
     }
 
@@ -59,7 +59,7 @@ class StudentInfoScreen extends Screen
      */
     public function name(): ?string
     {
-        return $this->student->name;
+        return $this->student->name . ' | Ta\'lim bosqichi: ' . Student::STATUS[$this->student->status];
     }
 
     public function description(): ?string
@@ -81,11 +81,13 @@ class StudentInfoScreen extends Screen
      */
     public function commandBar(): iterable
     {
+        $modal_title = $this->student->status == 'accepted' ? 'Guruxga qo\'shish' : 'Talabaning ta\'lim bosqichi faol bolishi kerak!';
         return [
             ModalToggle::make('Guruxga qo\'shish')
                 ->modal('addToGroupModal')
                 ->method('addToGroup')
-                ->icon('organization'),
+                ->icon('organization')
+                ->modalTitle($modal_title),
             /*ModalToggle::make('Guruxni almashtirish')
                 ->modal('changeGroupModal')
                 ->method('changeGroup')
@@ -145,18 +147,37 @@ class StudentInfoScreen extends Screen
     {
         //dd($request->all());
         if ($request->has('group_id')) {
+            $student = Student::query()->find($request->student_id);
+            $group = Group::query()->with(['subject'])->find($request->group_id);
             StudentGroup::query()->create([
                 'student_id' => $request->student_id,
                 'group_id' => $request->group_id,
-                'lesson_limit' => $request->has('lesson_limit') ? $request->lesson_limit : 0,
+                'lesson_limit' => $request->has('lesson_limit') ? $request->lesson_limit : 12,
             ]);
-            if ($request->has('payed')) {
+
+            if ($request->has('payed')) { // Talaba oylik rejimda royhatdan o`tganda | oydi oxirigacha tolovni xisoblash
                 if ($request->payed === '0') {
                     // Kurs oldin tolanganlar
-                    $this->getMonthlyPayFromBalance($request->student_id, $request->group_id);
+                    $results = $this->getMonthlyPayFromBalance($request->student_id, $request->group_id);
+                    Alert::success('Talaba guruxga qo\'shildi. Bu guruxda oy oxirigacha qolgan ' . $results['days'] .
+                        ' ta dars xisobidan ' . $results['price'] . ' so\'m talabaning xisobidan yechildi');
+                }
+            } else {
+                if (!$request->has('lesson_limit')) { // qolgan dars limiti kiritilmagandagi xolatda
+                    if ($student->balance >= $group->subject->price) {
+                        $student->balance -= $group->subject->price;
+                    } else {
+                        $student->debt += ($group->subject->price - $student->balance);
+                        $student->balance = 0;
+                    }
+                    $student->save();
+                    Alert::success('Talaba guruxga qo\'shildi, Uning xisobidan 12 ta dars uchun ' . $group->subject->price
+                        . ' miqdoridagi pul yechib olindi');
+                } else {
+                    Alert::success('Talaba guruxga qo\'shildi');
                 }
             }
-            Alert::success('Talaba guruxga qo\'shildi');
+
         } else {
             Alert::warning('Talabani guruxga qo\'shish uchun gurux mavjud emas');
         }
@@ -164,13 +185,56 @@ class StudentInfoScreen extends Screen
 
     public function deleteFromGroup(Request $request)
     {
-        $student_group = StudentGroup::query()->find($request->id);
-        $student = Student::query()->find($student_group->student_id);
-        $returned_balance = round(($student_group->group->subject->price / 12) * $student_group->lesson_limit);
-        $student->balance += (int)$returned_balance;
-        $student->save();
-        $student_group->delete();
-        Alert::success('Talaba guruxdan o\'chirildi, uning xisobiga qolgan dars limitlari xisobidan ' . $returned_balance . ' so\'m qaytarildi');
+        $group = StudentGroup::query()->find($request->id);
+        $student = Student::query()->find($group->student_id);
+        $limit = $group->lesson_limit;
+        if ($student->branch->payment_period == 'daily')
+        {
+            $returned_balance = round(($group->group->subject->price / 12) * $group->lesson_limit, -3);
+            $student->balance += (int)$returned_balance;
+            $student->save();
+            $group->delete();
+            Alert::success('Talaba guruxdan o\'chirildi, uning xisobida qolgan' . $limit .' ta dars limitlari xisobidan ' . $returned_balance . ' so\'m qaytarildi');
+        } else {
+            $today = date('j'); // number of  current date this month
+            $last_day = date('t'); // number of last day in month
+            $returning_lessons = 0;
+            $lessons_this_month = 0;
+            for($i = $today + 1; $i <= $last_day; $i++) // calculate returning lessons
+            {
+                $day = date('l', mktime(0, 0, 0, date('m'), $i, date('Y'))); // day name of the week
+                if ($group->group->day_type === 'even' and in_array($day, ['Tuesday', 'Thursday', 'Saturday'])) {
+                    $returning_lessons++;
+                }elseif ($group->group->day_type === 'odd' and in_array($day, ['Monday', 'Wednesday', 'Friday'])) {
+                    $returning_lessons++;
+                }
+            }
+
+            for($i = 1; $i <= $last_day; $i++) // calculate all lessons count in this month
+            {
+                $day = date('l', mktime(0, 0, 0, date('m'), $i, date('Y'))); // day name of the week
+                if ($group->group->day_type === 'even' and in_array($day, ['Tuesday', 'Thursday', 'Saturday'])) {
+                    $lessons_this_month++;
+                }elseif ($group->group->day_type === 'odd' and in_array($day, ['Monday', 'Wednesday', 'Friday'])) {
+                    $lessons_this_month++;
+                }
+            }
+
+            if ($lessons_this_month) {
+                $returning_payment_for_this_month = round(($group->group->subject->price / $lessons_this_month) * $returning_lessons, -3);
+            }
+
+            if ($student->debt >= $returning_payment_for_this_month) {
+                $student->debt -= $returning_payment_for_this_month;
+            } else {
+                $student->balance += $returning_payment_for_this_month - $student->debt;
+                $student->debt = 0;
+            }
+            $student->save();
+            $group->delete();
+            Alert::success('Talaba guruxdan o\'chirildi, uning xisobida qolgan ' . $returning_lessons . ' ta dars limitlari xisobidan ' .
+                $returning_payment_for_this_month . ' so\'m talaba xisobiga qaytarildi');
+        }
     }
 
 
@@ -190,22 +254,26 @@ class StudentInfoScreen extends Screen
                 'Davomat' => 'metrics.attandances',
             ]),
 
-            StudentGroupsTable::class,
-            StudentAttandanceTable::class,
+            Layout::tabs([
+                 'Talaba qo\'shilgan guruxlar' => StudentGroupsTable::class,
+                 'Talabaning davomati' => StudentAttandanceTable::class,
+            ]),
 
             Layout::modal('addToGroupModal', [
                 Layout::rows([
                     Select::make('group_id')
                         ->fromQuery(\App\Models\Group::where('branch_id', $this->student->branch_id)->whereNotIn('id', $this->groups), 'name')
-                        ->title('Guruxni tanlang'),
-                    Input::make('lesson_limit')->type('number')->required()->value(0)
+                        ->title('Guruxni tanlang')->disabled($this->student->status != 'accepted'),
+                    Input::make('lesson_limit')->type('number')->required()->value(12)
                         ->title('Dars limiti')
                         ->canSee(Auth::user()->hasAccess('platform.editLesson') && $this->student->branch->payment_period === 'daily'),
                     Input::make('student_id')->value($this->student->id)->hidden(),
                     CheckBox::make('payed')->title('Oyni oxirigacha to\'lagan')->sendTrueOrFalse()
                         ->canSee(Auth::user()->hasAccess('platform.editLesson') && $this->student->branch->payment_period === 'monthly'),
+                    Input::make('payed')->hidden()->value(0)->canSee(!Auth::user()->hasAccess('platform.editLesson')
+                        && $this->student->branch->payment_period === 'monthly')
                 ]),
-            ])->applyButton('Qo\'shish')->closeButton('Yopish')->title('Talabani guruxga qo\'shish'),
+            ])->applyButton('Qo\'shish')->closeButton('Yopish')->title('Talabani guruxga qo\'shish')->withoutApplyButton($this->student->status != 'accepted'),
 
             Layout::modal('changeGroupModal', [
                 Layout::rows([
@@ -233,19 +301,48 @@ class StudentInfoScreen extends Screen
     private function getMonthlyPayFromBalance($student_id, $group_id)
     {
         $student = Student::query()->find($student_id);
-        $group = Group::query()->find($group_id);
-        $today = date('j'); // 14
-        $last_day = date('t'); // 30
-        $count = 0;
-        for($i = $today; $i <= $last_day; $i++)
+        $group = Group::query()->with(['subject'])->find($group_id);
+        $today = date('j'); // number of  current date this month
+        $last_day = date('t'); // number of last day in month
+        $remaining_lessons = 0;
+        $lessons_this_month = 0;
+        for($i = $today + 1; $i <= $last_day; $i++) // calculate remaining lessons
         {
-            $day = date('l', mktime(0, 0, 0, date('m'), $today, date('Y'))); // day name of the week
+            $day = date('l', mktime(0, 0, 0, date('m'), $i, date('Y'))); // day name of the week
             if ($group->day_type === 'even' and in_array($day, ['Tuesday', 'Thursday', 'Saturday'])) {
-                $count++;
+                $remaining_lessons++;
             }elseif ($group->day_type === 'odd' and in_array($day, ['Monday', 'Wednesday', 'Friday'])) {
-                $count++;
+                $remaining_lessons++;
             }
-            $date = date('Y-m-' . $i);
         }
+
+        for($i = 1; $i <= $last_day; $i++) // calculate all lessons count in this month
+        {
+            $day = date('l', mktime(0, 0, 0, date('m'), $i, date('Y'))); // day name of the week
+            if ($group->day_type === 'even' and in_array($day, ['Tuesday', 'Thursday', 'Saturday'])) {
+                $lessons_this_month++;
+            }elseif ($group->day_type === 'odd' and in_array($day, ['Monday', 'Wednesday', 'Friday'])) {
+                $lessons_this_month++;
+            }
+        }
+
+        if ($lessons_this_month) {
+            $remaining_payment_for_this_month = round(($group->subject->price / $lessons_this_month) * $remaining_lessons, -3);
+        }
+
+        if ($student->balance >= $remaining_payment_for_this_month) {
+            $student->balance -= $remaining_payment_for_this_month;
+        } else {
+            $student->debt += $remaining_payment_for_this_month - $student->balance;
+            $student->balance = 0;
+        }
+        $student->save();
+
+        $results = [
+            'days' => $remaining_lessons,
+            'price' => $remaining_payment_for_this_month,
+        ];
+
+        return $results;
     }
 }
