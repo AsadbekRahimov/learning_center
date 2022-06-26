@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Branch;
+use App\Models\Message;
 use App\Models\Student;
 use App\Services\TelegramNotify;
 use Illuminate\Console\Command;
@@ -31,9 +32,6 @@ class PaymentInfo extends Command
      */
     public function handle()
     {
-        // TODO  sms text replace
-        $numbers = [];
-        $message = 'O\'qish uchun to\'lov muddati keldi, tolovni tezroq amalga oshirishingizni soraymiz. Saxovat ta\'lim';
         foreach (Branch::query()->where('payment_period', '=', 'monthly')->get() as $branch)
         {
             $students_info = null;
@@ -44,9 +42,9 @@ class PaymentInfo extends Command
                 {
                     if (is_null($student->phone)) {
                         $students_info .=  "\r\n" . 'ID: ' . $student->id . '| F.I.O: ' . $student->fio_name;
-                        //TelegramNotify::sendMessage($error_message, 'oylik_tolov_ogoxlantirish', $student->branch->name);
                     } else {
                         try {
+                            $message = Message::getTextByKey('for_payment_info', $student->name);
                             Sms::send(Student::telephoneFormMessage($student->phone), $message);
                         }catch (\Exception $e){
                             //
