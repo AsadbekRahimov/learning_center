@@ -40,7 +40,7 @@ class GroupInfoScreen extends Screen
         return [
             'lesson' => $lesson,
             'students' => StudentGroup::query()->with(['student'])->where('group_id', $group->id)->get(),
-            'group' => $group,
+            'group' => $group->load('branch'),
             'attand' => Attandance::query()->where('lesson_id', $lesson->id ?? '')->get(),
             'lessons' => Lesson::query()->with(['attandances'])->where('group_id', $group->id)
                 ->orderByDesc('id')->paginate(10),
@@ -59,7 +59,7 @@ class GroupInfoScreen extends Screen
 
     public function description(): ?string
     {
-        return 'Guruxdagi talabalar va ularning dars jarayonlari haqida ma\'lumot';
+        return 'Guruxdagi talabalar va ularning dars jarayonlari haqida ma\'lumot | ' . $this->group->branch->name;
     }
 
     public function permission(): ?iterable
