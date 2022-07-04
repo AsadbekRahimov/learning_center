@@ -99,7 +99,7 @@ class MessagesScreen extends Screen
 
     public function sendMessage(Request $request)
     {
-        $students = Student::query()->where('branch_id', $request->branch_id)->get();
+        $students = Student::query()->where('branch_id', $request->branch_id)->whereNot('status', 'finished')->get();
         $branch = Branch::query()->find($request->branch_id);
         $students_info = null;
         $message = $request->message;
