@@ -5,7 +5,9 @@ namespace App\Orchid\Screens\Message;
 use App\Models\Message;
 use App\Orchid\Layouts\Message\MessageEditLayout;
 use App\Orchid\Layouts\Message\MessagesListTable;
+use App\Orchid\Layouts\Message\SendMessageLayout;
 use Illuminate\Http\Request;
+use Orchid\Screen\Actions\ModalToggle;
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Alert;
 use Orchid\Support\Facades\Layout;
@@ -53,7 +55,11 @@ class MessagesScreen extends Screen
     public function commandBar(): iterable
     {
         return [
-
+            ModalToggle::make('Xabar jonatish')
+                ->modal('sendMessageModal')
+                ->icon('envelope-open')
+                ->method('sendMessage')
+                ->canSee('platform.editMessages'),
         ];
     }
 
@@ -67,6 +73,7 @@ class MessagesScreen extends Screen
         return [
             MessagesListTable::class,
             Layout::modal('asyncEditMessageModal', MessageEditLayout::class)->async('asyncGetUser')->applyButton('Saqlash')->closeButton('Yopish'),
+            Layout::modal('sendMessageModal', SendMessageLayout::class)->applyButton('Jo\'natish')->closeButton('Yopish'),
         ];
     }
 

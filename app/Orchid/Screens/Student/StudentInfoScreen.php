@@ -273,7 +273,7 @@ class StudentInfoScreen extends Screen
                     Input::make('payed')->hidden()->value(0)->canSee(!Auth::user()->hasAccess('platform.editLesson')
                         && $this->student->branch->payment_period === 'monthly')
                 ]),
-            ])->applyButton('Qo\'shish')->closeButton('Yopish')->title('Talabani guruxga qo\'shish')->withoutApplyButton($this->student->status != 'accepted'),
+            ])->applyButton('Qo\'shish')->closeButton('Yopish')->withoutApplyButton($this->student->status != 'accepted'),
 
             Layout::modal('changeGroupModal', [
                 Layout::rows([
