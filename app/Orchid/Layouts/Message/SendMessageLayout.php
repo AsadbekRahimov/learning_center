@@ -27,14 +27,14 @@ class SendMessageLayout extends Rows
     protected function fields(): iterable
     {
         return [
-            Relation::make('brance_id')
+            Relation::make('branch_id')
                 ->title('Filial')
                 ->fromModel(Branch::class, 'name')
                 ->required()->canSee(!Auth::user()->branch_id),
             Input::make('brand_id')
                 ->type('hidden')
                 ->value(Auth::user()->branch_id)->canSee(!is_null(Auth::user()->branch_id)),
-            TextArea::make('message')->required()->rows(5)->title('Xabar matni'),
+            TextArea::make('message')->required()->rows(5)->title('Xabar matni')->help('Bu SMS xabar barcha filial talabalarga jo\'natiladi!'),
         ];
     }
 }

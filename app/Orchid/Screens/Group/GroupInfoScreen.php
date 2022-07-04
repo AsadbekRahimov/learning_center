@@ -183,7 +183,7 @@ class GroupInfoScreen extends Screen
             $error_message = 'Talabaning ota-onasini telefon raqami yo\'qligi sababli talaba darsga kelmaganligi haqida oila azolariga sms xabar yuborilmadi!'
                 . "\r\n" . 'Talaba: '  . $student->fio_name . ' | Gurux: ' . $group->name;
             try {
-                TelegramNotify::sendMessage($error_message, '#davomat_ogoxlantirishda_xatolik', $student->branch->name);
+                TelegramNotify::sendMessage($error_message, 'davomat_ogoxlantirishda_xatolik', $student->branch->name);
             } catch (\Exception $e){}
         }
     }
