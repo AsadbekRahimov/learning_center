@@ -269,7 +269,7 @@ class StudentInfoScreen extends Screen
             Layout::modal('addToGroupModal', [
                 Layout::rows([
                     Select::make('group_id')
-                        ->fromQuery(\App\Models\Group::where('branch_id', $this->student->branch_id)->whereNotIn('id', $this->groups), 'name')
+                        ->fromQuery(\App\Models\Group::where('branch_id', $this->student->branch_id)->whereNotIn('id', $this->groups)->where('is_active', '=', true), 'name')
                         ->title('Guruxni tanlang')->disabled($this->student->status != 'accepted'),
                     Input::make('lesson_limit')->type('number')->required()->value(12)
                         ->title('Dars limiti')
