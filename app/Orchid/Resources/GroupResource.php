@@ -19,6 +19,7 @@ use Orchid\Screen\Fields\Relation;
 use Orchid\Screen\Fields\Select;
 use Orchid\Screen\Sight;
 use Orchid\Screen\TD;
+use Orchid\Support\Facades\Alert;
 
 class GroupResource extends Resource
 {
@@ -283,5 +284,28 @@ class GroupResource extends Resource
         return $model->query()->when($this->branch_user, function ($query) {
             return $query->where('branch_id', Auth::user()->branch_id);
         });
+    }
+
+    public function onSave(ResourceRequest $request, Model $model)
+    {
+        //dd($request->all());
+        if ($request->is_active == '0' && $model->students()->count())
+        {
+            Alert::error('Oldin guruxdagi talabalarni guruxdan chiqarish kerak!');
+        } else {
+            $model->forceFill($request->all())->save();
+        }
+    }
+
+    /**
+     * Action to delete a model
+     *
+     * @param Model $model
+     *
+     * @throws Exception
+     */
+    public function onDelete(Model $model)
+    {
+        $model->delete();
     }
 }

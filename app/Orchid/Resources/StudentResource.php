@@ -25,6 +25,7 @@ use Orchid\Screen\Fields\TextArea;
 use Orchid\Screen\Sight;
 use Orchid\Screen\TD;
 use Orchid\Support\Color;
+use Orchid\Support\Facades\Alert;
 
 class StudentResource extends Resource
 {
@@ -160,7 +161,7 @@ class StudentResource extends Resource
                 })->sort()->filter(CheckBox::make()->title('Saxovat talabasi')->sendTrueOrFalse())->cantHide(),
             TD::make('status', 'Talim bosqichi')->render(function ($model) {
                     return  Student::STATUS[$model->status];
-                })->cantHide(),
+                })->filter(Select::make('status')->options(Student::STATUS))->cantHide(),
             TD::make('source_id', 'Hamkor')->render(function ($model) {
                     return $model->source->name;
                 })->filter(Relation::make()->fromModel(Source::class, 'name'))->cantHide(),
@@ -396,5 +397,28 @@ class StudentResource extends Resource
         return $model->query()->when($this->branch_user, function ($query) {
             return $query->where('branch_id', Auth::user()->branch_id);
         });
+    }
+
+
+    public function onSave(ResourceRequest $request, Model $model)
+    {
+        if ($request->status == 'finished' && $model->groups()->count())
+        {
+            Alert::error('Oldin talabani u azo bolgan barcha guruxlardan chiqarish kerak!');
+        } else {
+            $model->forceFill($request->all())->save();
+        }
+    }
+
+    /**
+     * Action to delete a model
+     *
+     * @param Model $model
+     *
+     * @throws Exception
+     */
+    public function onDelete(Model $model)
+    {
+        $model->delete();
     }
 }

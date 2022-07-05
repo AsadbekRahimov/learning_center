@@ -33,7 +33,7 @@ class GetPaymentFromBalance extends Command
         {
             $students = Student::query()->with(['branch'])->whereHas('branch', function (Builder $query) {
                 $query->where('payment_period', '=', 'monthly');
-            })->get();
+            })->where('status', 'accepted')->get();
 
             foreach ($students as $student)
             {

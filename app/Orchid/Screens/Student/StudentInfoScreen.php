@@ -11,6 +11,8 @@ use App\Orchid\Layouts\Student\StudentAttandanceTable;
 use App\Orchid\Layouts\Student\StudentGroupsTable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Orchid\Screen\Actions\Button;
+use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Actions\ModalToggle;
 use Orchid\Screen\Fields\CheckBox;
 use Orchid\Screen\Fields\Input;
@@ -96,6 +98,11 @@ class StudentInfoScreen extends Screen
                 ->modal('paymentModal')
                 ->method('studentPayment')
                 ->icon('dollar'),
+
+            Link::make('Taxrirlash')
+                ->icon('settings')
+                ->canSee('platform.students')
+                ->href('/admin/crud/edit/student-resources/' . $this->student->id),
         ];
     }
 
@@ -262,7 +269,7 @@ class StudentInfoScreen extends Screen
             Layout::modal('addToGroupModal', [
                 Layout::rows([
                     Select::make('group_id')
-                        ->fromQuery(\App\Models\Group::where('branch_id', $this->student->branch_id)->whereNotIn('id', $this->groups), 'name')
+                        ->fromQuery(\App\Models\Group::where('branch_id', $this->student->branch_id)->whereNotIn('id', $this->groups)->where('is_active', '=', true), 'name')
                         ->title('Guruxni tanlang')->disabled($this->student->status != 'accepted'),
                     Input::make('lesson_limit')->type('number')->required()->value(12)
                         ->title('Dars limiti')
@@ -273,7 +280,7 @@ class StudentInfoScreen extends Screen
                     Input::make('payed')->hidden()->value(0)->canSee(!Auth::user()->hasAccess('platform.editLesson')
                         && $this->student->branch->payment_period === 'monthly')
                 ]),
-            ])->applyButton('Qo\'shish')->closeButton('Yopish')->title('Talabani guruxga qo\'shish')->withoutApplyButton($this->student->status != 'accepted'),
+            ])->applyButton('Qo\'shish')->closeButton('Yopish')->withoutApplyButton($this->student->status != 'accepted'),
 
             Layout::modal('changeGroupModal', [
                 Layout::rows([
