@@ -11,6 +11,8 @@ use App\Orchid\Layouts\Student\StudentAttandanceTable;
 use App\Orchid\Layouts\Student\StudentGroupsTable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Orchid\Screen\Actions\Button;
+use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Actions\ModalToggle;
 use Orchid\Screen\Fields\CheckBox;
 use Orchid\Screen\Fields\Input;
@@ -96,6 +98,11 @@ class StudentInfoScreen extends Screen
                 ->modal('paymentModal')
                 ->method('studentPayment')
                 ->icon('dollar'),
+
+            Link::make('Taxrirlash')
+                ->icon('settings')
+                ->canSee('platform.students')
+                ->href('/admin/crud/edit/student-resources/' . $this->student->id),
         ];
     }
 
