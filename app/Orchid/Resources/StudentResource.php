@@ -156,8 +156,7 @@ class StudentResource extends Resource
                 return Button::make($model->debt)->type(Color::DANGER())->canSee($model->debt > 0)->disabled();
             })->sort()->cantHide(),
             TD::make('privilege', 'Saxovat')->render(function ($model) {
-                return Button::make($model->privilege ? 'Ha' : 'Yo`q')
-                    ->type($model->privilege ? Color::WARNING() : Color::PRIMARY())->disabled();
+                    return Link::make('')->icon('star')->type(Color::WARNING())->canSee($model->privilege);
                 })->sort()->filter(CheckBox::make()->title('Saxovat talabasi')->sendTrueOrFalse())->cantHide(),
             TD::make('status', 'Talim bosqichi')->render(function ($model) {
                     return  Student::STATUS[$model->status];
