@@ -307,6 +307,11 @@ class GroupResource extends Resource
      */
     public function onDelete(Model $model)
     {
-        $model->delete();
+        if ($model->students()->count())
+        {
+            Alert::error('Oldin guruxdagi talabalarni guruxdan chiqarish kerak!');
+        } else {
+            $model->delete();
+        }
     }
 }

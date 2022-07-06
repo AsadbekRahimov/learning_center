@@ -22,6 +22,11 @@ class Subject extends Model
         return $this->belongsTo(Branch::class, 'branch_id', 'id')->withTrashed();
     }
 
+    public function groups()
+    {
+        return $this->hasMany(Group::class, 'subject_id', 'id');
+    }
+
     protected $allowedFilters = [
         'branch_id'
     ];

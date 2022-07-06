@@ -421,6 +421,11 @@ class StudentResource extends Resource
      */
     public function onDelete(Model $model)
     {
-        $model->delete();
+        if ($model->groups()->count())
+        {
+            Alert::error('Oldin talabani u azo bolgan barcha guruxlardan chiqarish kerak!');
+        } else {
+            $model->delete();
+        }
     }
 }

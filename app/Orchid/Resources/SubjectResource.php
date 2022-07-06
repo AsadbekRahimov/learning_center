@@ -16,6 +16,7 @@ use Orchid\Screen\Fields\Relation;
 use Orchid\Screen\Fields\Select;
 use Orchid\Screen\Sight;
 use Orchid\Screen\TD;
+use Orchid\Support\Facades\Alert;
 
 class SubjectResource extends Resource
 {
@@ -243,5 +244,22 @@ class SubjectResource extends Resource
         return $model->query()->when($this->branch_user, function ($query) {
             return $query->where('branch_id', Auth::user()->branch_id);
         });
+    }
+
+    /**
+     * Action to delete a model
+     *
+     * @param Model $model
+     *
+     * @throws Exception
+     */
+    public function onDelete(Model $model)
+    {
+        if ($model->groups()->count())
+        {
+            Alert::error('Oldin fanga biriktirilgan guruxlarning fanini o`zgartirish kerak!');
+        } else {
+            $model->delete();
+        }
     }
 }
