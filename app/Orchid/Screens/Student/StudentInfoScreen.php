@@ -170,8 +170,8 @@ class StudentInfoScreen extends Screen
                     Alert::success('Talaba guruxga qo\'shildi. Bu guruxda oy oxirigacha qolgan ' . $results['days'] .
                         ' ta dars xisobidan ' . $results['price'] . ' so\'m talabaning xisobidan yechildi');
                 }
-            } else {
-                if (!$request->has('lesson_limit')) { // qolgan dars limiti kiritilmagandagi xolatda
+            } elseif ($request->has('lesson_limit')) {
+                if ($request->lesson_limit == '0') { // qolgan dars limiti kiritilmagandagi xolatda
                     if ($student->balance >= $group->subject->price) {
                         $student->balance -= $group->subject->price;
                     } else {
@@ -199,7 +199,13 @@ class StudentInfoScreen extends Screen
         if ($student->branch->payment_period == 'daily')
         {
             $returned_balance = round(($group->group->subject->price / 12) * $group->lesson_limit, -3);
-            $student->balance += (int)$returned_balance;
+
+            if ($student->debt >= $returned_balance) {
+                $student->debt -= $returned_balance;
+            } else {
+                $student->balance += $returned_balance - $student->debt;
+                $student->debt = 0;
+            }
             $student->save();
             $group->delete();
             Alert::success('Talaba guruxdan o\'chirildi, uning xisobida qolgan' . $limit .' ta dars limitlari xisobidan ' . $returned_balance . ' so\'m qaytarildi');
@@ -272,9 +278,11 @@ class StudentInfoScreen extends Screen
                     Select::make('group_id')
                         ->fromQuery(\App\Models\Group::where('branch_id', $this->student->branch_id)->whereNotIn('id', $this->groups)->where('is_active', '=', true), 'all_name')
                         ->title('Guruxni tanlang')->disabled($this->student->status != 'accepted'),
-                    Input::make('lesson_limit')->type('number')->required()->value(12)
+                    Input::make('lesson_limit')->type('number')->required()->value(0)
                         ->title('Dars limiti')
                         ->canSee(Auth::user()->hasAccess('platform.editLesson') && $this->student->branch->payment_period === 'daily'),
+                    Input::make('payed')->hidden()->value(0)->canSee(!Auth::user()->hasAccess('platform.editLesson')
+                        && $this->student->branch->payment_period === 'daily'),
                     Input::make('student_id')->value($this->student->id)->hidden(),
                     CheckBox::make('payed')->title('Oyni oxirigacha to\'lagan')->sendTrueOrFalse()
                         ->canSee(Auth::user()->hasAccess('platform.editLesson') && $this->student->branch->payment_period === 'monthly'),

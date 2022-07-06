@@ -3,7 +3,6 @@
 namespace App\Orchid\Layouts\Student;
 
 use App\Models\StudentGroup;
-use Illuminate\Support\Facades\Auth;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\DropDown;
 use Orchid\Screen\Actions\Link;
