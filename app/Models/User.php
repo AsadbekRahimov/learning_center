@@ -96,4 +96,9 @@ class User extends Authenticatable
     {
         return new UserPresenter($this);
     }
+
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class, 'branch_id', 'id');
+    }
 }

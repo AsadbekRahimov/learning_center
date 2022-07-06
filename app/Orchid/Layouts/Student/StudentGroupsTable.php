@@ -3,6 +3,7 @@
 namespace App\Orchid\Layouts\Student;
 
 use App\Models\StudentGroup;
+use Illuminate\Support\Facades\Auth;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\DropDown;
 use Orchid\Screen\Actions\Link;
@@ -11,6 +12,7 @@ use Orchid\Screen\TD;
 
 class StudentGroupsTable extends Table
 {
+    protected $branch;
     /**
      * Data source.
      *
@@ -34,7 +36,9 @@ class StudentGroupsTable extends Table
             TD::make('subject', 'Fan')->render(function (StudentGroup $student_groups) {
                 return $student_groups->group->subject->name;
             }),
-            TD::make('lesson_limit', 'Dars limit'),
+            TD::make('lesson_limit', 'Dars limit')->render(function (StudentGroup $student_groups) {
+                return $student_groups->student->branch->payment_period === 'daily' ? $student_groups->lesson_limit : '---';
+            }),
             TD::make('Amallar')
                 ->align(TD::ALIGN_CENTER)
                 ->width('100px')
