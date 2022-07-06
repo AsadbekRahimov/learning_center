@@ -18,6 +18,7 @@ return new class extends Migration
             $table->integer('student_id');
             $table->integer('group_id');
             $table->integer('lesson_limit')->default(0);
+            $table->integer('price')->nullable();
             $table->timestamps();
         });
     }

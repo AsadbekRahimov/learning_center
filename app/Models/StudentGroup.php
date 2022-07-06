@@ -17,6 +17,7 @@ class StudentGroup extends Model
         'student_id',
         'group_id',
         'lesson_limit',
+        'price',
     ];
 
     public function group()
