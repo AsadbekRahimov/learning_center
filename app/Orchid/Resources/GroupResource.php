@@ -19,6 +19,7 @@ use Orchid\Screen\Fields\Relation;
 use Orchid\Screen\Fields\Select;
 use Orchid\Screen\Sight;
 use Orchid\Screen\TD;
+use Orchid\Support\Color;
 use Orchid\Support\Facades\Alert;
 
 class GroupResource extends Resource
@@ -104,7 +105,7 @@ class GroupResource extends Resource
                 })->sort()->filter(Select::make()->options(Group::DAY_TYPE))->cantHide(),
             TD::make('is_active', 'Aktiv')
                 ->render(function ($model) {
-                    return $model->is_active ? 'Ha' : 'Yo\'q';
+                    return $model->is_active ? Link::make()->icon('check')->type(Color::SUCCESS()) : Link::make()->icon('close')->type(Color::DANGER());
                 })->sort(),
             TD::make('created_at', 'Kiritilgan sana')
                 ->render(function ($model) {
