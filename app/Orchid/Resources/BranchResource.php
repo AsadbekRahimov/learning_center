@@ -12,6 +12,7 @@ use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\Select;
 use Orchid\Screen\Sight;
 use Orchid\Screen\TD;
+use Orchid\Support\Facades\Alert;
 
 class BranchResource extends Resource
 {
@@ -189,5 +190,10 @@ class BranchResource extends Resource
     public static function emptyResourceForAction(): string
     {
         return 'Bu amallarni bajarish uchun malumotlar mavjud emas';
+    }
+
+    public function onDelete(Model $model)
+    {
+        Alert::error('Barcha malumotlar filialga bog\'langanligi sababli filialni ochira olmaysiz! Filalni taxrirlashga urunip koring.');
     }
 }

@@ -9,6 +9,7 @@ use Orchid\Crud\Resource;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Sight;
 use Orchid\Screen\TD;
+use Orchid\Support\Facades\Alert;
 
 class SourceResource extends Resource
 {
@@ -186,5 +187,15 @@ class SourceResource extends Resource
     public static function emptyResourceForAction(): string
     {
         return 'Bu amallarni bajarish uchun malumotlar mavjud emas';
+    }
+
+    public function onDelete(Model $model)
+    {
+        if ($model->students()->count())
+        {
+            Alert::error('Oldin bu hamkordan kelgan barcha talabalar hamkorlarini o\'zgartirish kerak!');
+        } else {
+            $model->delete();
+        }
     }
 }

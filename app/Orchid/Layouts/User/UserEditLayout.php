@@ -37,7 +37,6 @@ class UserEditLayout extends Rows
             Select::make('user.branch_id')
                 ->fromModel(Branch::class, 'name')
                 ->title('Filial')
-                ->required()
                 ->empty('Barchasi')->canSee(Auth::user()->hasAccess('platform.branches'))
         ];
     }

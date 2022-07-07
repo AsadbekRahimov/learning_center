@@ -149,15 +149,17 @@ class StudentResource extends Resource
                     return Link::make($model->parent_phone)->href('tel:' . Student::telephone($model->parent_phone));
                 })->defaultHidden(),
             TD::make('balance', 'Hisob')->render(function ($model) {
-                return Button::make($model->balance)->method('none')->type(Color::SUCCESS())
+                return Button::make(number_format($model->balance))->method('none')->type(Color::SUCCESS())
                     ->canSee($model->balance > 0)->disabled();
             })->sort()->cantHide(),
             TD::make('debt', 'Qarz')->render(function ($model) {
-                return Button::make($model->debt)->type(Color::DANGER())->canSee($model->debt > 0)->disabled();
+                return Button::make(number_format($model->debt))->type(Color::DANGER())->canSee($model->debt > 0)->disabled();
             })->sort()->cantHide(),
+            TD::make('discount', 'Chegirma')->render(function ($model) {
+                return Button::make(number_format($model->discount))->type(Color::INFO())->canSee($model->discount > 0)->disabled();
+            })->sort(),
             TD::make('privilege', 'Saxovat')->render(function ($model) {
-                return Button::make($model->privilege ? 'Ha' : 'Yo`q')
-                    ->type($model->privilege ? Color::WARNING() : Color::PRIMARY())->disabled();
+                    return Link::make('')->icon('star')->type(Color::WARNING())->canSee($model->privilege);
                 })->sort()->filter(CheckBox::make()->title('Saxovat talabasi')->sendTrueOrFalse())->cantHide(),
             TD::make('status', 'Talim bosqichi')->render(function ($model) {
                     return  Student::STATUS[$model->status];
@@ -175,7 +177,7 @@ class StudentResource extends Resource
             TD::make('branch_id', 'Filial')->filter(Relation::make('branch_id')->fromModel(Branch::class, 'name'))
                 ->render(function ($model) {
                     return $model->branch->name;
-                })->canSee(!$this->branch_user),
+                })->canSee(!$this->branch_user)->cantHide(),
             TD::make('created_at', 'Kiritilgan sana')
                 ->render(function ($model) {
                     return $model->created_at->toDateTimeString();
@@ -419,6 +421,11 @@ class StudentResource extends Resource
      */
     public function onDelete(Model $model)
     {
-        $model->delete();
+        if ($model->groups()->count())
+        {
+            Alert::error('Oldin talabani u azo bolgan barcha guruxlardan chiqarish kerak!');
+        } else {
+            $model->delete();
+        }
     }
 }

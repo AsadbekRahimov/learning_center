@@ -11,13 +11,13 @@ use App\Orchid\Layouts\Student\StudentAttandanceTable;
 use App\Orchid\Layouts\Student\StudentGroupsTable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Actions\ModalToggle;
 use Orchid\Screen\Fields\CheckBox;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\Select;
 use Orchid\Screen\Screen;
+use Orchid\Support\Color;
 use Orchid\Support\Facades\Alert;
 use Orchid\Support\Facades\Layout;
 
@@ -85,6 +85,7 @@ class StudentInfoScreen extends Screen
     {
         $modal_title = $this->student->status == 'accepted' ? 'Guruxga qo\'shish' : 'Talabaning ta\'lim bosqichi faol bolishi kerak!';
         return [
+            Link::make('')->icon('star')->type(Color::WARNING())->canSee($this->student->privilege),
             ModalToggle::make('Guruxga qo\'shish')
                 ->modal('addToGroupModal')
                 ->method('addToGroup')
@@ -153,6 +154,7 @@ class StudentInfoScreen extends Screen
     public function addToGroup(Request $request)
     {
         //dd($request->all());
+        $other_price = $request->has('price') ? $request->price : null;
         if ($request->has('group_id')) {
             $student = Student::query()->find($request->student_id);
             $group = Group::query()->with(['subject'])->find($request->group_id);
@@ -160,17 +162,21 @@ class StudentInfoScreen extends Screen
                 'student_id' => $request->student_id,
                 'group_id' => $request->group_id,
                 'lesson_limit' => $request->has('lesson_limit') ? $request->lesson_limit : 12,
+                'price' => $request->has('price') ? $request->price : null,
             ]);
 
             if ($request->has('payed')) { // Talaba oylik rejimda royhatdan o`tganda | oydi oxirigacha tolovni xisoblash
                 if ($request->payed === '0') {
                     // Kurs oldin tolanganlar
-                    $results = $this->getMonthlyPayFromBalance($request->student_id, $request->group_id);
+                    $results = $this->getMonthlyPayFromBalance($request->student_id, $request->group_id, $other_price);
                     Alert::success('Talaba guruxga qo\'shildi. Bu guruxda oy oxirigacha qolgan ' . $results['days'] .
                         ' ta dars xisobidan ' . $results['price'] . ' so\'m talabaning xisobidan yechildi');
+                } else {
+                    Alert::success('Talaba guruxga qo\'shildi');
                 }
-            } else {
-                if (!$request->has('lesson_limit')) { // qolgan dars limiti kiritilmagandagi xolatda
+            } elseif ($request->has('lesson_limit')) {
+                // TODO: add privilige students logic for add for group
+                if ($request->lesson_limit == '0') { // qolgan dars limiti kiritilmagandagi xolatda
                     if ($student->balance >= $group->subject->price) {
                         $student->balance -= $group->subject->price;
                     } else {
@@ -197,12 +203,20 @@ class StudentInfoScreen extends Screen
         $limit = $group->lesson_limit;
         if ($student->branch->payment_period == 'daily')
         {
+            // TODO: add privilige students logic for delete from group
             $returned_balance = round(($group->group->subject->price / 12) * $group->lesson_limit, -3);
-            $student->balance += (int)$returned_balance;
+
+            if ($student->debt >= $returned_balance) {
+                $student->debt -= $returned_balance;
+            } else {
+                $student->balance += $returned_balance - $student->debt;
+                $student->debt = 0;
+            }
             $student->save();
             $group->delete();
             Alert::success('Talaba guruxdan o\'chirildi, uning xisobida qolgan' . $limit .' ta dars limitlari xisobidan ' . $returned_balance . ' so\'m qaytarildi');
         } else {
+            // TODO: add privilige students logic for delete from group
             $today = date('j'); // number of  current date this month
             $last_day = date('t'); // number of last day in month
             $returning_lessons = 0;
@@ -269,16 +283,20 @@ class StudentInfoScreen extends Screen
             Layout::modal('addToGroupModal', [
                 Layout::rows([
                     Select::make('group_id')
-                        ->fromQuery(\App\Models\Group::where('branch_id', $this->student->branch_id)->whereNotIn('id', $this->groups)->where('is_active', '=', true), 'name')
+                        ->fromQuery(\App\Models\Group::where('branch_id', $this->student->branch_id)->whereNotIn('id', $this->groups)->where('is_active', '=', true), 'all_name')
                         ->title('Guruxni tanlang')->disabled($this->student->status != 'accepted'),
-                    Input::make('lesson_limit')->type('number')->required()->value(12)
+                    Input::make('price')->title('Imtiyozli talaba uchun gurux narxi')->type('number')
+                        ->required()->canSee($this->student->privilege && Auth::user()->hasAccess('platform.editGroupPrice')),
+                    Input::make('lesson_limit')->type('number')->required()->value(0)
                         ->title('Dars limiti')
                         ->canSee(Auth::user()->hasAccess('platform.editLesson') && $this->student->branch->payment_period === 'daily'),
+                    Input::make('payed')->hidden()->value(0)->canSee(!Auth::user()->hasAccess('platform.editLesson')
+                        && $this->student->branch->payment_period === 'daily'),
                     Input::make('student_id')->value($this->student->id)->hidden(),
                     CheckBox::make('payed')->title('Oyni oxirigacha to\'lagan')->sendTrueOrFalse()
                         ->canSee(Auth::user()->hasAccess('platform.editLesson') && $this->student->branch->payment_period === 'monthly'),
                     Input::make('payed')->hidden()->value(0)->canSee(!Auth::user()->hasAccess('platform.editLesson')
-                        && $this->student->branch->payment_period === 'monthly')
+                        && $this->student->branch->payment_period === 'monthly'),
                 ]),
             ])->applyButton('Qo\'shish')->closeButton('Yopish')->withoutApplyButton($this->student->status != 'accepted'),
 
@@ -305,8 +323,9 @@ class StudentInfoScreen extends Screen
         ];
     }
 
-    private function getMonthlyPayFromBalance($student_id, $group_id)
+    private function getMonthlyPayFromBalance($student_id, $group_id, $other_price)
     {
+        //dd($other_price);
         $student = Student::query()->find($student_id);
         $group = Group::query()->with(['subject'])->find($group_id);
         $today = date('j'); // number of  current date this month
@@ -334,7 +353,12 @@ class StudentInfoScreen extends Screen
         }
 
         if ($lessons_this_month) {
-            $remaining_payment_for_this_month = round(($group->subject->price / $lessons_this_month) * $remaining_lessons, -3);
+            if (!is_null($other_price))
+            {
+                $remaining_payment_for_this_month = round(($other_price / $lessons_this_month) * $remaining_lessons, -3);
+            } else {
+                $remaining_payment_for_this_month = round(($group->subject->price / $lessons_this_month) * $remaining_lessons, -3);
+            }
         }
 
         if ($student->balance >= $remaining_payment_for_this_month) {

@@ -35,12 +35,12 @@ class GroupStudentsTable extends Table
                 return Link::make($student->student->name)->route('platform.addStudentToGroup', ['student' => $student->student_id]);
             })->cantHide(),
             TD::make('balance', 'Hisob')->render(function (StudentGroup $student) {
-                return Button::make($student->student->balance)->method('none')->type(Color::SUCCESS())
-                    ->canSee($student->student->balance > 0);
+                return Button::make(number_format($student->student->balance))->type(Color::SUCCESS())
+                    ->canSee($student->student->balance > 0)->disabled();
             })->cantHide(),
             TD::make('debt', 'Qarz')->render(function (StudentGroup $student) {
-                return Button::make($student->student->debt)->type(Color::DANGER())
-                    ->canSee($student->student->debt > 0)->method('none');
+                return Button::make(number_format($student->student->debt))->type(Color::DANGER())
+                    ->canSee($student->student->debt > 0)->disabled();
             })->cantHide(),
             TD::make('lesson_limit', 'Dars limit')->cantHide(),
             TD::make('attand', 'Davomat soni')->render(function (StudentGroup $student) {
@@ -50,7 +50,8 @@ class GroupStudentsTable extends Table
                 return $student->attand_percent();
             })->cantHide(),
             TD::make('status', 'Ta\'lim bosqichi')->render(function (StudentGroup $studentGroup){
-                return Button::make(Student::STATUS[$studentGroup->student->status])->method('none')->type($studentGroup->student->status == 'stopped' ? Color::DANGER() : Color::DEFAULT());
+                return Button::make(Student::STATUS[$studentGroup->student->status])
+                    ->type($studentGroup->student->status == 'stopped' ? Color::DANGER() : Color::DEFAULT())->disabled();
             })->cantHide()
         ];
     }

@@ -16,4 +16,9 @@ class Source extends Model
     use AsSource, Filterable, Attachable;
 
     protected $fillable = ['name'];
+
+    public function students()
+    {
+        return $this->hasMany(Student::class, 'source_id', 'id');
+    }
 }

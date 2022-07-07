@@ -73,6 +73,7 @@ class Student extends Model
         'come_date',
         'balance',
         'debt',
+        'discount',
         'updated_at',
         'created_at',
     ];
