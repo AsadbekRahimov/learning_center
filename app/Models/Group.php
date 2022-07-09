@@ -53,4 +53,9 @@ class Group extends Model
         'is_active',
         'day_type',
     ];
+
+    public function getAllNameAttribute($value)
+    {
+        return $this->name . ' (' . $this->subject->name . ' : ' . $this->subject->price . ')';
+    }
 }

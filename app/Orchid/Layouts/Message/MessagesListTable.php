@@ -35,7 +35,7 @@ class MessagesListTable extends Table
                     ->asyncParameters([
                         'message' => $message->id,
                     ]);
-            }),
+            })->cantHide(),
         ];
     }
 }

@@ -36,7 +36,7 @@ class PaymentInfo extends Command
         {
             $students_info = null;
             if (date('j') === date('t')) {
-                $students = Student::query()->where('branch_id', $branch->id)->get();
+                $students = Student::query()->where('branch_id', $branch->id)->where('status', 'accepted')->get();
 
                 foreach ($students as $student)
                 {
