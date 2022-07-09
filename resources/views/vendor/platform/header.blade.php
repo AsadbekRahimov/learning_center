@@ -13,5 +13,5 @@
 @endpush
 
 <div class="h2 fw-light d-flex align-items-center">
-    <img src="{{ asset('logo2.png') }}" alt="Saxovat ta'lim o`quv markazi" style="width: 175px; height: auto">
+        <img src="{{ asset('logo_white.png') }}" alt="Saxovat ta'lim o`quv markazi" style="width: 175px; height: auto">
 </div>
