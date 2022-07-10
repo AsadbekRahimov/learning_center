@@ -20,6 +20,20 @@ class StudentGroup extends Model
         'price',
     ];
 
+    private static function getLessonLimit($request)
+    {
+        if ($request->has('lesson_limit')) {
+            return  ($request->lesson_limit === '0') ? 12 : $request->lesson_limit;
+        } else {
+            return 12;
+        }
+    }
+
+    public static function getOtherPrice($request)
+    {
+        return $request->has('price') ? $request->price : null;
+    }
+
     public function group()
     {
         return $this->belongsTo(Group::class, 'group_id', 'id');
@@ -48,5 +62,14 @@ class StudentGroup extends Model
             return round(($this->attandances->where('attand', '=', 1)->count() / $this->attandances->where('attand', '!=', 2)->count()) * 100) . ' %';
         else
             return 0;
+    }
+
+    public static function saveStudent($request) {
+        return self::query()->create([
+            'student_id' => $request->student_id,
+            'group_id' => $request->group_id,
+            'lesson_limit' => self::getLessonLimit($request),
+            'price' => self::getOtherPrice($request),
+        ]);
     }
 }

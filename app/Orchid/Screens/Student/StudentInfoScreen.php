@@ -164,38 +164,33 @@ class StudentInfoScreen extends Screen
 
     public function addToGroup(Request $request)
     {
-        //dd($request->all());
-        $other_price = $request->has('price') ? $request->price : null;
         if ($request->has('group_id')) {
             $student = Student::query()->find($request->student_id);
             $group = Group::query()->with(['subject'])->find($request->group_id);
-            StudentGroup::query()->create([
-                'student_id' => $request->student_id,
-                'group_id' => $request->group_id,
-                'lesson_limit' => $request->has('lesson_limit') ? $request->lesson_limit : 12,
-                'price' => $request->has('price') ? $request->price : null,
-            ]);
+
+            $new_student = StudentGroup::saveStudent($request);
 
             if ($request->has('payed')) { // Talaba oylik rejimda royhatdan o`tganda | oydi oxirigacha tolovni xisoblash
                 if ($request->payed === '0') {
                     // Kurs oldin tolanganlar
-                    $results = $this->getMonthlyPayFromBalance($request->student_id, $request->group_id, $other_price);
+                    $results = $this->getMonthlyPayFromBalance($request->student_id, $request->group_id, $new_student->price);
                     Alert::success('Talaba guruxga qo\'shildi. Bu guruxda oy oxirigacha qolgan ' . $results['days'] .
                         ' ta dars xisobidan ' . $results['price'] . ' so\'m talabaning xisobidan yechildi');
                 } else {
                     Alert::success('Talaba guruxga qo\'shildi');
                 }
             } elseif ($request->has('lesson_limit')) {
-                // TODO: add privilige students logic for add for group
                 if ($request->lesson_limit == '0') { // qolgan dars limiti kiritilmagandagi xolatda
-                    if ($student->balance >= $group->subject->price) {
-                        $student->balance -= $group->subject->price;
+                    $subject_price = is_null($new_student->price) ? $group->subject->price : $new_student->price;
+
+                    if ($student->balance >= $subject_price) {
+                        $student->balance -= $subject_price;
                     } else {
-                        $student->debt += ($group->subject->price - $student->balance);
+                        $student->debt += ($subject_price - $student->balance);
                         $student->balance = 0;
                     }
                     $student->save();
-                    Alert::success('Talaba guruxga qo\'shildi, Uning xisobidan 12 ta dars uchun ' . $group->subject->price
+                    Alert::success('Talaba guruxga qo\'shildi, Uning xisobidan 12 ta dars uchun ' . $subject_price
                         . ' miqdoridagi pul yechib olindi');
                 } else {
                     Alert::success('Talaba guruxga qo\'shildi');
@@ -277,6 +272,7 @@ class StudentInfoScreen extends Screen
      */
     public function layout(): iterable
     {
+        //dd($this->groups);
         return [
             Layout::metrics([
                 'To\'lov' => 'metrics.pay',
@@ -297,8 +293,9 @@ class StudentInfoScreen extends Screen
             Layout::modal('addToGroupModal', [
                 Layout::rows([
                     Select::make('group_id')
-                        ->fromQuery(\App\Models\Group::where('branch_id', $this->student->branch_id)->whereNotIn('id', $this->groups)->where('is_active', '=', true), 'all_name')
-                        ->title('Guruxni tanlang')->disabled($this->student->status != 'accepted'),
+                        ->fromQuery(\App\Models\Group::where('branch_id', $this->student->branch_id)
+                            ->whereNotIn('id', $this->groups)->where('is_active', '=', true), 'all_name')
+                        ->title('Guruxni tanlang')->disabled($this->student->status != 'accepted')->required(),
                     Input::make('price')->title('Imtiyozli talaba uchun gurux narxi')->type('number')
                         ->required()->canSee($this->student->privilege && Auth::user()->hasAccess('platform.editGroupPrice')),
                     Input::make('lesson_limit')->type('number')->required()->value(0)
@@ -329,17 +326,35 @@ class StudentInfoScreen extends Screen
 
             Layout::modal('paymentModal', [
                 Layout::rows([
-                    Input::make('sum')->type('number')->title('To\'lov summasini kiriting'),
-                    Input::make('student_id')->type('hidden')->value($this->student->id),
-                    Select::make('type')->options(Payment::TYPES)->required()->title('To\'lov turi'),
+                    Input::make('sum')->type('number')
+                        ->title('To\'lov summasini kiriting')->required(),
+                    Input::make('student_id')->type('hidden')
+                        ->value($this->student->id),
+                    Select::make('type')->options(Payment::TYPES)
+                        ->required()->title('To\'lov turi'),
                 ]),
             ])->applyButton('To\'ldirish')->closeButton('Yopish')->title('Talaba hisobini to\'ldirish'),
         ];
     }
 
-    private function getMonthlyPayFromBalance($student_id, $group_id, $other_price)
+
+    private function getOtherPrice(Request $request)
     {
-        //dd($other_price);
+        return $request->has('price') ? $request->price : null;
+    }
+
+
+    private function getLessonLimit(Request $request)
+    {
+        if ($request->has('lesson_limit')) {
+            return  ($request->lesson_limit === '0') ? 12 : $request->lesson_limit;
+        } else {
+            return 12;
+        }
+    }
+
+    private function getMonthlyPayFromBalance($student_id, $group_id, $price)
+    {
         $student = Student::query()->find($student_id);
         $group = Group::query()->with(['subject'])->find($group_id);
         $today = date('j'); // number of  current date this month
@@ -367,12 +382,8 @@ class StudentInfoScreen extends Screen
         }
 
         if ($lessons_this_month) {
-            if (!is_null($other_price))
-            {
-                $remaining_payment_for_this_month = round(($other_price / $lessons_this_month) * $remaining_lessons, -3);
-            } else {
-                $remaining_payment_for_this_month = round(($group->subject->price / $lessons_this_month) * $remaining_lessons, -3);
-            }
+            $monthly_subject_price = is_null($price) ? $group->subject->price : $price;
+            $remaining_payment_for_this_month = round(($monthly_subject_price / $lessons_this_month) * $remaining_lessons, -3);
         }
 
         if ($student->balance >= $remaining_payment_for_this_month) {
