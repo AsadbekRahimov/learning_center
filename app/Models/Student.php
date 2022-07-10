@@ -35,22 +35,6 @@ class Student extends Model
         'privilege'
     ];
 
-    public static function getPayment(\Illuminate\Http\Request $request)
-    {
-        $student = self::query()->find($request->student_id);
-        if ($student->debt > 0) {
-            if ($student->debt > $request->sum) {
-                $student->debt -= $request->sum;
-            } else {
-                $student->balance += ($request->sum - $student->debt);
-                $student->debt = 0;
-            }
-        }else {
-            $student->balance += $request->sum;
-        }
-        $student->save();
-        return $student;
-    }
 
     public function branch()
     {
@@ -134,5 +118,16 @@ class Student extends Model
     public function getFioNameAttribute()
     {
         return $this->name . ' ' . $this->surname . ' ' . $this->lastname;
+    }
+
+    public function returnBalance($returned_balance)
+    {
+        if ($this->debt >= $returned_balance) {
+            $this->debt -= $returned_balance;
+        } else {
+            $this->balance += $returned_balance - $this->debt;
+            $this->debt = 0;
+        }
+        $this->save();
     }
 }

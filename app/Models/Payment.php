@@ -34,7 +34,7 @@ class Payment extends Model
         'branch_id'
     ];
 
-    public static function pay(Request $request, Student $student)
+    public static function payInfo(Request $request, Student $student)
     {
         return self::query()->create([
             'student_id' => $request->student_id,
