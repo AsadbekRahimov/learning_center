@@ -2,7 +2,9 @@
 
 namespace App\Orchid\Screens\Student;
 
+use App\Models\Action;
 use App\Models\Attandance;
+use App\Models\Discount;
 use App\Models\Group;
 use App\Models\Payment;
 use App\Models\Student;
@@ -54,7 +56,12 @@ class StudentInfoScreen extends Screen
             'groups' => StudentGroup::query()->where('student_id', $student->id)->pluck('group_id'),
             'attandances' => Attandance::query()->with(['lesson.group'])->where('student_id', $student->id)
                 ->orderByDesc('id')->paginate(15),
-            'payments' => Payment::query()->where('student_id', $student->id)->orderByDesc('id')->paginate(15),
+            'payments' => Payment::query()->where('student_id', $student->id)->orderByDesc('id')
+                ->paginate(15),
+            'discounts' => Discount::query()->where('student_id', $student->id)->orderByDesc('id')
+                ->paginate(15),
+            'student_actions' => Action::query()->where('student_id', $student->id)->orderByDesc('id')
+                ->paginate(15),
         ];
     }
 
@@ -283,8 +290,8 @@ class StudentInfoScreen extends Screen
                  'Guruxlar' => StudentGroupsTable::class,
                  'Davomat' => StudentAttandanceTable::class,
                  'To\'lovlar' => StudentPaymentsTable::class,
-                 //'Chegirmalar' => StudentDiscountTable::class,
-                 //'Amallar' => StudentActionsTable::class,
+                 'Amallar' => StudentActionsTable::class,
+                 'Chegirmalar' => StudentDiscountTable::class,
             ]),
 
             Layout::modal('addToGroupModal', [

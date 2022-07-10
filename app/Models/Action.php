@@ -8,7 +8,7 @@ use Orchid\Attachment\Attachable;
 use Orchid\Filters\Filterable;
 use Orchid\Screen\AsSource;
 
-class Actions extends Model
+class Action extends Model
 {
     use HasFactory;
     use AsSource, Filterable, Attachable;

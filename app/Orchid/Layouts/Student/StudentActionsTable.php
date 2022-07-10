@@ -2,6 +2,7 @@
 
 namespace App\Orchid\Layouts\Student;
 
+use App\Models\Action;
 use Orchid\Screen\Layouts\Table;
 use Orchid\Screen\TD;
 
@@ -15,7 +16,7 @@ class StudentActionsTable extends Table
      *
      * @var string
      */
-    protected $target = '';
+    protected $target = 'student_actions';
 
     /**
      * Get the table cells to be displayed.
@@ -24,6 +25,14 @@ class StudentActionsTable extends Table
      */
     protected function columns(): iterable
     {
-        return [];
+        return [
+            TD::make('price', 'Pul miqdori')->render(function (Action $action) {
+                return number_format($action->price);
+            }),
+            TD::make('type', 'Xarakat turi')->render(function (Action $action) {
+                return Action::TYPES[$action->type];
+            }),
+            TD::make('desc', 'Tasnifi'),
+        ];
     }
 }

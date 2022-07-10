@@ -2,6 +2,7 @@
 
 namespace App\Orchid\Layouts\Student;
 
+use App\Models\Discount;
 use Orchid\Screen\Layouts\Table;
 use Orchid\Screen\TD;
 
@@ -15,7 +16,7 @@ class StudentDiscountTable extends Table
      *
      * @var string
      */
-    protected $target = '';
+    protected $target = 'discounts';
 
     /**
      * Get the table cells to be displayed.
@@ -24,6 +25,14 @@ class StudentDiscountTable extends Table
      */
     protected function columns(): iterable
     {
-        return [];
+        return [
+            TD::make('price', 'Chegirma miqdori')->render(function (Discount $discount) {
+                 return number_format($discount->price);
+            }),
+            TD::make('type', 'Chegirma turi')->render(function (Discount $discount) {
+                return Discount::TYPES[$discount->type];
+            }),
+            TD::make('desc', 'Tasnifi'),
+        ];
     }
 }
