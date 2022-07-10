@@ -7,8 +7,11 @@ use App\Models\Group;
 use App\Models\Payment;
 use App\Models\Student;
 use App\Models\StudentGroup;
+use App\Orchid\Layouts\Student\StudentActionsTable;
 use App\Orchid\Layouts\Student\StudentAttandanceTable;
+use App\Orchid\Layouts\Student\StudentDiscountTable;
 use App\Orchid\Layouts\Student\StudentGroupsTable;
+use App\Orchid\Layouts\Student\StudentPaymentsTable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Orchid\Screen\Actions\Link;
@@ -47,10 +50,11 @@ class StudentInfoScreen extends Screen
                 ]
             ],
             'student_groups' => StudentGroup::query()->with('group.subject', 'student')
-                ->where('student_id', $student->id)->paginate(15),
+                ->where('student_id', $student->id)->orderByDesc('id')->paginate(15),
             'groups' => StudentGroup::query()->where('student_id', $student->id)->pluck('group_id'),
             'attandances' => Attandance::query()->with(['lesson.group'])->where('student_id', $student->id)
                 ->orderByDesc('id')->paginate(15),
+            'payments' => Payment::query()->where('student_id', $student->id)->orderByDesc('id')->paginate(15),
         ];
     }
 
@@ -276,8 +280,11 @@ class StudentInfoScreen extends Screen
             ]),
 
             Layout::tabs([
-                 'Talaba qo\'shilgan guruxlar' => StudentGroupsTable::class,
-                 'Talabaning davomati' => StudentAttandanceTable::class,
+                 'Guruxlar' => StudentGroupsTable::class,
+                 'Davomat' => StudentAttandanceTable::class,
+                 'To\'lovlar' => StudentPaymentsTable::class,
+                 //'Chegirmalar' => StudentDiscountTable::class,
+                 //'Amallar' => StudentActionsTable::class,
             ]),
 
             Layout::modal('addToGroupModal', [
