@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Orchid\Attachment\Attachable;
 use Orchid\Filters\Filterable;
 use Orchid\Screen\AsSource;
+use \Illuminate\Http\Request;
 
 class Payment extends Model
 {
@@ -32,6 +33,16 @@ class Payment extends Model
         'type',
         'branch_id'
     ];
+
+    public static function payInfo(Request $request, Student $student)
+    {
+        return self::query()->create([
+            'student_id' => $request->student_id,
+            'sum' => $request->sum,
+            'type' => $request->type,
+            'branch_id' => $student->branch_id,
+        ]);
+    }
 
     public function student()
     {

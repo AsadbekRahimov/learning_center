@@ -31,6 +31,7 @@ class GetPaymentFromBalance extends Command
     {
         if (date('j') == '21')
         {
+            // TODO add price logic for privilege students
             $students = Student::query()->with(['branch'])->whereHas('branch', function (Builder $query) {
                 $query->where('payment_period', '=', 'monthly');
             })->where('status', 'accepted')->get();

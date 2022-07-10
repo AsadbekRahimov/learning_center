@@ -35,6 +35,7 @@ class Student extends Model
         'privilege'
     ];
 
+
     public function branch()
     {
         return $this->belongsTo(Branch::class, 'branch_id', 'id')->withTrashed();
@@ -117,5 +118,16 @@ class Student extends Model
     public function getFioNameAttribute()
     {
         return $this->name . ' ' . $this->surname . ' ' . $this->lastname;
+    }
+
+    public function returnBalance($returned_balance)
+    {
+        if ($this->debt >= $returned_balance) {
+            $this->debt -= $returned_balance;
+        } else {
+            $this->balance += $returned_balance - $this->debt;
+            $this->debt = 0;
+        }
+        $this->save();
     }
 }
