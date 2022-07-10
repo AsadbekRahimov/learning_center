@@ -35,6 +35,23 @@ class Student extends Model
         'privilege'
     ];
 
+    public static function getPayment(\Illuminate\Http\Request $request)
+    {
+        $student = self::query()->find($request->student_id);
+        if ($student->debt > 0) {
+            if ($student->debt > $request->sum) {
+                $student->debt -= $request->sum;
+            } else {
+                $student->balance += ($request->sum - $student->debt);
+                $student->debt = 0;
+            }
+        }else {
+            $student->balance += $request->sum;
+        }
+        $student->save();
+        return $student;
+    }
+
     public function branch()
     {
         return $this->belongsTo(Branch::class, 'branch_id', 'id')->withTrashed();

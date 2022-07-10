@@ -97,15 +97,13 @@ class StudentInfoScreen extends Screen
         $modal_title = $this->student->status == 'accepted' ? 'Guruxga qo\'shish' : 'Talabaning ta\'lim bosqichi faol bolishi kerak!';
         return [
             Link::make('')->icon('star')->type(Color::WARNING())->canSee($this->student->privilege),
+
             ModalToggle::make('Guruxga qo\'shish')
                 ->modal('addToGroupModal')
                 ->method('addToGroup')
                 ->icon('organization')
                 ->modalTitle($modal_title),
-            /*ModalToggle::make('Guruxni almashtirish')
-                ->modal('changeGroupModal')
-                ->method('changeGroup')
-                ->icon('refresh'),*/
+
             ModalToggle::make('Hisobni toldirish')
                 ->modal('paymentModal')
                 ->method('studentPayment')
@@ -118,48 +116,11 @@ class StudentInfoScreen extends Screen
         ];
     }
 
-    public function changeGroup(Request $request)
-    {
-        //dd($request->all());
-        $source_group = Group::query()->find($request->source_group);
-        $target_group = Group::query()->find($request->target_group);
-
-        if ($source_group->subject->price == $target_group->subject->price) {
-            $student_group = StudentGroup::query()->where('student_id', $request->student_id)
-                ->where('group_id', $source_group->id)->first();
-            $student_group->group_id = $target_group->id;
-            $student_group->save();
-            Alert::success('Talabaning guruxi ' . $source_group->name . ' dan ' . $target_group->name . ' ga o\'zgartirildi, '
-                . $source_group->name . ' guruxi xisobidagi ' . $student_group->lesson_limit . ' ta dars limiti ' . $target_group->name . ' guruxi xisobiga o\'tkazildi');
-        } else {
-            Alert::error('Guruxni ozgartirish uchun tanlangan guruxlardagi fanlarning narxi bir xil bo\'lishi kerak,
-            bunday bo\'lmagan taqdirda talabani guruxdan chiqarib uni qayta guruxga biriktirish kerak boladi!');
-        }
-
-    }
-
     public function studentPayment(Request $request)
     {
-        $student = Student::query()->find($request->student_id);
-        if ($student->debt > 0) { // 300 qarz -- 200 toladi | 300 qarz -- 400 toladi
-            if ($student->debt > $request->sum) {
-                $student->debt -= $request->sum;
-            } else {
-                $student->balance += ($request->sum - $student->debt);
-                $student->debt = 0;
-            }
-        }else {
-            $student->balance += $request->sum;
-        }
-        $student->save();
-
-        Payment::query()->create([
-            'student_id' => $request->student_id,
-            'sum' => $request->sum,
-            'type' => $request->type,
-            'branch_id' => $student->branch_id,
-        ]);
-        Alert::success('Talaba muaffaqiyatli tolovni amalga oshirdi');
+        $student = Student::getPayment($request);
+        $payment = Payment::pay($request, $student);
+        Alert::success('Talaba muaffaqiyatli tolovni amalga oshirdi! To\'lov miqdori: ' . $payment->sum);
     }
 
     public function addToGroup(Request $request)
@@ -172,7 +133,6 @@ class StudentInfoScreen extends Screen
 
             if ($request->has('payed')) { // Talaba oylik rejimda royhatdan o`tganda | oydi oxirigacha tolovni xisoblash
                 if ($request->payed === '0') {
-                    // Kurs oldin tolanganlar
                     $results = $this->getMonthlyPayFromBalance($request->student_id, $request->group_id, $new_student->price);
                     Alert::success('Talaba guruxga qo\'shildi. Bu guruxda oy oxirigacha qolgan ' . $results['days'] .
                         ' ta dars xisobidan ' . $results['price'] . ' so\'m talabaning xisobidan yechildi');
@@ -337,21 +297,6 @@ class StudentInfoScreen extends Screen
         ];
     }
 
-
-    private function getOtherPrice(Request $request)
-    {
-        return $request->has('price') ? $request->price : null;
-    }
-
-
-    private function getLessonLimit(Request $request)
-    {
-        if ($request->has('lesson_limit')) {
-            return  ($request->lesson_limit === '0') ? 12 : $request->lesson_limit;
-        } else {
-            return 12;
-        }
-    }
 
     private function getMonthlyPayFromBalance($student_id, $group_id, $price)
     {
