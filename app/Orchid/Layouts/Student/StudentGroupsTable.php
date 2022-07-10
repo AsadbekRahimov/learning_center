@@ -35,6 +35,9 @@ class StudentGroupsTable extends Table
             TD::make('subject', 'Fan')->render(function (StudentGroup $student_groups) {
                 return $student_groups->group->subject->name;
             }),
+            TD::make('price', 'Kurs narxi')->render(function (StudentGroup $student_groups) {
+                return is_null($student_groups->price) ? $student_groups->group->subject->price : $student_groups->price;
+            }),
             TD::make('lesson_limit', 'Dars limit')->render(function (StudentGroup $student_groups) {
                 return $student_groups->student->branch->payment_period === 'daily' ? $student_groups->lesson_limit : '---';
             }),

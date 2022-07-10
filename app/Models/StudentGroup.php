@@ -29,7 +29,7 @@ class StudentGroup extends Model
         }
     }
 
-    public static function getOtherPrice($request)
+    private static function getOtherPrice($request)
     {
         return $request->has('price') ? $request->price : null;
     }
