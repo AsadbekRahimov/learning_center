@@ -143,7 +143,8 @@ class PlatformProvider extends OrchidServiceProvider
                 ->addPermission('platform.attandance', 'Yo\'qlama qilish')
                 ->addPermission('platform.editLesson', 'Dars limitini o`zgartirish')
                 ->addPermission('platform.editStudentStatus', 'Talabaning talim bosqichini o`zgartirish')
-                ->addPermission('platform.editGroupPrice', 'Imtiyozli talabaning kurs narxini belgilash'),
+                ->addPermission('platform.editGroupPrice', 'Imtiyozli talabaning kurs narxini belgilash')
+                ->addPermission('platform.rollbackStudentPayment', 'Talabaga pulini qaytarib berish'),
 
             ItemPermission::group('Hisobotlar')
                 ->addPermission('platform.payments.list', 'To\'lovlar'),

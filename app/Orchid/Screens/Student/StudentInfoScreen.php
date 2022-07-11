@@ -105,7 +105,7 @@ class StudentInfoScreen extends Screen
                 ->method('rollbackPayment')
                 ->parameters([
                     'id' => $this->student->id,
-                ]),
+                ])->canSee(Auth::user()->hasAccess('platform.rollbackStudentPayment')),
 
             ModalToggle::make('Guruxga qo\'shish')
                 ->modal('addToGroupModal')
@@ -120,7 +120,7 @@ class StudentInfoScreen extends Screen
 
             Link::make('Taxrirlash')
                 ->icon('settings')
-                ->canSee('platform.students')
+                ->canSee(Auth::user()->hasAccess('platform.students'))
                 ->href('/admin/crud/edit/student-resources/' . $this->student->id),
         ];
     }
