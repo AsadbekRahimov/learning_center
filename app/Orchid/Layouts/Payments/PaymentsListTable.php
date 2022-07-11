@@ -47,6 +47,9 @@ class PaymentsListTable extends Table
                 ->render(function (Payment $payment) {
                     return $payment->branch->name;
                 })->canSee(Auth::user()->branch_id ? false : true)->cantHide(),
+            TD::make('created_at', 'Sana')->render(function (Payment $payment) {
+                return $payment->created_at->format('Y-m-d');
+            }),
         ];
     }
 }

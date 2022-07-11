@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Orchid\Screens\Payment;
+namespace App\Orchid\Screens\Expence;
 
-use App\Models\Payment;
-use App\Orchid\Layouts\Payments\PaymentsListTable;
+use App\Models\Expense;
+use App\Orchid\Layouts\Expence\ExpencesListTable;
 use Illuminate\Support\Facades\Auth;
 use Orchid\Screen\Screen;
 
-class PaymentsListScreen extends Screen
+class ExpencesInfoScreen extends Screen
 {
     /**
      * Query data.
@@ -17,7 +17,7 @@ class PaymentsListScreen extends Screen
     public function query(): iterable
     {
         return [
-            'payments' => Payment::query()->with(['student', 'branch'])->when(Auth::user()->branch_id, function ($query){
+            'expenses' => Expense::query()->with(['branch'])->when(Auth::user()->branch_id, function ($query){
                 return $query->where('branch_id', Auth::user()->branch_id);
             })->filters()->defaultSort('id', 'desc')->paginate(15),
         ];
@@ -30,18 +30,18 @@ class PaymentsListScreen extends Screen
      */
     public function name(): ?string
     {
-        return 'To\'lovlar';
+        return 'Chiqimlar';
     }
 
     public function description(): ?string
     {
-        return 'Talabalaring qilgan tolovlari ro\'yhati';
+        return 'Markazning chiqimlar ro\'yhati';
     }
 
     public function permission(): ?iterable
     {
         return [
-            'platform.payments'
+            'platform.expenses'
         ];
     }
 
@@ -52,7 +52,9 @@ class PaymentsListScreen extends Screen
      */
     public function commandBar(): iterable
     {
-        return [];
+        return [
+
+        ];
     }
 
     /**
@@ -63,7 +65,7 @@ class PaymentsListScreen extends Screen
     public function layout(): iterable
     {
         return [
-            PaymentsListTable::class,
+            ExpencesListTable::class,
         ];
     }
 }
