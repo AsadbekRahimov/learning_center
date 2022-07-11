@@ -16,6 +16,7 @@ use App\Orchid\Layouts\Student\StudentPaymentsTable;
 use App\Services\StudentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Actions\ModalToggle;
 use Orchid\Screen\Fields\CheckBox;
@@ -98,6 +99,14 @@ class StudentInfoScreen extends Screen
         return [
             Link::make('')->icon('star')->type(Color::WARNING())->canSee($this->student->privilege),
 
+            ModalToggle::make('Pul qaytarish')
+                ->icon('action-undo')
+                ->modal('rollbackPaymentModal')
+                ->method('rollbackPayment')
+                ->parameters([
+                    'id' => $this->student->id,
+                ]),
+
             ModalToggle::make('Guruxga qo\'shish')
                 ->modal('addToGroupModal')
                 ->method('addToGroup')
@@ -135,6 +144,10 @@ class StudentInfoScreen extends Screen
         StudentService::returnGroupBalance($group, $student);
     }
 
+    public function rollbackPayment(Request $request)
+    {
+        StudentService::rollbackPayment($request);
+    }
 
     /**
      * Views.
@@ -193,6 +206,13 @@ class StudentInfoScreen extends Screen
                         ->required()->title('To\'lov turi'),
                 ]),
             ])->applyButton('To\'ldirish')->closeButton('Yopish')->title('Talaba hisobini to\'ldirish'),
+
+            Layout::modal('rollbackPaymentModal', [
+                Layout::rows([
+                    Input::make('sum')->type('number')
+                        ->title('Summani kiriting')->required(),
+                ]),
+            ])->applyButton('Qaytarish')->closeButton('Yopish')->title('Talaba hisobidan pulini qaytarish'),
         ];
     }
 }

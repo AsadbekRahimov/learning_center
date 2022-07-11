@@ -38,4 +38,13 @@ class Expense extends Model
         'type',
         'desc',
     ];
+
+    public static function studentBalanceRollBack(Student $student, $sum)
+    {
+        return self::query()->create([
+            'price' => $sum,
+            'type' => 'payment_rollback',
+            'desc' => '№' . $student->id . ' | ' . $student->fio_name . ' ning ' . $sum . '  puli qaytarildi!',
+        ]);
+    }
 }
