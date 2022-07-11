@@ -3,6 +3,8 @@
 namespace App\Orchid\Layouts\Student;
 
 use App\Models\Payment;
+use Orchid\Screen\Actions\Button;
+use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Layouts\Table;
 use Orchid\Screen\TD;
 

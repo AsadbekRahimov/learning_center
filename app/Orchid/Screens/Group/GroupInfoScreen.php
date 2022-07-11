@@ -12,6 +12,7 @@ use App\Notifications\AdminNotify;
 use App\Orchid\Layouts\Group\GroupAttandTable;
 use App\Orchid\Layouts\Group\GroupLessonsTable;
 use App\Orchid\Layouts\Group\GroupStudentsTable;
+use App\Services\StudentService;
 use App\Services\TelegramNotify;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -129,7 +130,6 @@ class GroupInfoScreen extends Screen
 
     public function attandanceFinish(Request $request)
     {
-
         $lesson = Lesson::query()->find($request->id);
         $lesson->finish = true;
         $lesson->save();
@@ -144,18 +144,8 @@ class GroupInfoScreen extends Screen
                 $studentGroup->decrement('lesson_limit');
                 if ($studentGroup->lesson_limit === 0) {
                     $student = Student::query()->find($studentGroup->student_id);
-                    $subject_price = $studentGroup->group->subject->price;
-                    if ($student->balance > $subject_price) {
-                        $student->balance -= $subject_price;
-                    } else {
-                        if ($student->balance > 0) {
-                            $student->debt = $subject_price - $student->balance;
-                            $student->balance = 0;
-                        } else {
-                            $student->debt += $subject_price;
-                        }
-                    }
-                    $student->save();
+                    $subject_price = StudentService::getSubjectPrice($studentGroup);
+                    $student->getFromBalance($subject_price);
                     $studentGroup->update([
                         'lesson_limit' => 12
                     ]);

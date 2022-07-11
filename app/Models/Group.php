@@ -20,6 +20,18 @@ class Group extends Model
         'even' => 'Juft kunlar',
     ];
 
+    public const EVEN_DAYS = [
+        'Tuesday',
+        'Thursday',
+        'Saturday',
+    ];
+
+    public const ODD_DAYS = [
+        'Monday',
+        'Wednesday',
+        'Friday',
+    ];
+
     protected $fillable = ['name', 'subject_id', 'branch_id', 'day_type', 'is_active'];
 
     public function subject()

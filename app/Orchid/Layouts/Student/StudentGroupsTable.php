@@ -36,18 +36,15 @@ class StudentGroupsTable extends Table
                 return $student_groups->group->subject->name;
             }),
             TD::make('price', 'Kurs narxi')->render(function (StudentGroup $student_groups) {
-                return is_null($student_groups->price) ? $student_groups->group->subject->price : $student_groups->price;
+                return is_null($student_groups->price) ? number_format($student_groups->group->subject->price) :
+                    number_format($student_groups->price) . " | <del> " . number_format($student_groups->group->subject->price) . " </del>";
             }),
             TD::make('lesson_limit', 'Dars limit')->render(function (StudentGroup $student_groups) {
                 return $student_groups->student->branch->payment_period === 'daily' ? $student_groups->lesson_limit : '---';
             }),
-            TD::make('Amallar')
-                ->align(TD::ALIGN_CENTER)
-                ->width('100px')
+            TD::make('Amallar')->align(TD::ALIGN_CENTER)->width('100px')
                 ->render(function (StudentGroup $student_groups) {
-                    return DropDown::make()
-                        ->icon('options-vertical')
-                        ->list([
+                    return DropDown::make()->icon('options-vertical')->list([
                             Button::make('Guruxdan chiqarish')
                                 ->icon('action-undo')
                                 ->confirm('Siz rostdan ham ushbu foydalanuvchini o`chirmoqchimisiz?')
