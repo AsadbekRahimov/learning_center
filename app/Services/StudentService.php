@@ -17,13 +17,11 @@ class StudentService
         $limit = $group->lesson_limit;
         if ($student->branch->payment_period == 'daily')
         {
-            // TODO: add privilige students logic for delete from group
-            $returned_balance = round(($group->group->subject->price / 12) * $group->lesson_limit, -3);
+            $returned_balance = round((self::getSubjectPrice($group) / 12) * $group->lesson_limit, -3);
             $student->returnBalance($returned_balance);
             $group->delete();
             Alert::success('Talaba guruxdan o\'chirildi, uning xisobida qolgan' . $limit .' ta dars limitlari xisobidan ' . $returned_balance . ' so\'m qaytarildi');
         } else {
-            // TODO: add privilige students logic for delete from group
             $today = date('j'); // number of  current date this month
             $last_day = date('t'); // number of last day in month
             $returning = self::returningPaymentForThisMonth($group, $today, $last_day);
@@ -140,11 +138,16 @@ class StudentService
         $lessons_this_month = self::lessonsThisMonth($group->group, $last_day);
         $returning_lessons = self::returningLesson($group->group, $today, $last_day);
         if ($lessons_this_month) {
-            $returning_payment_for_this_month = round(($group->group->subject->price / $lessons_this_month) * $returning_lessons, -3);
+            $returning_payment_for_this_month = round((self::getSubjectPrice($group) / $lessons_this_month) * $returning_lessons, -3);
         }
         return [
             'days' => $returning_lessons,
             'balance' => $returning_payment_for_this_month,
         ];
+    }
+
+    private static function getSubjectPrice(StudentGroup $group)
+    {
+        return is_null($group->price) ? $group->group->subject->price : $group->price;
     }
 }
