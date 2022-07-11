@@ -146,7 +146,7 @@ class StudentService
         ];
     }
 
-    private static function getSubjectPrice(StudentGroup $group)
+    public static function getSubjectPrice(StudentGroup $group)
     {
         return is_null($group->price) ? $group->group->subject->price : $group->price;
     }

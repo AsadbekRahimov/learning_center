@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Student;
+use App\Services\StudentService;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 
@@ -29,9 +30,8 @@ class GetPaymentFromBalance extends Command
      */
     public function handle()
     {
-        if (date('j') == '21')
+        if (date('j') == '1')
         {
-            // TODO add price logic for privilege students
             $students = Student::query()->with(['branch'])->whereHas('branch', function (Builder $query) {
                 $query->where('payment_period', '=', 'monthly');
             })->where('status', 'accepted')->get();
@@ -40,16 +40,8 @@ class GetPaymentFromBalance extends Command
             {
                 $monthly_payment = 0;
                 foreach ($student->groups as $group)
-                {
-                    $monthly_payment += $group->group->subject->price;
-                }
-                if ($student->balance >= $monthly_payment) {
-                    $student->balance -= $monthly_payment;
-                } else {
-                    $student->debt += $monthly_payment - $student->balance;
-                    $student->balance = 0;
-                }
-                $student->save();
+                    $monthly_payment += StudentService::getSubjectPrice($group);
+                $student->getFromBalance($monthly_payment);
             }
         }
     }
