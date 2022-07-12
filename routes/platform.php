@@ -150,3 +150,12 @@ Route::screen('messages', \App\Orchid\Screens\Message\MessagesScreen::class)
             ->parent('platform.index')
             ->push('SMS xabarnomalar', route('platform.messages'));
     });
+
+// Sms xabarnomalar
+Route::screen('expenses', \App\Orchid\Screens\Expence\ExpencesInfoScreen::class)
+    ->name('platform.expenses')
+    ->breadcrumbs(function (Trail $trail) {
+        return $trail
+            ->parent('platform.index')
+            ->push('Chiqimlar', route('platform.expenses'));
+    });
