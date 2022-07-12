@@ -164,4 +164,13 @@ class StudentService
             Alert::success('Talabaning xisobidan '. number_format($request->sum) . ' so\'m unga qaytarildi');
         }
     }
+
+    public static function changeGroupPrice(\Illuminate\Http\Request $request)
+    {
+        StudentGroup::query()->where('student_id', '=', $request->student_id)
+            ->where('group_id', '=', $request->group_id)
+            ->update(['price' => $request->price]);
+
+        Alert::success('Talabaning gurux narxi '. number_format($request->price) . ' so\'mga o\'zgartirildi');
+    }
 }

@@ -17,6 +17,7 @@ use App\Services\StudentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Orchid\Screen\Actions\Button;
+use Orchid\Screen\Actions\DropDown;
 use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Actions\ModalToggle;
 use Orchid\Screen\Fields\CheckBox;
@@ -99,29 +100,41 @@ class StudentInfoScreen extends Screen
         return [
             Link::make('')->icon('star')->type(Color::WARNING())->canSee($this->student->privilege),
 
-            ModalToggle::make('Pul qaytarish')
-                ->icon('action-undo')
-                ->modal('rollbackPaymentModal')
-                ->method('rollbackPayment')
-                ->parameters([
-                    'id' => $this->student->id,
-                ])->canSee(Auth::user()->hasAccess('platform.rollbackStudentPayment')),
+            DropDown::make('Amallar')->icon('options-vertical')->list([
+                Link::make('Taxrirlash')
+                    ->icon('settings')
+                    ->canSee(Auth::user()->hasAccess('platform.students'))
+                    ->href('/admin/crud/edit/student-resources/' . $this->student->id),
 
-            ModalToggle::make('Guruxga qo\'shish')
-                ->modal('addToGroupModal')
-                ->method('addToGroup')
-                ->icon('organization')
-                ->modalTitle($modal_title),
+                ModalToggle::make('Hisobni toldirish')
+                    ->modal('paymentModal')
+                    ->method('studentPayment')
+                    ->icon('dollar'),
 
-            ModalToggle::make('Hisobni toldirish')
-                ->modal('paymentModal')
-                ->method('studentPayment')
-                ->icon('dollar'),
+                ModalToggle::make('Guruxga qo\'shish')
+                    ->modal('addToGroupModal')
+                    ->method('addToGroup')
+                    ->icon('organization')
+                    ->modalTitle($modal_title),
 
-            Link::make('Taxrirlash')
-                ->icon('settings')
-                ->canSee(Auth::user()->hasAccess('platform.students'))
-                ->href('/admin/crud/edit/student-resources/' . $this->student->id),
+                ModalToggle::make('Pul qaytarish')
+                    ->icon('action-undo')
+                    ->modal('rollbackPaymentModal')
+                    ->method('rollbackPayment')
+                    ->parameters([
+                        'id' => $this->student->id,
+                    ])->canSee(Auth::user()->hasAccess('platform.rollbackStudentPayment')),
+
+                ModalToggle::make('Gurux narxini o\'zgartirish')
+                    ->modal('changeGroupPriceModal')
+                    ->method('changeGroupPrice')
+                    ->icon('star')
+                    ->modalTitle('Saxovat talabasini gurux narxini o\'zgartirish')
+                    ->parameters([
+                        'student_id' => $this->student->id,
+                    ])
+                    ->type(Color::WARNING())->canSee($this->student->privilege && Auth::user()->hasAccess('platform.editGroupPrice')),
+            ]),
         ];
     }
 
@@ -147,6 +160,11 @@ class StudentInfoScreen extends Screen
     public function rollbackPayment(Request $request)
     {
         StudentService::rollbackPayment($request);
+    }
+
+    public function changeGroupPrice(Request $request)
+    {
+        StudentService::changeGroupPrice($request);
     }
 
     /**
@@ -210,9 +228,21 @@ class StudentInfoScreen extends Screen
             Layout::modal('rollbackPaymentModal', [
                 Layout::rows([
                     Input::make('sum')->type('number')
-                        ->title('Summani kiriting')->required(),
+                        ->title('Summani kiriting')->required()->disabled($this->student->status != 'accepted'),
                 ]),
-            ])->applyButton('Qaytarish')->closeButton('Yopish')->title('Talaba hisobidan pulini qaytarish'),
+            ])->applyButton('Qaytarish')->closeButton('Yopish')
+                ->withoutApplyButton($this->student->status != 'accepted')->title('Talaba hisobidan pulini qaytarish'),
+
+            Layout::modal('changeGroupPriceModal', [
+                Layout::rows([
+                    Select::make('group_id')
+                        ->fromQuery(\App\Models\Group::where('branch_id', $this->student->branch_id)
+                            ->whereIn('id', $this->groups)->where('is_active', '=', true), 'all_name')
+                        ->title('Guruxni tanlang')->disabled($this->student->status != 'accepted')->required(),
+                    Input::make('price')->title('Imtiyozli talaba uchun gurux narxi')->type('number')
+                        ->required(),
+                ]),
+            ])->applyButton('Saqlash')->closeButton('Yopish')->withoutApplyButton($this->student->status != 'accepted'),
         ];
     }
 }
