@@ -62,7 +62,6 @@ class ExampleScreen extends Screen
                 new Repository(['id' => 300, 'name' => self::TEXT_EXAMPLE, 'price' => 754.2, 'created_at' => '01.01.2020']),
                 new Repository(['id' => 400, 'name' => self::TEXT_EXAMPLE, 'price' => 0.1, 'created_at' => '01.01.2020']),
                 new Repository(['id' => 500, 'name' => self::TEXT_EXAMPLE, 'price' => 0.15, 'created_at' => '01.01.2020']),
-
             ],
             'metrics' => [
                 'sales'    => ['value' => number_format(6851), 'diff' => 10.08],
@@ -163,39 +162,6 @@ class ExampleScreen extends Screen
                 ChartLineExample::class,
                 ChartBarExample::class,
             ]),
-
-            Layout::table('table', [
-                TD::make('id', 'ID')
-                    ->width('150')
-                    ->render(function (Repository $model) {
-                        // Please use view('path')
-                        return "<img src='https://picsum.photos/450/200?random={$model->get('id')}'
-                              alt='sample'
-                              class='mw-100 d-block img-fluid'>
-                            <span class='small text-muted mt-1 mb-0'># {$model->get('id')}</span>";
-                    }),
-
-                TD::make('name', 'Name')
-                    ->width('450')
-                    ->render(function (Repository $model) {
-                        return Str::limit($model->get('name'), 200);
-                    }),
-
-                TD::make('price', 'Price')
-                    ->render(function (Repository $model) {
-                        return '$ '.number_format($model->get('price'), 2);
-                    }),
-
-                TD::make('created_at', 'Created'),
-            ]),
-
-            Layout::modal('exampleModal', Layout::rows([
-                Input::make('toast')
-                    ->title('Messages to display')
-                    ->placeholder('Hello world!')
-                    ->help('The entered text will be displayed on the right side as a toast.')
-                    ->required(),
-            ]))->title('Create your own toast message'),
         ];
     }
 

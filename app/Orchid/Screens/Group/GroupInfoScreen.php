@@ -162,7 +162,7 @@ class GroupInfoScreen extends Screen
 
     private function sendMessageToStudent(Student $student, Group $group)
     {
-        $phone = Student::telephoneFormMessage($student->phone);
+        $phone = Student::telephoneFormMessage($student->parent_phone);
         $message = Message::getTextByKey('not_attand', $student->name);
         if (!is_null($student->parent_phone))
         {
