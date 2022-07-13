@@ -57,4 +57,15 @@ class Expense extends Model
             'desc' => '№' . $student->id . ' | ' . $student->fio_name . ' ning ' . $sum . '  puli ' . Auth::user()->name . ' tomonidan qaytarildi!',
         ]);
     }
+
+    public static function makeExpense(\Illuminate\Http\Request $request)
+    {
+        return self::query()->create([
+            'branch_id' => $request->branch_id,
+            'price' => $request->sum,
+            'type' => 'other',
+            'desc' => Auth::user()->name . ' tomonidan ' . number_format($request->sum) . ' so\'mga ' . $request->desc . ' uchun chiqim qilindi',
+        ]);
+    }
+
 }

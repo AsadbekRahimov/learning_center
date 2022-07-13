@@ -18,6 +18,7 @@ class ChartLineExample extends Chart
      */
     protected $target = 'charts';
 
+    protected $type = 'line';
     /**
      * Height of the chart.
      *

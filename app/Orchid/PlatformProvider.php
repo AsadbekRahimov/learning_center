@@ -89,7 +89,7 @@ class PlatformProvider extends OrchidServiceProvider
                     Menu::make('To\'lovlar')
                         ->icon('money')
                         ->route('platform.payments.list')
-                        ->permission('platform.payments.list'),
+                        ->permission('platform.payments'),
 
                     Menu::make('Chiqimlar')
                         ->icon('note')
@@ -146,8 +146,6 @@ class PlatformProvider extends OrchidServiceProvider
                 ->addPermission('platform.students', 'Talabalar')
                 ->addPermission('platform.addStudentToGroup', 'Talaba malumotlari')
                 ->addPermission('platform.redDays', 'Ishlanmaydigan kunlar')
-                ->addPermission('platform.payments', 'To\'lovlar')
-                ->addPermission('platform.expenses', 'Chiqimlar')
                 ->addPermission('platform.groupInfo', 'Gurux ma\'lumotlari')
                 ->addPermission('platform.attandance', 'Yo\'qlama qilish')
                 ->addPermission('platform.editLesson', 'Dars limitini o`zgartirish')
@@ -155,8 +153,9 @@ class PlatformProvider extends OrchidServiceProvider
                 ->addPermission('platform.editGroupPrice', 'Imtiyozli talabaning kurs narxini belgilash')
                 ->addPermission('platform.rollbackStudentPayment', 'Talabaga pulini qaytarib berish'),
 
-            ItemPermission::group('Hisobotlar')
-                ->addPermission('platform.payments.list', 'To\'lovlar'),
+            ItemPermission::group('Bugalteriya')
+                ->addPermission('platform.payments', 'To\'lovlar')
+                ->addPermission('platform.expenses', 'Chiqimlar'),
         ];
     }
 }
