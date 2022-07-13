@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Orchid\Screens;
 
+use App\Models\Branch;
 use App\Models\Expense;
 use App\Models\Group;
 use App\Models\Payment;
@@ -14,13 +15,19 @@ use App\Orchid\Layouts\Charts\SourceChart;
 use App\Orchid\Layouts\StatisticListener;
 use App\Orchid\Layouts\StatisticSelection;
 use App\Services\ChartService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Orchid\Screen\Actions\ModalToggle;
+use Orchid\Screen\Fields\Input;
+use Orchid\Screen\Fields\Select;
 use Orchid\Screen\Screen;
+use Orchid\Support\Facades\Alert;
 use Orchid\Support\Facades\Layout;
 
 class PlatformScreen extends Screen
 {
     public $custom_stat;
+    public $branch_user;
     /**
      * Query data.
      *
@@ -28,7 +35,7 @@ class PlatformScreen extends Screen
      */
     public function query(): iterable
     {
-        //dd(ChartService::sourceChart());
+        $this->branch_user = Auth::user()->branch_id ? true : false;
         $payments = Payment::query()->when(Auth::user()->branch_id, function ($query){
             return $query->where('branch_id', Auth::user()->branch_id);
         });
@@ -121,7 +128,11 @@ class PlatformScreen extends Screen
     public function commandBar(): iterable
     {
         return [
-
+            ModalToggle::make('Chiqim')
+                ->modal('makeExpenseModal')
+                ->method('makeExpense')
+                ->icon('basket-loaded')
+                ->canSee(Auth::user()->hasAccess('platform.expenses'))
         ];
     }
 
@@ -175,7 +186,23 @@ class PlatformScreen extends Screen
                 'Hamkorlar' => SourceChart::class,
             ])->canSee(!is_null($this->custom_stat)),
 
+            Layout::modal('makeExpenseModal', [
+                Layout::rows([
+                    Select::make('branch_id')->fromModel(Branch::class, 'name')
+                        ->value(Auth::user()->branch_id)->title('Filialni tanlang')->canSee(!$this->branch_user),
+                    Input::make('branch_id')->type('hidden')->value(Auth::user()->branch_id)->required()->canSee($this->branch_user),
+                    Input::make('sum')->type('number')
+                        ->title('Summani kiriting')->required(),
+                    Input::make('desc')->title('Malumot')->required(),
+                ]),
+            ])->applyButton('Kiritish')->closeButton('Yopish')->title('Chiqim kiritish'),
             //Layout::view('platform::partials.welcome'),
         ];
+    }
+
+    public function makeExpense(Request $request)
+    {
+        Expense::makeExpense($request);
+        Alert::success('Chiqim muaffaqiyatli amalga oshirildi');
     }
 }
