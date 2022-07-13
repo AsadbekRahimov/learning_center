@@ -31,7 +31,8 @@ class Payment extends Model
         'student_id',
         'sum',
         'type',
-        'branch_id'
+        'branch_id',
+        'created_at',
     ];
 
     public static function payInfo(Request $request, Student $student)

@@ -28,7 +28,7 @@ class PlatformProvider extends OrchidServiceProvider
     public function registerMainMenu(): array
     {
         return [
-            /*Menu::make('Example screen')
+            Menu::make('Example screen')
                 ->icon('monitor')
                 ->route('platform.example')
                 ->title('Navigation')
@@ -81,18 +81,21 @@ class PlatformProvider extends OrchidServiceProvider
                 ->target('_blank')
                 ->badge(function () {
                     return Dashboard::version();
-                }, Color::DARK()),*/
+                }, Color::DARK()),
 
-            Menu::make('To\'lovlar')
-                ->icon('money')
-                ->route('platform.payments.list')
-                ->permission('platform.payments.list')
-                ->title('Kirim-chiqim'),
+            Menu::make('Kirim-chiqim')
+                ->icon('calculator')
+                ->list([
+                    Menu::make('To\'lovlar')
+                        ->icon('money')
+                        ->route('platform.payments.list')
+                        ->permission('platform.payments.list'),
 
-            Menu::make('Chiqimlar')
-                ->icon('note')
-                ->route('platform.expenses')
-                ->permission('platform.expenses'),
+                    Menu::make('Chiqimlar')
+                        ->icon('note')
+                        ->route('platform.expenses')
+                        ->permission('platform.expenses'),
+                ])->title('Bugalteriya'),
 
             Menu::make('Foydalanuvchilar')
                 ->icon('user')
