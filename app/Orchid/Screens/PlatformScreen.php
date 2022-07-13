@@ -8,6 +8,8 @@ use App\Models\Expense;
 use App\Models\Group;
 use App\Models\Payment;
 use App\Models\Student;
+use App\Orchid\Layouts\Charts\ExpenseChart;
+use App\Orchid\Layouts\Charts\PaymentChart;
 use App\Orchid\Layouts\Charts\SourceChart;
 use App\Orchid\Layouts\StatisticListener;
 use App\Orchid\Layouts\StatisticSelection;
@@ -85,7 +87,9 @@ class PlatformScreen extends Screen
 
                     'custom' => $this->custom_stat,
             ],
-            'source' => ChartService::sourceChart(),
+            'source' => [ (request()->has('begin')) ? ChartService::sourceChart($begin, $end) : ChartService::sourceChart() ],
+            'payments' => [ (request()->has('begin')) ? ChartService::paymentChart($begin, $end) : ChartService::paymentChart()],
+            'expenses' => [ (request()->has('begin')) ? ChartService::expenseChart($begin, $end) : ChartService::expenseChart() ],
         ];
     }
 
@@ -130,6 +134,7 @@ class PlatformScreen extends Screen
     {
         return [
             StatisticSelection::class,
+
             Layout::tabs([
                 'Umumiy' => Layout::metrics([
                         'Barcha talabalar soni' => 'statistic.all.all_students',
@@ -157,10 +162,19 @@ class PlatformScreen extends Screen
                         'Yangi talabalar' => 'statistic.custom.new_students',
                     ])->canSee(!is_null($this->custom_stat)),
             ])->activeTab(!is_null($this->custom_stat) ? 'Belgilangan' : 'Umumiy'),
-            Layout::columns([
-                SourceChart::class,
-            ]),
-            //dd($this->custom_statistic),
+
+            Layout::tabs([
+                'To\'lovlar' => PaymentChart::class,
+                'Chiqimlar' => ExpenseChart::class,
+                'Hamkorlar' => SourceChart::class,
+            ])->canSee(is_null($this->custom_stat)),
+
+            Layout::accordion([
+                'To\'lovlar' => PaymentChart::class,
+                'Chiqimlar' => ExpenseChart::class,
+                'Hamkorlar' => SourceChart::class,
+            ])->canSee(!is_null($this->custom_stat)),
+
             //Layout::view('platform::partials.welcome'),
         ];
     }
