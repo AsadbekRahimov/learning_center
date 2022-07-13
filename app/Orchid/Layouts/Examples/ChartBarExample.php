@@ -20,7 +20,7 @@ class ChartBarExample extends Chart
      *
      * @var string
      */
-    protected $type = 'bar';
+    protected $type = 'pie';
 
     /**
      * @var string

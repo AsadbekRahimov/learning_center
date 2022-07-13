@@ -7,13 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Orchid\Attachment\Attachable;
 use Orchid\Filters\Filterable;
+use Orchid\Metrics\Chartable;
 use Orchid\Screen\AsSource;
 
 class Source extends Model
 {
     use SoftDeletes;
     use HasFactory;
-    use AsSource, Filterable, Attachable;
+    use AsSource, Filterable, Attachable, Chartable;
 
     protected $fillable = ['name'];
 

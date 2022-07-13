@@ -33,6 +33,7 @@ class Expense extends Model
         'type',
         'desc',
         'branch_id',
+        'created_at',
     ];
 
     protected $allowedSorts = [
