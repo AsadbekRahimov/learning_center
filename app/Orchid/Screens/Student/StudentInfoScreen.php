@@ -58,11 +58,11 @@ class StudentInfoScreen extends Screen
             'groups' => StudentGroup::query()->where('student_id', $student->id)->pluck('group_id'),
             'attandances' => Attandance::query()->with(['lesson.group'])->where('student_id', $student->id)
                 ->orderByDesc('id')->paginate(15),
-            'payments' => Payment::query()->where('student_id', $student->id)->orderByDesc('id')
+            'payments' => Payment::query()->where('student_id', $student->id)->filters()->orderByDesc('id')
                 ->paginate(15),
-            'discounts' => Discount::query()->where('student_id', $student->id)->orderByDesc('id')
+            'discounts' => Discount::query()->where('student_id', $student->id)->filters()->orderByDesc('id')
                 ->paginate(15),
-            'student_actions' => Action::query()->where('student_id', $student->id)->orderByDesc('id')
+            'student_actions' => Action::query()->where('student_id', $student->id)->filters()->orderByDesc('id')
                 ->paginate(15),
         ];
     }

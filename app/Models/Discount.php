@@ -20,6 +20,10 @@ class Discount extends Model
         'desc',
     ];
 
+    protected $allowedFilters = [
+        'price',
+    ];
+
     public const TYPES = [
        'exam' => 'Imtixon chegirmasi',
        'privilege' => 'Imtiyozli talaba',

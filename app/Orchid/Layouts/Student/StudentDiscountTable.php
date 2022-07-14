@@ -28,7 +28,7 @@ class StudentDiscountTable extends Table
         return [
             TD::make('price', 'Chegirma miqdori')->render(function (Discount $discount) {
                  return number_format($discount->price);
-            }),
+            })->filter(TD::FILTER_NUMERIC),
             TD::make('type', 'Chegirma turi')->render(function (Discount $discount) {
                 return Discount::TYPES[$discount->type];
             }),

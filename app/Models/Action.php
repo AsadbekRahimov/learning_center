@@ -22,6 +22,10 @@ class Action extends Model
         'desc',
     ];
 
+    protected $allowedFilters = [
+        'price',
+    ];
+
     public const TYPES = [
         'changeStatus' => 'Talaba statusi yangilandi',
     ];

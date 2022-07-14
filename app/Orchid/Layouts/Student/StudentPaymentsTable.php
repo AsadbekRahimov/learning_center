@@ -30,7 +30,7 @@ class StudentPaymentsTable extends Table
         return [
             TD::make('sum', 'To\'lov miqdori')->render(function (Payment $payment) {
                 return number_format($payment->sum);
-            }),
+            })->filter(TD::FILTER_NUMERIC),
             TD::make('type', 'To\'lov turi')->render(function (Payment $payment) {
                 return Payment::TYPES[$payment->type];
             }),
