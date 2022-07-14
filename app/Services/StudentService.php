@@ -39,12 +39,13 @@ class StudentService
         if ($request->has('group_id')) {
             $group = Group::query()->with(['subject'])->find($request->group_id);
             $new_student = StudentGroup::saveStudent($request);
-
             if ($request->has('payed')) { // Talaba oylik rejimda royhatdan o`tganda | oydi oxirigacha tolovni xisoblash
                 if ($request->payed === '0') {
                     $results = self::getMonthlyPayFromBalance($request->student_id, $request->group_id, $new_student->price);
-                    Alert::success('Talaba guruxga qo\'shildi. Bu guruxda oy oxirigacha qolgan ' . $results['days'] .
-                        ' ta dars xisobidan ' . $results['price'] . ' so\'m talabaning xisobidan yechildi');
+                    $message = 'Talaba ' . $group->name . ' guruxiga qo\'shildi. Bu guruxda oy oxirigacha qolgan ' . $results['days'] .
+                        ' ta dars xisobidan ' . $results['price'] . ' so\'m talabaning xisobidan yechildi';
+                    Action::studentAddGroup($message, $request->student_id, $results['price']);
+                    Alert::success($message);
                 } else {
                     Alert::success('Talaba guruxga qo\'shildi');
                 }
@@ -52,8 +53,9 @@ class StudentService
                 if ($request->lesson_limit == '0') { // qolgan dars limiti kiritilmagandagi xolatda
                     $subject_price = is_null($new_student->price) ? $group->subject->price : $new_student->price;
                     self::getGroupPayment($request, $subject_price);
-                    Alert::success('Talaba guruxga qo\'shildi, Uning xisobidan 12 ta dars uchun '
-                        . $subject_price . ' miqdoridagi pul yechib olindi');
+                    $message = 'Talaba ' . $group->name . ' guruxiga qo\'shildi, Uning xisobidan 12 ta dars uchun ' . $subject_price . ' miqdoridagi pul yechib olindi';
+                    Action::studentAddGroup($message, $request->student_id, $subject_price);
+                    Alert::success($message);
                 } else {
                     Alert::success('Talaba guruxga qo\'shildi');
                 }

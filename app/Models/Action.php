@@ -30,6 +30,7 @@ class Action extends Model
         'changeStatus' => 'Talaba ta\'lim bosqichi yangilandi',
         'changePrivilege' => 'Talaba statusi yangilandi',
         'payment' => 'Talaba tolov qildi',
+        'group_add' => 'Talaba guruxga qo\'shildi'
     ];
 
 
@@ -59,6 +60,17 @@ class Action extends Model
             'action' => '1',
             'price' => $sum,
             'desc' => 'Talabaning xisobi ' . $sum . ' so\'mga ' . Payment::TYPES[$type] . ' orqali ' . Auth::user()->name . ' tomonidan to\'ldirildi!',
+        ]);
+    }
+
+    public static function studentAddGroup($message, $student_id, $price)
+    {
+        return self::query()->create([
+            'student_id' => $student_id,
+            'type' => 'group_add',
+            'action' => '0',
+            'price' => $price,
+            'desc' => Auth::user()->name . ' tomonidan ' . $message,
         ]);
     }
 }
