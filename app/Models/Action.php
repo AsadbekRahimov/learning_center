@@ -30,6 +30,7 @@ class Action extends Model
         'group_add' => 'Talaba guruxga qo\'shildi',
         'payment_rollback' => 'Talabaga pul qaytarildi',
         'change_price' => 'Gurux narxi o\'zgartirildi',
+        'delete_group' => 'Talaba guruxdan chiqarildi',
     ];
 
 
@@ -89,6 +90,17 @@ class Action extends Model
         return self::query()->create([
             'student_id' => $request->student_id,
             'type' => 'change_price',
+            'desc' => Auth::user()->name . ' tomonidan ' . $message,
+        ]);
+    }
+
+    public static function deleteFromGroup($id, $returned_balance, $message)
+    {
+        return self::query()->create([
+            'student_id' => $id,
+            'type' => 'delete_group',
+            'action' => '1',
+            'price' => $returned_balance,
             'desc' => Auth::user()->name . ' tomonidan ' . $message,
         ]);
     }

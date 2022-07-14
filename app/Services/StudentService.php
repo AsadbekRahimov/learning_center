@@ -22,15 +22,20 @@ class StudentService
             $returned_balance = round((self::getSubjectPrice($group) / 12) * $group->lesson_limit, -3);
             $student->returnBalance($returned_balance);
             $group->delete();
-            Alert::success('Talaba guruxdan o\'chirildi, uning xisobida qolgan' . $limit .' ta dars limitlari xisobidan ' . $returned_balance . ' so\'m qaytarildi');
+            $message = 'Talaba ' . $group->group->name . ' guruxidan chiqarildi, uning xisobida qolgan' . $limit
+                .' ta dars limitlari xisobidan ' . $returned_balance . ' so\'m qaytarildi';
+            Action::deleteFromGroup($student->id, $returned_balance, $message);
+            Alert::success($message);
         } else {
             $today = date('j'); // number of  current date this month
             $last_day = date('t'); // number of last day in month
             $returning = self::returningPaymentForThisMonth($group, $today, $last_day);
             $student->returnBalance($returning['balance']);
             $group->delete();
-            Alert::success('Talaba guruxdan o\'chirildi, uning xisobida qolgan ' . $returning['days'] . ' ta dars limitlari xisobidan ' .
-                $returning['balance'] . ' so\'m talaba xisobiga qaytarildi');
+            $message = 'Talaba ' . $group->group->name . ' guruxidan chiqarildi, uning xisobida qolgan ' . $returning['days'] . ' ta dars limitlari xisobidan ' .
+                $returning['balance'] . ' so\'m talaba xisobiga qaytarildi';
+            Action::deleteFromGroup($student->id, $returning['balance'], $message);
+            Alert::success($message);
         }
     }
 

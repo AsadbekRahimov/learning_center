@@ -152,7 +152,7 @@ class StudentInfoScreen extends Screen
 
     public function deleteFromGroup(Request $request)
     {
-        $group = StudentGroup::query()->find($request->id);
+        $group = StudentGroup::query()->with(['group'])->find($request->id);
         $student = Student::query()->find($group->student_id);
         StudentService::returnGroupBalance($group, $student);
     }
