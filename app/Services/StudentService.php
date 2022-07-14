@@ -4,6 +4,7 @@
 namespace App\Services;
 
 
+use App\Models\Action;
 use App\Models\Expense;
 use App\Models\Group;
 use App\Models\Student;
@@ -94,6 +95,7 @@ class StudentService
     public static function getPayment(\Illuminate\Http\Request $request)
     {
         $student = Student::query()->find($request->student_id);
+        Action::studentPayment($student, $request->sum, $request->type);
         if ($student->debt > 0) {
             $student->returnBalance($request->sum);
         }else {

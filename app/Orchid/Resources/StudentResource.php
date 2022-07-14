@@ -2,6 +2,7 @@
 
 namespace App\Orchid\Resources;
 
+use App\Models\Action;
 use App\Models\Branch;
 use App\Models\Source;
 use App\Models\Student;
@@ -404,6 +405,14 @@ class StudentResource extends Resource
 
     public function onSave(ResourceRequest $request, Model $model)
     {
+        if ($request->status != $model->status) {
+            Action::changeStudentStatus($model, $request->status);
+        }
+
+        if ($request->privilege != $model->privilege) {
+            Action::changeStudentPrivilege($model, $request->privilege);
+        }
+
         if ($request->status == 'finished' && $model->groups()->count())
         {
             Alert::error('Oldin talabani u azo bolgan barcha guruxlardan chiqarish kerak!');
