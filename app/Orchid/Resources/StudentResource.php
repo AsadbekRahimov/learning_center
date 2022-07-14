@@ -409,6 +409,10 @@ class StudentResource extends Resource
             Action::changeStudentStatus($model, $request->status);
         }
 
+        if ($request->privilege != $model->privilege) {
+            Action::changeStudentPrivilege($model, $request->privilege);
+        }
+
         if ($request->status == 'finished' && $model->groups()->count())
         {
             Alert::error('Oldin talabani u azo bolgan barcha guruxlardan chiqarish kerak!');

@@ -27,15 +27,26 @@ class Action extends Model
     ];
 
     public const TYPES = [
-        'changeStatus' => 'Talaba statusi yangilandi',
+        'changeStatus' => 'Talaba ta\'lim bosqichi yangilandi',
+        'changePrivilege' => 'Talaba statusi yangilandi',
     ];
+
 
     public static function changeStudentStatus(Student $student,  $status)
     {
         return self::query()->create([
             'student_id' => $student->id,
             'type' => 'changeStatus',
-            'desc' => 'Talaba statusi ' . Student::STATUS[$student->status] . ' dan ' . Student::STATUS[$status] . ' ga ' . Auth::user()->name . ' tomonidan yangilandi!',
+            'desc' => 'Talabaning ta\'lim bosqichi ' . Student::STATUS[$student->status] . ' dan ' . Student::STATUS[$status] . ' ga ' . Auth::user()->name . ' tomonidan yangilandi!',
+        ]);
+    }
+
+    public static function changeStudentPrivilege(Student $student, $privilege)
+    {
+        return self::query()->create([
+            'student_id' => $student->id,
+            'type' => 'changePrivilege',
+            'desc' => 'Talabaning xolati ' . Student::PRIVILEGE[$student->privilege] . ' dan ' . Student::PRIVILEGE[$privilege] . ' ga ' .  Auth::user()->name . ' tomonidan yangilandi!',
         ]);
     }
 }

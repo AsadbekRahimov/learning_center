@@ -62,6 +62,11 @@ class Student extends Model
         'finished' => 'Yakunlangan'
     ];
 
+    public const PRIVILEGE = [
+        '1' => 'Imtiyozli talaba',
+        '0' => 'Oddiy talaba',
+    ];
+
     public static function telephone($number) {
         return '+998' . str_replace(['(', ')', '-', ' '], '', $number);
     }
