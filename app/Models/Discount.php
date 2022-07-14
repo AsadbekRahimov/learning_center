@@ -11,17 +11,13 @@ use Orchid\Screen\AsSource;
 class Discount extends Model
 {
     use HasFactory;
-    use AsSource, Filterable, Attachable;
+    use AsSource,  Attachable;
 
     protected $fillable = [
         'student_id',
         'price',
         'type',
         'desc',
-    ];
-
-    protected $allowedFilters = [
-        'price',
     ];
 
     public const TYPES = [

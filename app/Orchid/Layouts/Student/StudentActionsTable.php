@@ -3,9 +3,11 @@
 namespace App\Orchid\Layouts\Student;
 
 use App\Models\Action;
+use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Layouts\Table;
 use Orchid\Screen\TD;
+use Orchid\Support\Color;
 
 class StudentActionsTable extends Table
 {
@@ -27,11 +29,15 @@ class StudentActionsTable extends Table
     protected function columns(): iterable
     {
         return [
-            TD::make('price', 'Pul miqdori')->render(function (Action $action) {
-                return number_format($action->price);
-            })->filter(Input::make('price')->type('number')),
             TD::make('type', 'Xarakat turi')->render(function (Action $action) {
                 return Action::TYPES[$action->type];
+            }),
+            TD::make('price', 'Summasi')->render(function (Action $action) {
+                return $action->price ? Link::make(number_format($action->price))
+                    ->type($action->action === '1' ? Color::SUCCESS() : Color::DANGER()) : '';
+            }),
+            TD::make('created_at', 'Sana')->render(function (Action $action) {
+                return $action->created_at->format('Y-m-d');
             }),
             TD::make('desc', 'Tasnifi'),
         ];

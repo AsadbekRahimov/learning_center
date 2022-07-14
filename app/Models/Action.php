@@ -12,7 +12,7 @@ use Orchid\Screen\AsSource;
 class Action extends Model
 {
     use HasFactory;
-    use AsSource, Filterable, Attachable;
+    use AsSource,  Attachable;
 
     protected $fillable = [
         'student_id',
@@ -22,9 +22,6 @@ class Action extends Model
         'desc',
     ];
 
-    protected $allowedFilters = [
-        'price',
-    ];
 
     public const TYPES = [
         'changeStatus' => 'Talaba ta\'lim bosqichi yangilandi',
