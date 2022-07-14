@@ -29,6 +29,7 @@ class Action extends Model
     public const TYPES = [
         'changeStatus' => 'Talaba ta\'lim bosqichi yangilandi',
         'changePrivilege' => 'Talaba statusi yangilandi',
+        'payment' => 'Talaba tolov qildi',
     ];
 
 
@@ -47,6 +48,17 @@ class Action extends Model
             'student_id' => $student->id,
             'type' => 'changePrivilege',
             'desc' => 'Talabaning xolati ' . Student::PRIVILEGE[$student->privilege] . ' dan ' . Student::PRIVILEGE[$privilege] . ' ga ' .  Auth::user()->name . ' tomonidan yangilandi!',
+        ]);
+    }
+
+    public static function studentPayment(Student $student, $sum, $type)
+    {
+        return self::query()->create([
+            'student_id' => $student->id,
+            'type' => 'payment',
+            'action' => '1',
+            'price' => $sum,
+            'desc' => 'Talabaning xisobi ' . $sum . ' so\'mga ' . Payment::TYPES[$type] . ' orqali ' . Auth::user()->name . ' tomonidan to\'ldirildi!',
         ]);
     }
 }
