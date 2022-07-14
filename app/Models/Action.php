@@ -29,6 +29,7 @@ class Action extends Model
         'payment' => 'Talaba tolov qildi',
         'group_add' => 'Talaba guruxga qo\'shildi',
         'payment_rollback' => 'Talabaga pul qaytarildi',
+        'change_price' => 'Gurux narxi o\'zgartirildi',
     ];
 
 
@@ -79,6 +80,15 @@ class Action extends Model
             'type' => 'payment_rollback',
             'action' => '0',
             'price' => $request->sum,
+            'desc' => Auth::user()->name . ' tomonidan ' . $message,
+        ]);
+    }
+
+    public static function changeGroupPrice(\Illuminate\Http\Request $request, $message)
+    {
+        return self::query()->create([
+            'student_id' => $request->student_id,
+            'type' => 'change_price',
             'desc' => Auth::user()->name . ' tomonidan ' . $message,
         ]);
     }

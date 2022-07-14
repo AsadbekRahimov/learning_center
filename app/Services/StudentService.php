@@ -173,10 +173,12 @@ class StudentService
 
     public static function changeGroupPrice(\Illuminate\Http\Request $request)
     {
+        $group = Group::query()->find($request->group_id);
         StudentGroup::query()->where('student_id', '=', $request->student_id)
             ->where('group_id', '=', $request->group_id)
             ->update(['price' => $request->price]);
-
-        Alert::success('Talabaning gurux narxi '. number_format($request->price) . ' so\'mga o\'zgartirildi');
+        $message = 'Talabaning ' . $group->name . ' guruxi narxi '. number_format($request->price) . ' so\'mga o\'zgartirildi';
+        Action::changeGroupPrice($request, $message);
+        Alert::success($message);
     }
 }
