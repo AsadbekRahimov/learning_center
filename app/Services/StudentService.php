@@ -165,7 +165,9 @@ class StudentService
             $student->balance -= $request->sum;
             $student->save();
             Expense::studentBalanceRollBack($student, $request->sum);
-            Alert::success('Talabaning xisobidan '. number_format($request->sum) . ' so\'m unga qaytarildi');
+            $message = 'Talabaning xisobidan '. number_format($request->sum) . ' so\'m unga qaytarildi';
+            Action::rollbackPayment($message, $request);
+            Alert::success($message);
         }
     }
 

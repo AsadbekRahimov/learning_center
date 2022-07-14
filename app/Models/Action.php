@@ -27,7 +27,8 @@ class Action extends Model
         'changeStatus' => 'Talaba ta\'lim bosqichi yangilandi',
         'changePrivilege' => 'Talaba statusi yangilandi',
         'payment' => 'Talaba tolov qildi',
-        'group_add' => 'Talaba guruxga qo\'shildi'
+        'group_add' => 'Talaba guruxga qo\'shildi',
+        'payment_rollback' => 'Talabaga pul qaytarildi',
     ];
 
 
@@ -67,6 +68,17 @@ class Action extends Model
             'type' => 'group_add',
             'action' => '0',
             'price' => $price,
+            'desc' => Auth::user()->name . ' tomonidan ' . $message,
+        ]);
+    }
+
+    public static function rollbackPayment($message, \Illuminate\Http\Request $request)
+    {
+        return self::query()->create([
+            'student_id' => $request->id,
+            'type' => 'payment_rollback',
+            'action' => '0',
+            'price' => $request->sum,
             'desc' => Auth::user()->name . ' tomonidan ' . $message,
         ]);
     }
