@@ -31,6 +31,7 @@ class Action extends Model
         'payment_rollback' => 'Talabaga pul qaytarildi',
         'change_price' => 'Gurux narxi o\'zgartirildi',
         'delete_group' => 'Talaba guruxdan chiqarildi',
+        'get_balance' => 'Gurux  to\'lovi yechildi',
     ];
 
 
@@ -102,6 +103,17 @@ class Action extends Model
             'action' => '1',
             'price' => $returned_balance,
             'desc' => Auth::user()->name . ' tomonidan ' . $message,
+        ]);
+    }
+
+    public static function getLessonPay($id, $subject_price, $groupName)
+    {
+        return self::query()->create([
+            'student_id' => $id,
+            'type' => 'get_balance',
+            'action' => '0',
+            'price' => $subject_price,
+            'desc' => 'Talabaning xisobidan ' . $groupName . ' guruxidagi kelgusi darslar uchun ' . $subject_price . ' so\'m yechib olindi!',
         ]);
     }
 }

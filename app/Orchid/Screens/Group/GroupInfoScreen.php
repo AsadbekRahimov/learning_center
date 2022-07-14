@@ -2,6 +2,7 @@
 
 namespace App\Orchid\Screens\Group;
 
+use App\Models\Action;
 use App\Models\Attandance;
 use App\Models\Group;
 use App\Models\Lesson;
@@ -137,7 +138,7 @@ class GroupInfoScreen extends Screen
         $ids = Attandance::query()->where('lesson_id', $lesson->id)->where('attand', 1)->pluck('student_id');
         //StudentGroup::query()->where('group_id', $lesson->group_id)->whereIn('student_id', $ids)->decrement('lesson_limit');
 
-        foreach (StudentGroup::query()->with(['student.branch'])->where('group_id', $lesson->group_id)
+        foreach (StudentGroup::query()->with(['student.branch', 'group'])->where('group_id', $lesson->group_id)
                      ->whereIn('student_id', $ids)->get() as $studentGroup)
         {
             if ($studentGroup->student->branch->payment_period === 'daily') {
@@ -149,6 +150,7 @@ class GroupInfoScreen extends Screen
                     $studentGroup->update([
                         'lesson_limit' => 12
                     ]);
+                    Action::getLessonPay($student->id, $subject_price, $studentGroup->group->name);
                 }
             }
         }
