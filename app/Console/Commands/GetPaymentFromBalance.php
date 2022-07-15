@@ -32,7 +32,7 @@ class GetPaymentFromBalance extends Command
      */
     public function handle()
     {
-        if (date('j') == '16')
+        if (date('j') == '1')
         {
             $students = Student::query()->with(['branch', 'groups.group'])->whereHas('branch', function (Builder $query) {
                 $query->where('payment_period', '=', 'monthly');
