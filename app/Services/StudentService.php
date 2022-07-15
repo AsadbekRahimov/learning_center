@@ -5,6 +5,7 @@ namespace App\Services;
 
 
 use App\Models\Action;
+use App\Models\Discount;
 use App\Models\Expense;
 use App\Models\Group;
 use App\Models\Student;
@@ -50,6 +51,7 @@ class StudentService
                     $message = 'Talaba ' . $group->name . ' guruxiga qo\'shildi. Bu guruxda oy oxirigacha qolgan ' . $results['days'] .
                         ' ta dars xisobidan ' . $results['price'] . ' so\'m talabaning xisobidan yechildi';
                     Action::studentAddGroup($message, $request->student_id, $results['price']);
+                    if($new_student->price !== null) { Discount::groupDiscount($group, $request->student_id, $new_student->price ); }
                     Alert::success($message);
                 } else {
                     Alert::success('Talaba guruxga qo\'shildi');

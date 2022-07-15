@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Action;
+use App\Models\Discount;
 use App\Models\Student;
 use App\Services\StudentService;
 use Illuminate\Console\Command;
@@ -31,7 +32,7 @@ class GetPaymentFromBalance extends Command
      */
     public function handle()
     {
-        if (date('j') == '1')
+        if (date('j') == '16')
         {
             $students = Student::query()->with(['branch', 'groups.group'])->whereHas('branch', function (Builder $query) {
                 $query->where('payment_period', '=', 'monthly');
@@ -44,6 +45,7 @@ class GetPaymentFromBalance extends Command
                     $payment = StudentService::getSubjectPrice($group);
                     $monthly_payment += $payment;
                     Action::getLessonPay($group->student_id, $payment, $group->group->name);
+                    if($group->price !== null) { Discount::groupDiscount($group->group, $student->id, $group->price); }
                 }
                 $student->getFromBalance($monthly_payment);
             }

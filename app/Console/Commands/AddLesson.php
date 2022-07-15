@@ -46,14 +46,14 @@ class AddLesson extends Command
 
                 foreach ($groups as $group)
                 {
-                    if ($group->day_type === 'odd' and in_array(date('l'), ["Monday", "Wednesday", "Friday"]) && $group->students->count())
+                    if ($group->day_type === 'odd' and in_array(date('l'), Group::ODD_DAYS) && $group->students->count())
                     {
                         Lesson::query()->create([
                             'date' => date('Y-m-d'),
                             'group_id' => $group->id,
                             'finish' => 0,
                         ]);
-                    } elseif ($group->day_type === 'even' and in_array(date('l'), ["Tuesday", "Thursday", "Saturday"]) && $group->students->count())
+                    } elseif ($group->day_type === 'even' and in_array(date('l'), Group::EVEN_DAYS) && $group->students->count())
                     {
                         Lesson::query()->create([
                             'date' => date('Y-m-d'),

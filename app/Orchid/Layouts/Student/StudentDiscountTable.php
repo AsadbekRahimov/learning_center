@@ -3,8 +3,10 @@
 namespace App\Orchid\Layouts\Student;
 
 use App\Models\Discount;
+use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Layouts\Table;
 use Orchid\Screen\TD;
+use Orchid\Support\Color;
 
 class StudentDiscountTable extends Table
 {
@@ -27,7 +29,7 @@ class StudentDiscountTable extends Table
     {
         return [
             TD::make('price', 'Chegirma miqdori')->render(function (Discount $discount) {
-                 return number_format($discount->price);
+                 return Link::make(number_format($discount->price))->type(Color::SUCCESS());
             }),
             TD::make('type', 'Chegirma turi')->render(function (Discount $discount) {
                 return Discount::TYPES[$discount->type];
@@ -35,7 +37,6 @@ class StudentDiscountTable extends Table
             TD::make('created_at', 'Sana')->render(function (Discount $discount) {
                 return $discount->created_at->format('Y-m-d');
             }),
-            TD::make('desc', 'Tasnifi'),
         ];
     }
 }

@@ -17,11 +17,19 @@ class Discount extends Model
         'student_id',
         'price',
         'type',
-        'desc',
     ];
 
     public const TYPES = [
        'exam' => 'Imtixon chegirmasi',
-       'privilege' => 'Imtiyozli talaba',
+       'group' => 'Gurux to\'lovi chegirmasi',
     ];
+
+    public static function groupDiscount(Group $group, $student_id, $price)
+    {
+        return self::query()->create([
+            'student_id' => $student_id,
+            'type' => 'group',
+            'price' => $group->subject->price - $price,
+        ]);
+    }
 }

@@ -4,6 +4,7 @@ namespace App\Orchid\Screens\Group;
 
 use App\Models\Action;
 use App\Models\Attandance;
+use App\Models\Discount;
 use App\Models\Group;
 use App\Models\Lesson;
 use App\Models\Message;
@@ -151,6 +152,7 @@ class GroupInfoScreen extends Screen
                         'lesson_limit' => 12
                     ]);
                     Action::getLessonPay($student->id, $subject_price, $studentGroup->group->name);
+                    if($studentGroup->price !== null) { Discount::groupDiscount($studentGroup->group, $studentGroup->student_id, $studentGroup->price); }
                 }
             }
         }
