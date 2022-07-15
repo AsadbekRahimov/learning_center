@@ -60,9 +60,9 @@ class StudentInfoScreen extends Screen
                 ->orderByDesc('id')->paginate(15),
             'payments' => Payment::query()->where('student_id', $student->id)->filters()->orderByDesc('id')
                 ->paginate(15),
-            'discounts' => Discount::query()->where('student_id', $student->id)->filters()->orderByDesc('id')
+            'discounts' => Discount::query()->where('student_id', $student->id)->orderByDesc('id')
                 ->paginate(15),
-            'student_actions' => Action::query()->where('student_id', $student->id)->filters()->orderByDesc('id')
+            'student_actions' => Action::query()->where('student_id', $student->id)->orderByDesc('id')
                 ->paginate(15),
         ];
     }
@@ -152,7 +152,7 @@ class StudentInfoScreen extends Screen
 
     public function deleteFromGroup(Request $request)
     {
-        $group = StudentGroup::query()->find($request->id);
+        $group = StudentGroup::query()->with(['group'])->find($request->id);
         $student = Student::query()->find($group->student_id);
         StudentService::returnGroupBalance($group, $student);
     }

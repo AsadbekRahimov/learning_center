@@ -12,7 +12,7 @@ use Orchid\Screen\AsSource;
 class Action extends Model
 {
     use HasFactory;
-    use AsSource, Filterable, Attachable;
+    use AsSource,  Attachable;
 
     protected $fillable = [
         'student_id',
@@ -22,14 +22,16 @@ class Action extends Model
         'desc',
     ];
 
-    protected $allowedFilters = [
-        'price',
-    ];
 
     public const TYPES = [
         'changeStatus' => 'Talaba ta\'lim bosqichi yangilandi',
         'changePrivilege' => 'Talaba statusi yangilandi',
         'payment' => 'Talaba tolov qildi',
+        'group_add' => 'Talaba guruxga qo\'shildi',
+        'payment_rollback' => 'Talabaga pul qaytarildi',
+        'change_price' => 'Gurux narxi o\'zgartirildi',
+        'delete_group' => 'Talaba guruxdan chiqarildi',
+        'get_balance' => 'Gurux  to\'lovi yechildi',
     ];
 
 
@@ -59,6 +61,59 @@ class Action extends Model
             'action' => '1',
             'price' => $sum,
             'desc' => 'Talabaning xisobi ' . $sum . ' so\'mga ' . Payment::TYPES[$type] . ' orqali ' . Auth::user()->name . ' tomonidan to\'ldirildi!',
+        ]);
+    }
+
+    public static function studentAddGroup($message, $student_id, $price)
+    {
+        return self::query()->create([
+            'student_id' => $student_id,
+            'type' => 'group_add',
+            'action' => '0',
+            'price' => $price,
+            'desc' => Auth::user()->name . ' tomonidan ' . $message,
+        ]);
+    }
+
+    public static function rollbackPayment($message, \Illuminate\Http\Request $request)
+    {
+        return self::query()->create([
+            'student_id' => $request->id,
+            'type' => 'payment_rollback',
+            'action' => '0',
+            'price' => $request->sum,
+            'desc' => Auth::user()->name . ' tomonidan ' . $message,
+        ]);
+    }
+
+    public static function changeGroupPrice(\Illuminate\Http\Request $request, $message)
+    {
+        return self::query()->create([
+            'student_id' => $request->student_id,
+            'type' => 'change_price',
+            'desc' => Auth::user()->name . ' tomonidan ' . $message,
+        ]);
+    }
+
+    public static function deleteFromGroup($id, $returned_balance, $message)
+    {
+        return self::query()->create([
+            'student_id' => $id,
+            'type' => 'delete_group',
+            'action' => '1',
+            'price' => $returned_balance,
+            'desc' => Auth::user()->name . ' tomonidan ' . $message,
+        ]);
+    }
+
+    public static function getLessonPay($id, $subject_price, $groupName)
+    {
+        return self::query()->create([
+            'student_id' => $id,
+            'type' => 'get_balance',
+            'action' => '0',
+            'price' => $subject_price,
+            'desc' => 'Talabaning xisobidan ' . $groupName . ' guruxidagi kelgusi darslar uchun ' . $subject_price . ' so\'m yechib olindi!',
         ]);
     }
 }

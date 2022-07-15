@@ -22,15 +22,20 @@ class StudentService
             $returned_balance = round((self::getSubjectPrice($group) / 12) * $group->lesson_limit, -3);
             $student->returnBalance($returned_balance);
             $group->delete();
-            Alert::success('Talaba guruxdan o\'chirildi, uning xisobida qolgan' . $limit .' ta dars limitlari xisobidan ' . $returned_balance . ' so\'m qaytarildi');
+            $message = 'Talaba ' . $group->group->name . ' guruxidan chiqarildi, uning xisobida qolgan' . $limit
+                .' ta dars limitlari xisobidan ' . $returned_balance . ' so\'m qaytarildi';
+            Action::deleteFromGroup($student->id, $returned_balance, $message);
+            Alert::success($message);
         } else {
             $today = date('j'); // number of  current date this month
             $last_day = date('t'); // number of last day in month
             $returning = self::returningPaymentForThisMonth($group, $today, $last_day);
             $student->returnBalance($returning['balance']);
             $group->delete();
-            Alert::success('Talaba guruxdan o\'chirildi, uning xisobida qolgan ' . $returning['days'] . ' ta dars limitlari xisobidan ' .
-                $returning['balance'] . ' so\'m talaba xisobiga qaytarildi');
+            $message = 'Talaba ' . $group->group->name . ' guruxidan chiqarildi, uning xisobida qolgan ' . $returning['days'] . ' ta dars limitlari xisobidan ' .
+                $returning['balance'] . ' so\'m talaba xisobiga qaytarildi';
+            Action::deleteFromGroup($student->id, $returning['balance'], $message);
+            Alert::success($message);
         }
     }
 
@@ -39,12 +44,13 @@ class StudentService
         if ($request->has('group_id')) {
             $group = Group::query()->with(['subject'])->find($request->group_id);
             $new_student = StudentGroup::saveStudent($request);
-
             if ($request->has('payed')) { // Talaba oylik rejimda royhatdan o`tganda | oydi oxirigacha tolovni xisoblash
                 if ($request->payed === '0') {
                     $results = self::getMonthlyPayFromBalance($request->student_id, $request->group_id, $new_student->price);
-                    Alert::success('Talaba guruxga qo\'shildi. Bu guruxda oy oxirigacha qolgan ' . $results['days'] .
-                        ' ta dars xisobidan ' . $results['price'] . ' so\'m talabaning xisobidan yechildi');
+                    $message = 'Talaba ' . $group->name . ' guruxiga qo\'shildi. Bu guruxda oy oxirigacha qolgan ' . $results['days'] .
+                        ' ta dars xisobidan ' . $results['price'] . ' so\'m talabaning xisobidan yechildi';
+                    Action::studentAddGroup($message, $request->student_id, $results['price']);
+                    Alert::success($message);
                 } else {
                     Alert::success('Talaba guruxga qo\'shildi');
                 }
@@ -52,8 +58,9 @@ class StudentService
                 if ($request->lesson_limit == '0') { // qolgan dars limiti kiritilmagandagi xolatda
                     $subject_price = is_null($new_student->price) ? $group->subject->price : $new_student->price;
                     self::getGroupPayment($request, $subject_price);
-                    Alert::success('Talaba guruxga qo\'shildi, Uning xisobidan 12 ta dars uchun '
-                        . $subject_price . ' miqdoridagi pul yechib olindi');
+                    $message = 'Talaba ' . $group->name . ' guruxiga qo\'shildi, Uning xisobidan 12 ta dars uchun ' . $subject_price . ' miqdoridagi pul yechib olindi';
+                    Action::studentAddGroup($message, $request->student_id, $subject_price);
+                    Alert::success($message);
                 } else {
                     Alert::success('Talaba guruxga qo\'shildi');
                 }
@@ -163,16 +170,20 @@ class StudentService
             $student->balance -= $request->sum;
             $student->save();
             Expense::studentBalanceRollBack($student, $request->sum);
-            Alert::success('Talabaning xisobidan '. number_format($request->sum) . ' so\'m unga qaytarildi');
+            $message = 'Talabaning xisobidan '. number_format($request->sum) . ' so\'m unga qaytarildi';
+            Action::rollbackPayment($message, $request);
+            Alert::success($message);
         }
     }
 
     public static function changeGroupPrice(\Illuminate\Http\Request $request)
     {
+        $group = Group::query()->find($request->group_id);
         StudentGroup::query()->where('student_id', '=', $request->student_id)
             ->where('group_id', '=', $request->group_id)
             ->update(['price' => $request->price]);
-
-        Alert::success('Talabaning gurux narxi '. number_format($request->price) . ' so\'mga o\'zgartirildi');
+        $message = 'Talabaning ' . $group->name . ' guruxi narxi '. number_format($request->price) . ' so\'mga o\'zgartirildi';
+        Action::changeGroupPrice($request, $message);
+        Alert::success($message);
     }
 }
