@@ -16,7 +16,6 @@ use App\Orchid\Layouts\Student\StudentPaymentsTable;
 use App\Services\StudentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\DropDown;
 use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Actions\ModalToggle;
@@ -54,16 +53,16 @@ class StudentInfoScreen extends Screen
                 ]
             ],
             'student_groups' => StudentGroup::query()->with('group.subject', 'student')
-                ->where('student_id', $student->id)->orderByDesc('id')->paginate(15),
+                ->where('student_id', $student->id)->orderByDesc('id')->paginate(10),
             'groups' => StudentGroup::query()->where('student_id', $student->id)->pluck('group_id'),
             'attandances' => Attandance::query()->with(['lesson.group'])->where('student_id', $student->id)
-                ->orderByDesc('id')->paginate(15),
+                ->orderByDesc('id')->paginate(10),
             'payments' => Payment::query()->where('student_id', $student->id)->filters()->orderByDesc('id')
-                ->paginate(15),
+                ->paginate(10),
             'discounts' => Discount::query()->where('student_id', $student->id)->orderByDesc('id')
-                ->paginate(15),
+                ->paginate(10),
             'student_actions' => Action::query()->where('student_id', $student->id)->orderByDesc('id')
-                ->paginate(15),
+                ->paginate(10),
         ];
     }
 

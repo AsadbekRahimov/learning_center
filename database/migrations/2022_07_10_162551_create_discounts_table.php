@@ -18,7 +18,6 @@ return new class extends Migration
             $table->integer('student_id');
             $table->integer('price');
             $table->string('type');
-            $table->text('desc');
             $table->timestamps();
         });
     }

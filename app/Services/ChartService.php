@@ -4,6 +4,7 @@
 namespace App\Services;
 
 
+use App\Models\Discount;
 use App\Models\Expense;
 use App\Models\Payment;
 use App\Models\Source;
@@ -79,6 +80,30 @@ class ChartService
         foreach ($expenses as $expense) {
             $result['values'][] = $expense['sum'];
             $result['labels'][] = Expense::TYPE[$expense['type']];
+        }
+        return $result;
+    }
+
+    public static function discountChart($begin = null, $end = null)
+    {
+        $branch = Auth::user()->branch_id;
+        $discounts = Discount::select('type', DB::raw('sum(price) as sum'))
+            ->when($branch, function ($query) use ($branch){
+                return $query->whereIn('student_id', Student::query()->where('branch_id', $branch)->pluck('id'));
+            })->when(is_null($begin) && is_null($end), function ($query) {
+                $query->whereYear('created_at', date('Y'))->whereMonth('created_at', date('m'));
+            })->when(!is_null($begin) && !is_null($end), function ($query) use ($begin, $end) {
+                $query->whereBetween('created_at', [$begin, $end]);
+            })->groupBy('type')->get()->toArray();
+
+        $result =[
+            'values' => [],
+            'labels' => [],
+        ];
+
+        foreach ($discounts as $discount) {
+            $result['values'][] = $discount['sum'];
+            $result['labels'][] = Discount::TYPES[$discount['type']];
         }
         return $result;
     }
