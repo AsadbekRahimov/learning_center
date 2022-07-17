@@ -1,9 +1,9 @@
 <link rel="stylesheet" type="text/css" href="{{ asset('styles/timetable.css') }}">
 
 <div class="tab">
-    <button class="tablinks" onclick="openRoom(event, 'London')">London</button>
-    <button class="tablinks" onclick="openRoom(event, 'Paris')">Paris</button>
-    <button class="tablinks" onclick="openRoom(event, 'Tokyo')">Tokyo</button>
+    <button class="tablinks" onclick="openRoom(event, 'London')">Xona 1</button>
+    <button class="tablinks" onclick="openRoom(event, 'Paris')">Xona 2</button>
+    <button class="tablinks" onclick="openRoom(event, 'Tokyo')">Xona 3</button>
 </div>
 
 <div id="London" class="tabcontent">
