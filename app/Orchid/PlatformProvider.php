@@ -83,6 +83,12 @@ class PlatformProvider extends OrchidServiceProvider
                     return Dashboard::version();
                 }, Color::DARK()),*/
 
+            Menu::make('Dars jadval')
+                ->icon('calendar')
+                ->route('platform.timetable')
+                ->permission('platform.systems.users')
+                ->title('O\'quv bo\'limi'),
+
             Menu::make('Kirim-chiqim')
                 ->icon('calculator')
                 ->list([

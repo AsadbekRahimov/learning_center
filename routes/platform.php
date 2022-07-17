@@ -159,3 +159,12 @@ Route::screen('expenses', \App\Orchid\Screens\Expence\ExpencesInfoScreen::class)
             ->parent('platform.index')
             ->push('Chiqimlar', route('platform.expenses'));
     });
+
+// Sms xabarnomalar
+Route::screen('timetable', \App\Orchid\Screens\Timetable\TimetableScreen::class)
+    ->name('platform.timetable')
+    ->breadcrumbs(function (Trail $trail) {
+        return $trail
+            ->parent('platform.index')
+            ->push('Dars Jadvali', route('platform.timetable'));
+    });
