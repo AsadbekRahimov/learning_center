@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->integer('group_id');
             $table->integer('room_id');
-            $table->string('time');
+            $table->integer('time');
             $table->timestamps();
         });
     }

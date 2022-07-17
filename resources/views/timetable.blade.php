@@ -15,14 +15,14 @@
             <table class="table table-bordered text-center">
                 <thead>
                 <tr class="bg-light-gray">
-                    <th class="text-uppercase">Time
+                    <th class="text-uppercase">Vaqt
                     </th>
-                    <th class="text-uppercase">Monday</th>
-                    <th class="text-uppercase">Tuesday</th>
-                    <th class="text-uppercase">Wednesday</th>
-                    <th class="text-uppercase">Thursday</th>
-                    <th class="text-uppercase">Friday</th>
-                    <th class="text-uppercase">Saturday</th>
+                    <th class="text-uppercase">Dushanba</th>
+                    <th class="text-uppercase">Seshanba</th>
+                    <th class="text-uppercase">Chorshanba</th>
+                    <th class="text-uppercase">Payshanba</th>
+                    <th class="text-uppercase">Juma</th>
+                    <th class="text-uppercase">Shanba</th>
                 </tr>
                 </thead>
                 <tbody>
