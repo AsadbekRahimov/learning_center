@@ -2,11 +2,20 @@
 
 namespace App\Orchid\Screens\TimeTable;
 
+use App\Models\GroupRoom;
+use App\Models\Room;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Orchid\Screen\Actions\ModalToggle;
+use Orchid\Screen\Fields\Input;
+use Orchid\Screen\Fields\Select;
 use Orchid\Screen\Screen;
+use Orchid\Support\Facades\Alert;
 use Orchid\Support\Facades\Layout;
 
 class TimeTableScreen extends Screen
 {
+    public $groups;
     /**
      * Query data.
      *
@@ -14,7 +23,10 @@ class TimeTableScreen extends Screen
      */
     public function query(): iterable
     {
-        return [];
+        $this->groups = GroupRoom::query()->pluck('group_id');
+        return [
+
+        ];
     }
 
     /**
@@ -34,7 +46,12 @@ class TimeTableScreen extends Screen
      */
     public function commandBar(): iterable
     {
-        return [];
+        return [
+            ModalToggle::make('')
+                ->icon('calendar')
+                ->modal('addGroupToRoomModal')
+                ->method('addGroupToRoom'),
+        ];
     }
 
     /**
@@ -45,7 +62,41 @@ class TimeTableScreen extends Screen
     public function layout(): iterable
     {
         return [
+            Layout::modal('addGroupToRoomModal', [
+                Layout::rows([
+                    Select::make('group_id')
+                        ->fromQuery(\App\Models\Group::where('branch_id', Auth::user()->branch_id)
+                            ->whereNotIn('id', $this->groups)->where('is_active', '=', true), 'all_name')
+                        ->title('Guruxni tanlang')->required(),
+                    Select::make('room_id')
+                        ->fromQuery(Room::query()->where('branch_id', Auth::user()->branch_id), 'name')
+                        ->title('Xonani tanlang')->required(),
+                    Input::make('time')
+                        ->type('time')
+                        ->title('Boshlanish vaqti')
+                        ->value('09:00:00')->required(),
+                ]),
+            ])->title('Guruxni xonaga biriktirish')->applyButton('Qo\'shish')->closeButton('Yopish'),
             Layout::view('timetable'),
         ];
+    }
+
+    public function addGroupToRoom(Request $request)
+    {
+        GroupRoom::query()->create([
+            'group_id' => $request->group_id,
+            'room_id' => $request->room_id,
+            'time' => $this->getGroupTime($request->time),
+        ]);
+
+        Alert::success('Gurux jadvalga qo\'shildi');
+    }
+
+    private function getGroupTime($time)
+    {
+        $time = explode(':', $time);
+        $hour = (int)$time[0];
+        $minute = (int)$time[1] / 100;
+        return $hour + $minute;
     }
 }
