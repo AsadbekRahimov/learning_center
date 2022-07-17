@@ -83,6 +83,11 @@ class PlatformProvider extends OrchidServiceProvider
                     return Dashboard::version();
                 }, Color::DARK()),*/
 
+            Menu::make('Dars jadval')
+                ->icon('calendar')
+                ->route('platform.timetable')
+                ->title('O\'quv bo\'limi'),
+
             Menu::make('Kirim-chiqim')
                 ->icon('calculator')
                 ->list([
@@ -146,6 +151,7 @@ class PlatformProvider extends OrchidServiceProvider
                 ->addPermission('platform.students', 'Talabalar')
                 ->addPermission('platform.addStudentToGroup', 'Talaba malumotlari')
                 ->addPermission('platform.redDays', 'Ishlanmaydigan kunlar')
+                ->addPermission('platform.rooms', 'O\'quv xonalari')
                 ->addPermission('platform.groupInfo', 'Gurux ma\'lumotlari')
                 ->addPermission('platform.attandance', 'Yo\'qlama qilish')
                 ->addPermission('platform.editLesson', 'Dars limitini o`zgartirish')
