@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Orchid;
 
+use Illuminate\Support\Facades\Auth;
 use Orchid\Platform\Dashboard;
 use Orchid\Platform\ItemPermission;
 use Orchid\Platform\OrchidServiceProvider;
@@ -86,7 +87,8 @@ class PlatformProvider extends OrchidServiceProvider
             Menu::make('Dars jadval')
                 ->icon('calendar')
                 ->route('platform.timetable')
-                ->title('O\'quv bo\'limi'),
+                ->title('O\'quv bo\'limi')
+                ->canSee(!is_null(Auth::user()->branch_id)),
 
             Menu::make('Kirim-chiqim')
                 ->icon('calculator')
