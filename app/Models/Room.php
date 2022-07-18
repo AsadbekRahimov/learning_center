@@ -24,7 +24,7 @@ class Room extends Model
 
     public function groups()
     {
-        return $this->hasMany(GroupRoom::class, 'group_id', 'id');
+        return $this->hasMany(GroupRoom::class, 'room_id', 'id')->orderBy('time', 'ASC');
     }
 
     public function branch()

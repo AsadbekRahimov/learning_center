@@ -15,6 +15,7 @@ use Orchid\Screen\Fields\Relation;
 use Orchid\Screen\Fields\Select;
 use Orchid\Screen\Sight;
 use Orchid\Screen\TD;
+use Orchid\Support\Facades\Alert;
 
 class RoomResource extends Resource
 {
@@ -102,7 +103,6 @@ class RoomResource extends Resource
     {
         return [
             new DefaultSorted('id', 'desc'),
-            WithTrashed::class,
         ];
     }
 
@@ -232,5 +232,15 @@ class RoomResource extends Resource
         return $model->query()->when($this->branch_user, function ($query) {
             return $query->where('branch_id', Auth::user()->branch_id);
         });
+    }
+
+    public function onDelete(Model $model)
+    {
+        if ($model->groups()->count())
+        {
+            Alert::error('Oldin bu xonaga biriktirilgan guruxlarni xonadan chiqarish kerak!');
+        } else {
+            $model->delete();
+        }
     }
 }
