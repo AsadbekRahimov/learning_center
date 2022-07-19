@@ -13,14 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('groups', function (Blueprint $table) {
+        Schema::create('teachers', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->integer('subject_id');
             $table->integer('branch_id');
-            $table->integer('teacher_id');
-            $table->string('day_type');
-            $table->tinyInteger('is_active')->default(1);
+            $table->integer('head_teacher_id')->nullable();
+            $table->integer('balance')->default(0);
+            $table->date('last_paid_date')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
@@ -33,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('groups');
+        Schema::dropIfExists('teachers');
     }
 };

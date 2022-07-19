@@ -32,7 +32,20 @@ class Group extends Model
         'Friday',
     ];
 
-    protected $fillable = ['name', 'subject_id', 'branch_id', 'day_type', 'is_active'];
+    protected $fillable = [
+        'name',
+        'subject_id',
+        'branch_id',
+        'teacher_id',
+        'day_type',
+        'is_active'
+    ];
+
+
+    public function teacher()
+    {
+        return $this->belongsTo(Teacher::class, 'teacher_id', 'id')->withTrashed();
+    }
 
     public function subject()
     {
