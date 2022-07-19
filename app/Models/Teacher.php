@@ -27,4 +27,9 @@ class Teacher extends Model
     {
         return $this->hasOne(Group::class, 'teacher_id', 'id')->withTrashed();
     }
+
+    public function headTeacher()
+    {
+        return $this->belongsTo(Teacher::class, 'head_teacher_id', 'id');
+    }
 }
