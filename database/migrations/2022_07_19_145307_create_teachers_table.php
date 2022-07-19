@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('branch_id');
             $table->integer('head_teacher_id')->nullable();
             $table->integer('balance')->default(0);
+            $table->integer('last_payment')->default(0);
             $table->date('last_paid_date')->nullable();
             $table->softDeletes();
             $table->timestamps();

@@ -20,6 +20,7 @@ class Teacher extends Model
         'branch_id',
         'head_teacher_id',
         'balance',
+        'last_payment',
         'last_paid_date',
     ];
 
@@ -31,5 +32,15 @@ class Teacher extends Model
     public function headTeacher()
     {
         return $this->belongsTo(Teacher::class, 'head_teacher_id', 'id');
+    }
+
+    public function lowTeachers()
+    {
+        return $this->hasMany(Teacher::class, 'head_teacher_id', 'id');
+    }
+
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class, 'branch_id', 'id');
     }
 }
