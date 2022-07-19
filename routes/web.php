@@ -1,7 +1,5 @@
 <?php
 
-use App\Models\Group;
-use App\Models\Student;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,3 +16,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/deleteGroupRoom/{id}', function ($id) {
+    $groupRoom = \App\Models\GroupRoom::find($id);
+    $groupRoom->delete();
+    return redirect()->back();
+})->name('deleteGroupRoom');

@@ -25,7 +25,7 @@ class TimeTableScreen extends Screen
     {
         $this->groups = GroupRoom::query()->pluck('group_id');
         return [
-
+            'rooms' => Room::query()->with(['groups', 'groups.group'])->get(),
         ];
     }
 
@@ -66,7 +66,7 @@ class TimeTableScreen extends Screen
                 Layout::rows([
                     Select::make('group_id')
                         ->fromQuery(\App\Models\Group::where('branch_id', Auth::user()->branch_id)
-                            ->whereNotIn('id', $this->groups)->where('is_active', '=', true), 'all_name')
+                            ->whereNotIn('id', $this->groups)->where('is_active', '=', true), 'name_with_type')
                         ->title('Guruxni tanlang')->required(),
                     Select::make('room_id')
                         ->fromQuery(Room::query()->where('branch_id', Auth::user()->branch_id), 'name')
