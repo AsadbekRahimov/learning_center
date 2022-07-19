@@ -88,7 +88,9 @@
                                 @endif
                             </td>
                             <td>
-                                <span class="bg-green padding-5px-tb padding-15px-lr border-radius-5 margin-10px-bottom text-white font-size16 xs-font-size13">X</span>
+                                <span class="bg-green padding-5px-tb padding-15px-lr border-radius-5 margin-10px-bottom text-white font-size16 xs-font-size13">
+                                    <a href="{{ route('deleteGroupRoom', ['id' => $group->id]) }}" style="color: white">X</a>
+                                </span>
                             </td>
                         </tr>
                     @endforeach
