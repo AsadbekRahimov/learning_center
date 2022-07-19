@@ -70,4 +70,9 @@ class Group extends Model
     {
         return $this->name . ' (' . $this->subject->name . ' : ' . $this->subject->price . ')';
     }
+
+    public function getNameWithTypeAttribute($value)
+    {
+        return $this->name . ' (' . self::DAY_TYPE[$this->day_type] . ')';
+    }
 }

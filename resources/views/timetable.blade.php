@@ -16,7 +16,8 @@
                 <table class="table table-bordered text-center">
                     <thead>
                     <tr class="bg-light-gray">
-                        <th class="text-uppercase">Vaqt
+                        <th class="text-uppercase">
+                            Vaqt
                         </th>
                         <th class="text-uppercase">Dushanba</th>
                         <th class="text-uppercase">Seshanba</th>
@@ -24,6 +25,7 @@
                         <th class="text-uppercase">Payshanba</th>
                         <th class="text-uppercase">Juma</th>
                         <th class="text-uppercase">Shanba</th>
+                        <th class="text-uppercase"></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -31,44 +33,62 @@
                         @php
                             $time = \App\Models\GroupRoom::getTimeline($group->time);
                             $name = $group->group->name;
+                            $group_id = $group->group_id;
                         @endphp
                         <tr>
-                            <td class="align-middle">{{ $time }}</td>
+                            <td class="align-middle">
+                                {{ $time }}
+                            </td>
                             <td>
                                 @if($group->group->day_type == 'odd')
-                                    <span class="bg-green  padding-5px-tb padding-15px-lr border-radius-5 margin-10px-bottom text-white font-size16 xs-font-size13">{{ $name }}</span>
+                                    <span class="bg-sky  padding-5px-tb padding-15px-lr border-radius-5 margin-10px-bottom text-white font-size16 xs-font-size13">
+                                        <a href="{{ route('platform.groupInfo', ['group' => $group_id]) }}" style="color: white">{{ $name }}</a>
+                                    </span>
                                     <div class="margin-10px-top font-size14">Teacher name</div>
                                 @endif
                             </td>
                             <td>
                                 @if($group->group->day_type == 'even')
-                                    <span class="bg-sky padding-5px-tb padding-15px-lr border-radius-5 margin-10px-bottom text-white font-size16 xs-font-size13">{{ $name }}</span>
+                                    <span class="bg-sky  padding-5px-tb padding-15px-lr border-radius-5 margin-10px-bottom text-white font-size16 xs-font-size13">
+                                        <a href="{{ route('platform.groupInfo', ['group' => $group_id]) }}" style="color: white">{{ $name }}</a>
+                                    </span>
                                     <div class="margin-10px-top font-size14">Teacher name</div>
                                 @endif
                             </td>
                             <td>
                                 @if($group->group->day_type == 'odd')
-                                    <span class="bg-green padding-5px-tb padding-15px-lr border-radius-5 margin-10px-bottom text-white font-size16 xs-font-size13">{{ $name }}</span>
+                                    <span class="bg-sky  padding-5px-tb padding-15px-lr border-radius-5 margin-10px-bottom text-white font-size16 xs-font-size13">
+                                        <a href="{{ route('platform.groupInfo', ['group' => $group_id]) }}" style="color: white">{{ $name }}</a>
+                                    </span>
                                     <div class="margin-10px-top font-size14">Teacher name</div>
                                 @endif
                             </td>
                             <td>
                                 @if($group->group->day_type == 'even')
-                                    <span class="bg-sky padding-5px-tb padding-15px-lr border-radius-5 margin-10px-bottom text-white font-size16 xs-font-size13">{{ $name }}</span>
+                                    <span class="bg-sky  padding-5px-tb padding-15px-lr border-radius-5 margin-10px-bottom text-white font-size16 xs-font-size13">
+                                        <a href="{{ route('platform.groupInfo', ['group' => $group_id]) }}" style="color: white">{{ $name }}</a>
+                                    </span>
                                     <div class="margin-10px-top font-size14">Teacher name</div>
                                 @endif
                             </td>
                             <td>
                                 @if($group->group->day_type == 'odd')
-                                    <span class="bg-green padding-5px-tb padding-15px-lr border-radius-5 margin-10px-bottom text-white font-size16 xs-font-size13">{{ $name }}</span>
+                                    <span class="bg-sky  padding-5px-tb padding-15px-lr border-radius-5 margin-10px-bottom text-white font-size16 xs-font-size13">
+                                        <a href="{{ route('platform.groupInfo', ['group' => $group_id]) }}" style="color: white">{{ $name }}</a>
+                                    </span>
                                     <div class="margin-10px-top font-size14">Teacher name</div>
                                 @endif
                             </td>
                             <td>
                                 @if($group->group->day_type == 'even')
-                                    <span class="bg-sky padding-5px-tb padding-15px-lr border-radius-5 margin-10px-bottom text-white font-size16 xs-font-size13">{{ $name }}</span>
+                                    <span class="bg-sky  padding-5px-tb padding-15px-lr border-radius-5 margin-10px-bottom text-white font-size16 xs-font-size13">
+                                        <a href="{{ route('platform.groupInfo', ['group' => $group_id]) }}" style="color: white">{{ $name }}</a>
+                                    </span>
                                     <div class="margin-10px-top font-size14">Teacher name</div>
                                 @endif
+                            </td>
+                            <td>
+                                <span class="bg-green padding-5px-tb padding-15px-lr border-radius-5 margin-10px-bottom text-white font-size16 xs-font-size13">X</span>
                             </td>
                         </tr>
                     @endforeach
