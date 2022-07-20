@@ -16,12 +16,18 @@ class Lesson extends Model
     protected $fillable = [
        'date',
        'group_id',
+       'teacher_id',
        'finish'
     ];
 
     public function group()
     {
         return $this->belongsTo(Group::class, 'group_id', 'id');
+    }
+
+    public function teacher()
+    {
+        return $this->belongsTo(Teacher::class, 'teacher_id', 'id');
     }
 
     public function students()

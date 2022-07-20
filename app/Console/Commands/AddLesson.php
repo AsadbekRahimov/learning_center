@@ -51,6 +51,7 @@ class AddLesson extends Command
                         Lesson::query()->create([
                             'date' => date('Y-m-d'),
                             'group_id' => $group->id,
+                            'teacher_id' => $group->teacher_id,
                             'finish' => 0,
                         ]);
                     } elseif ($group->day_type === 'even' and in_array(date('l'), Group::EVEN_DAYS) && $group->students->count())
@@ -58,6 +59,7 @@ class AddLesson extends Command
                         Lesson::query()->create([
                             'date' => date('Y-m-d'),
                             'group_id' => $group->id,
+                            'teacher_id' => $group->teacher_id,
                             'finish' => 0,
                         ]);
                     }

@@ -40,6 +40,11 @@ class Teacher extends Model
         return $this->hasMany(Teacher::class, 'head_teacher_id', 'id');
     }
 
+    public function lessons()
+    {
+        return $this->hasMany(Lesson::class, 'teacher_id', 'id');
+    }
+
     public function branch()
     {
         return $this->belongsTo(Branch::class, 'branch_id', 'id');

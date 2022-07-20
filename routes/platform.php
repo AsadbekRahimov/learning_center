@@ -168,3 +168,12 @@ Route::screen('timetable', \App\Orchid\Screens\Timetable\TimetableScreen::class)
             ->parent('platform.index')
             ->push('Dars Jadvali', route('platform.timetable'));
     });
+
+// O'qituvchi malumotlari
+Route::screen('teachers/{teacher?}', \App\Orchid\Screens\Teacher\TeacherInfoScreen::class)
+    ->name('platform.teacherInfo')
+    ->breadcrumbs(function (Trail $trail) {
+        return $trail
+            ->parent('platform.index')
+            ->push('O\'qituvchi ma\'lumotlari', route('platform.teacherInfo'));
+    });
