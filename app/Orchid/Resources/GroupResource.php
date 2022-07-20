@@ -5,6 +5,7 @@ namespace App\Orchid\Resources;
 use App\Models\Branch;
 use App\Models\Group;
 use App\Models\Subject;
+use App\Models\Teacher;
 use App\Orchid\Filters\WithTrashed;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -61,6 +62,10 @@ class GroupResource extends Resource
                     ->required(),
             ]),
             \Orchid\Screen\Fields\Group::make([
+                Select::make('teacher_id')
+                    ->title('O\'qituvchi')
+                    ->fromQuery(Teacher::query()->where('branch_id', '=', Auth::user()->branch_id), 'name')
+                    ->required(),
                 Select::make('branch_id')->fromModel(Branch::class, 'name')
                     ->value(Auth::user()->branch_id)->title('Filialni tanlang')->canSee(!$this->branch_user),
                 CheckBox::make('is_active')->title('Aktiv')
@@ -87,6 +92,10 @@ class GroupResource extends Resource
                 ->render(function ($model) {
                     return $model->subject->name;
                 })->filter(Select::make()->fromQuery(Subject::where('branch_id', Auth::user()->branch_id), 'name'))->cantHide(),
+            TD::make('teacher_id', 'O\'qituvchi')
+                ->render(function ($model) {
+                    return $model->teacher->name;
+                }),
             TD::make('students', 'O\'quvchilar soni')
                 ->render(function ($model) {
                     return $model->students->count();
@@ -131,6 +140,9 @@ class GroupResource extends Resource
             Sight::make('subject_id', 'Fan')->render(function ($model) {
                 return $model->subject->name;
             }),
+            Sight::make('teacher_id', 'Fan')->render(function ($model) {
+                return $model->teacher->name;
+            }),
             Sight::make('branch_id', 'Filial')
                 ->render(function ($model) {
                     return $model->branch->name;
@@ -152,7 +164,7 @@ class GroupResource extends Resource
 
     public function with(): array
     {
-        return ['subject', 'branch', 'lessons', 'students'];
+        return ['subject', 'branch', 'lessons', 'students', 'teacher'];
     }
 
     public function filters(): array
@@ -168,6 +180,7 @@ class GroupResource extends Resource
         return [
             'name' => ['required'],
             'subject_id' => ['required'],
+            'teacher_id' => ['required'],
             'branch_id' => ['required'],
             'day_type' => ['required'],
         ];
@@ -178,6 +191,7 @@ class GroupResource extends Resource
         return [
             'name.required' => 'Gurux nomi kiritilishi shart!',
             'subject_id.required' => 'Fan kiritilishi shart!',
+            'teacher_id.required' => 'O\'qituvchi kiritilishi shart!',
             'day_type.required' => 'Dars kuni kiritilishi shart!',
             'branch_id.required' => 'Filial kiritilishi shart!',
         ];
