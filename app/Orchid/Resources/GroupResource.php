@@ -168,6 +168,7 @@ class GroupResource extends Resource
         return [
             'name' => ['required'],
             'subject_id' => ['required'],
+            'branch_id' => ['required'],
             'day_type' => ['required'],
         ];
     }
@@ -177,7 +178,8 @@ class GroupResource extends Resource
         return [
             'name.required' => 'Gurux nomi kiritilishi shart!',
             'subject_id.required' => 'Fan kiritilishi shart!',
-            'day_type.required' => 'Dars kuni kiritilishi shart!'
+            'day_type.required' => 'Dars kuni kiritilishi shart!',
+            'branch_id.required' => 'Filial kiritilishi shart!',
         ];
     }
 
