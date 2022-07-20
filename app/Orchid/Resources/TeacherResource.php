@@ -52,6 +52,11 @@ class TeacherResource extends Resource
                     ->title('O\'qituvchi ismi')
                     ->required()
                     ->placeholder('O\'qituvchi ismini kiriting'),
+                Input::make('percent')
+                    ->title('Oylik foizi')
+                    ->type('number')
+                    ->required()
+                    ->placeholder('O\'qituvchining oylik foizini kiriting'),
                 Select::make('head_teacher_id')
                     ->title('Bosh o\'qituvchi')
                     ->fromQuery(Teacher::where('branch_id', '=', Auth::user()->branch_id)->whereNull('head_teacher_id'), 'name'),
@@ -83,6 +88,7 @@ class TeacherResource extends Resource
                 ->render(function ($model) {
                     return $model->branch->name;
                 })->canSee(!$this->branch_user),
+            TD::make('percent', 'Oylik foizi'),
             TD::make('balance', 'Hisobi'),
             TD::make('last_payment', 'Oxirgi to\'lov'),
             TD::make('last_paid_date', 'Oxirgi to\'lov sanasi'),
@@ -106,6 +112,7 @@ class TeacherResource extends Resource
                 ->render(function ($model) {
                     return $model->branch->name;
                 })->canSee(!$this->branch_user),
+            Sight::make('percent', 'Oylik foizi'),
             Sight::make('balance', 'Hisobi'),
             Sight::make('last_payment', 'Oxirgi to\'lov'),
             Sight::make('last_paid_date', 'Oxirgi to\'lov sanasi'),
@@ -129,6 +136,7 @@ class TeacherResource extends Resource
     {
         return [
             'name' => ['required'],
+            'percent' => ['required'],
             'branch_id' => ['required'],
         ];
     }
@@ -136,7 +144,8 @@ class TeacherResource extends Resource
     public function messages(): array
     {
         return [
-            'name.required' => 'Gurux nomi kiritilishi shart!',
+            'name.required' => 'O\'qituvchi ismi kiritilishi shart!',
+            'percent.required' => 'O\'qituvchi oylik foizi kiritilishi shart!',
             'branch_id.required' => 'Filial kiritilishi shart!'
         ];
     }

@@ -191,7 +191,7 @@ class GroupResource extends Resource
         return [
             'name.required' => 'Gurux nomi kiritilishi shart!',
             'subject_id.required' => 'Fan kiritilishi shart!',
-            'subject_id.required' => 'O\'qituvchi kiritilishi shart!',
+            'teacher_id.required' => 'O\'qituvchi kiritilishi shart!',
             'day_type.required' => 'Dars kuni kiritilishi shart!',
             'branch_id.required' => 'Filial kiritilishi shart!',
         ];
