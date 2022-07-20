@@ -21,7 +21,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
 use Napa\R19\Sms;
 use Orchid\Screen\Actions\Button;
+use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Screen;
+use Orchid\Support\Color;
 use Orchid\Support\Facades\Alert;
 use Orchid\Support\Facades\Layout;
 
@@ -43,7 +45,7 @@ class GroupInfoScreen extends Screen
         return [
             'lesson' => $lesson,
             'students' => StudentGroup::query()->with(['student'])->where('group_id', $group->id)->get(),
-            'group' => $group->load('branch'),
+            'group' => $group->load('branch', 'teacher'),
             'attand' => Attandance::query()->where('lesson_id', $lesson->id ?? '')->get(),
             'lessons' => Lesson::query()->with(['attandances'])->where('group_id', $group->id)
                 ->orderByDesc('id')->paginate(10),
@@ -80,6 +82,8 @@ class GroupInfoScreen extends Screen
     public function commandBar(): iterable
     {
         return [
+            Link::make('')->icon('check')->type(Color::SUCCESS())->canSee($this->group->is_active),
+            Link::make('')->icon('close')->type(Color::DANGER())->canSee(!$this->group->is_active),
             Button::make('Davomatni yakunlash')
                 ->icon('check')
                 ->method('attandanceFinish')
@@ -87,6 +91,14 @@ class GroupInfoScreen extends Screen
                 ->parameters([
                     'id' => $this->lesson->id ?? '',
                 ]),
+            Link::make($this->group->teacher->name)
+                ->icon('graduation')
+                ->canSee(Auth::user()->hasAccess('platform.teacherInfo'))
+                ->route('platform.teacherInfo', ['teacher' => $this->group->teacher_id]),
+            Link::make('Taxrirlash')
+                ->icon('settings')
+                ->canSee(Auth::user()->hasAccess('platform.groups'))
+                ->href('/admin/crud/edit/group-resources/' . $this->group->id),
         ];
     }
 

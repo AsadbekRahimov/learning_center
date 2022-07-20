@@ -78,17 +78,19 @@ class TeacherResource extends Resource
             TD::make('id'),
             TD::make('name', 'Ismi')
                 ->render(function ($model) {
-                    return Link::make($model->name)->route('platform.groupInfo', ['group' => $model->id]);
+                    return Link::make($model->name)->route('platform.teacherInfo', ['teacher' => $model->id]);
                 })->cantHide(),
             TD::make('head_teacher_id', 'Bosh o\'qituvchi')
                 ->render(function ($model) {
-                    return $model->headTeacher ? $model->headTeacher->name : '-';
+                    return $model->headTeacher ? Link::make($model->headTeacher->name)->route('platform.teacherInfo', ['teacher' => $model->head_teacher_id]) : '-';
                 }),
             TD::make('branch_id', 'Filial')
                 ->render(function ($model) {
                     return $model->branch->name;
                 })->canSee(!$this->branch_user),
-            TD::make('percent', 'Oylik foizi'),
+            TD::make('percent', 'Oylik foizi')->render(function ($model) {
+                return $model->percent . ' %';
+            }),
             TD::make('balance', 'Hisobi'),
             TD::make('last_payment', 'Oxirgi to\'lov'),
             TD::make('last_paid_date', 'Oxirgi to\'lov sanasi'),
@@ -112,7 +114,9 @@ class TeacherResource extends Resource
                 ->render(function ($model) {
                     return $model->branch->name;
                 })->canSee(!$this->branch_user),
-            Sight::make('percent', 'Oylik foizi'),
+            Sight::make('percent', 'Oylik foizi')->render(function ($model) {
+                return $model->percent . ' %';
+            }),
             Sight::make('balance', 'Hisobi'),
             Sight::make('last_payment', 'Oxirgi to\'lov'),
             Sight::make('last_paid_date', 'Oxirgi to\'lov sanasi'),

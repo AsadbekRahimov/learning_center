@@ -94,7 +94,7 @@ class GroupResource extends Resource
                 })->filter(Select::make()->fromQuery(Subject::where('branch_id', Auth::user()->branch_id), 'name'))->cantHide(),
             TD::make('teacher_id', 'O\'qituvchi')
                 ->render(function ($model) {
-                    return $model->teacher->name;
+                    return Link::make($model->teacher->name)->route('platform.teacherInfo', ['teacher' => $model->teacher_id]);
                 }),
             TD::make('students', 'O\'quvchilar soni')
                 ->render(function ($model) {
