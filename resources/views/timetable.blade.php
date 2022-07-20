@@ -34,6 +34,7 @@
                             $time = \App\Models\GroupRoom::getTimeline($group->time);
                             $name = $group->group->name;
                             $group_id = $group->group_id;
+                            $teacher = $group->group->teacher->name;
                         @endphp
                         <tr>
                             <td class="align-middle">
@@ -44,7 +45,7 @@
                                     <span class="bg-sky  padding-5px-tb padding-15px-lr border-radius-5 margin-10px-bottom text-white font-size16 xs-font-size13">
                                         <a href="{{ route('platform.groupInfo', ['group' => $group_id]) }}" style="color: white">{{ $name }}</a>
                                     </span>
-                                    <div class="margin-10px-top font-size14">Teacher name</div>
+                                    <div class="margin-10px-top font-size14">{{ $teacher }}</div>
                                 @endif
                             </td>
                             <td>
@@ -52,7 +53,7 @@
                                     <span class="bg-sky  padding-5px-tb padding-15px-lr border-radius-5 margin-10px-bottom text-white font-size16 xs-font-size13">
                                         <a href="{{ route('platform.groupInfo', ['group' => $group_id]) }}" style="color: white">{{ $name }}</a>
                                     </span>
-                                    <div class="margin-10px-top font-size14">Teacher name</div>
+                                    <div class="margin-10px-top font-size14">{{ $teacher }}</div>
                                 @endif
                             </td>
                             <td>
@@ -60,7 +61,7 @@
                                     <span class="bg-sky  padding-5px-tb padding-15px-lr border-radius-5 margin-10px-bottom text-white font-size16 xs-font-size13">
                                         <a href="{{ route('platform.groupInfo', ['group' => $group_id]) }}" style="color: white">{{ $name }}</a>
                                     </span>
-                                    <div class="margin-10px-top font-size14">Teacher name</div>
+                                    <div class="margin-10px-top font-size14">{{ $teacher }}</div>
                                 @endif
                             </td>
                             <td>
@@ -68,7 +69,7 @@
                                     <span class="bg-sky  padding-5px-tb padding-15px-lr border-radius-5 margin-10px-bottom text-white font-size16 xs-font-size13">
                                         <a href="{{ route('platform.groupInfo', ['group' => $group_id]) }}" style="color: white">{{ $name }}</a>
                                     </span>
-                                    <div class="margin-10px-top font-size14">Teacher name</div>
+                                    <div class="margin-10px-top font-size14">{{ $teacher }}</div>
                                 @endif
                             </td>
                             <td>
@@ -76,7 +77,7 @@
                                     <span class="bg-sky  padding-5px-tb padding-15px-lr border-radius-5 margin-10px-bottom text-white font-size16 xs-font-size13">
                                         <a href="{{ route('platform.groupInfo', ['group' => $group_id]) }}" style="color: white">{{ $name }}</a>
                                     </span>
-                                    <div class="margin-10px-top font-size14">Teacher name</div>
+                                    <div class="margin-10px-top font-size14">{{ $teacher }}</div>
                                 @endif
                             </td>
                             <td>
@@ -84,7 +85,7 @@
                                     <span class="bg-sky  padding-5px-tb padding-15px-lr border-radius-5 margin-10px-bottom text-white font-size16 xs-font-size13">
                                         <a href="{{ route('platform.groupInfo', ['group' => $group_id]) }}" style="color: white">{{ $name }}</a>
                                     </span>
-                                    <div class="margin-10px-top font-size14">Teacher name</div>
+                                    <div class="margin-10px-top font-size14">{{ $teacher }}</div>
                                 @endif
                             </td>
                             <td>
