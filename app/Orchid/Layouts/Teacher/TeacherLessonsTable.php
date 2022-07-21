@@ -3,6 +3,7 @@
 namespace App\Orchid\Layouts\Teacher;
 
 use App\Models\Lesson;
+use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Layouts\Table;
 use Orchid\Screen\TD;
 
@@ -25,6 +26,9 @@ class TeacherLessonsTable extends Table
     protected function columns(): iterable
     {
         return [
+            TD::make('group_id', 'Gurux')->render(function (Lesson $lesson) {
+                return Link::make($lesson->group->name)->route('platform.groupInfo', ['group' => $lesson->group_id]);
+            }),
             TD::make('date', 'Sana'),
             TD::make('attand', 'Davomat soni')->render(function (Lesson $lesson) {
                 return $lesson->attand_count();
