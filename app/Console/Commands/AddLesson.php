@@ -41,7 +41,8 @@ class AddLesson extends Command
             $today = date('Y-m-d');
 
             if (!$red_days->contains($today)) {
-                $groups = Group::query()->where('is_active', '=', true)
+                $groups = Group::query()->with(['students', 'subject', 'teacher'])
+                    ->where('is_active', '=', true)
                     ->where('branch_id', $branch->id)->get();
 
                 foreach ($groups as $group)
@@ -52,6 +53,7 @@ class AddLesson extends Command
                             'date' => date('Y-m-d'),
                             'group_id' => $group->id,
                             'teacher_id' => $group->teacher_id,
+                            'payment' => Group::calculatedLessonPrice($group),
                             'finish' => 0,
                         ]);
                     } elseif ($group->day_type === 'even' and in_array(date('l'), Group::EVEN_DAYS) && $group->students->count())
@@ -60,6 +62,7 @@ class AddLesson extends Command
                             'date' => date('Y-m-d'),
                             'group_id' => $group->id,
                             'teacher_id' => $group->teacher_id,
+                            'payment' => Group::calculatedLessonPrice($group),
                             'finish' => 0,
                         ]);
                     }

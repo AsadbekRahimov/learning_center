@@ -17,6 +17,7 @@ class Lesson extends Model
        'date',
        'group_id',
        'teacher_id',
+       'payment',
        'finish'
     ];
 
