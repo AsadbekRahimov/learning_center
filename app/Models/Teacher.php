@@ -40,6 +40,11 @@ class Teacher extends Model
         return $this->hasMany(Teacher::class, 'head_teacher_id', 'id');
     }
 
+    public function expenses()
+    {
+        return $this->hasMany(Expense::class, 'teacher_id', 'id');
+    }
+
     public function lessons()
     {
         return $this->hasMany(Lesson::class, 'teacher_id', 'id');
