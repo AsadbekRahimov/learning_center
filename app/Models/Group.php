@@ -41,6 +41,11 @@ class Group extends Model
         'is_active'
     ];
 
+    public static function calculatedLessonPrice(Group $group)
+    {
+        return 10000; // TODO complate calculating lesson price
+    }
+
 
     public function teacher()
     {

@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Orchid\Layouts\Group;
+namespace App\Orchid\Layouts\Teacher;
 
 use App\Models\Lesson;
 use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Layouts\Table;
 use Orchid\Screen\TD;
 
-class GroupLessonsTable extends Table
+class TeacherLessonsTable extends Table
 {
     /**
      * Data source.
@@ -26,8 +26,8 @@ class GroupLessonsTable extends Table
     protected function columns(): iterable
     {
         return [
-            TD::make('teacher_id', 'O\'qituvchi')->render(function (Lesson $lesson) {
-                return Link::make($lesson->teacher->name)->route('platform.teacherInfo', ['teacher' => $lesson->teacher_id]);
+            TD::make('group_id', 'Gurux')->render(function (Lesson $lesson) {
+                return Link::make($lesson->group->name)->route('platform.groupInfo', ['group' => $lesson->group_id]);
             }),
             TD::make('date', 'Sana'),
             TD::make('attand', 'Davomat soni')->render(function (Lesson $lesson) {
@@ -35,6 +35,9 @@ class GroupLessonsTable extends Table
             }),
             TD::make('percent', 'Davomat foizi')->render(function (Lesson $lesson) {
                 return $lesson->attand_percent();
+            }),
+            TD::make('payment', 'Xisoblangan pul')->render(function (Lesson $lesson) {
+                return number_format($lesson->payment);
             })
         ];
     }

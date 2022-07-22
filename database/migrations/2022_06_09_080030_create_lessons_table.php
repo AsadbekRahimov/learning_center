@@ -18,6 +18,7 @@ return new class extends Migration
             $table->date('date');
             $table->integer('group_id');
             $table->integer('teacher_id');
+            $table->integer('payment');
             $table->boolean('finish')->default(false);
             $table->timestamps();
         });

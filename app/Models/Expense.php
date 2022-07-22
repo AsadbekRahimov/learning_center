@@ -48,6 +48,10 @@ class Expense extends Model
         return $this->belongsTo(Branch::class, 'branch_id', 'id');
     }
 
+    public function teacher() {
+        return $this->belongsTo(Teacher::class, 'teacher_id', 'id');
+    }
+
     public static function studentBalanceRollBack(Student $student, $sum)
     {
         return self::query()->create([
