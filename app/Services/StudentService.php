@@ -130,7 +130,7 @@ class StudentService
         return $lessons;
     }
 
-    private static function lessonsThisMonth(Group $group,  $last_day)
+    public static function lessonsThisMonth(Group $group,  $last_day)
     {
         $lessons_this_month = 0;
         for($i = 1; $i <= $last_day; $i++) // calculate all lessons count in this month

@@ -7,6 +7,7 @@ use App\Models\Group;
 use App\Models\Lesson;
 use App\Models\RedDay;
 use App\Notifications\AdminNotify;
+use App\Services\GroupService;
 use App\Services\TelegramNotify;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Notification;
@@ -41,7 +42,7 @@ class AddLesson extends Command
             $today = date('Y-m-d');
 
             if (!$red_days->contains($today)) {
-                $groups = Group::query()->with(['students', 'subject', 'teacher'])
+                $groups = Group::query()->with(['students.student', 'subject', 'teacher', 'branch'])
                     ->where('is_active', '=', true)
                     ->where('branch_id', $branch->id)->get();
 
@@ -53,7 +54,7 @@ class AddLesson extends Command
                             'date' => date('Y-m-d'),
                             'group_id' => $group->id,
                             'teacher_id' => $group->teacher_id,
-                            'payment' => Group::calculatedLessonPrice($group),
+                            'payment' => GroupService::calculatedLessonPrice($group),
                             'finish' => 0,
                         ]);
                     } elseif ($group->day_type === 'even' and in_array(date('l'), Group::EVEN_DAYS) && $group->students->count())
@@ -62,7 +63,7 @@ class AddLesson extends Command
                             'date' => date('Y-m-d'),
                             'group_id' => $group->id,
                             'teacher_id' => $group->teacher_id,
-                            'payment' => Group::calculatedLessonPrice($group),
+                            'payment' => GroupService::calculatedLessonPrice($group),
                             'finish' => 0,
                         ]);
                     }

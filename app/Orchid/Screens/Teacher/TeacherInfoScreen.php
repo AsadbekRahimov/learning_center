@@ -86,7 +86,7 @@ class TeacherInfoScreen extends Screen
             ]),
             Layout::tabs([
                 'Oylik to\'lovlari' => TeacherSalaryTable::class,
-                'Otilgan darslari' => TeacherLessonsTable::class,
+                'O\'tilgan darslari' => TeacherLessonsTable::class,
                 //'Vazifalar' => TeacherTasksTable::class,
             ]),
         ];
