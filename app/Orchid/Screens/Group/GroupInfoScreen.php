@@ -49,6 +49,11 @@ class GroupInfoScreen extends Screen
             'attand' => Attandance::query()->where('lesson_id', $lesson->id ?? '')->get(),
             'lessons' => Lesson::query()->with(['attandances', 'teacher'])->where('group_id', $group->id)
                 ->orderByDesc('id')->paginate(10),
+
+            'metrics' => [
+               'students' => StudentGroup::query()->where('group_id', $group->id)->count(),
+               'lessons' => Lesson::query()->where('group_id', $group->id)->count(),
+            ],
         ];
     }
 
@@ -111,6 +116,10 @@ class GroupInfoScreen extends Screen
     {
         if (Auth::user()->hasAccess('platform.attandance') && !is_null($this->lesson) && !$this->lesson->finish) {
             return [
+                Layout::metrics([
+                    'Talabalar' => 'metrics.students',
+                    'O\'tilgan darslar' => 'metrics.lessons',
+                ]),
                 Layout::tabs([
                    'Guruxning bugungi davomati' => GroupAttandTable::class,
                    'Guruxdagi talabalar ro\'yhati' => GroupStudentsTable::class,
@@ -119,6 +128,10 @@ class GroupInfoScreen extends Screen
             ];
         } else {
             return [
+                Layout::metrics([
+                    'Talabalar' => 'metrics.students',
+                    'O\'tilgan darslar' => 'metrics.lessons',
+                ]),
                 Layout::tabs([
                     'Guruxdagi talabalar ro\'yhati' => GroupStudentsTable::class,
                     'Guruxdagi o\'tilgan darslar ro\'yhati' => GroupLessonsTable::class,
