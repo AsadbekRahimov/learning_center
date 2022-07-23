@@ -25,7 +25,7 @@ class TimeTableScreen extends Screen
     {
         $this->groups = GroupRoom::query()->pluck('group_id');
         return [
-            'rooms' => Room::query()->with(['groups', 'groups.group', 'groups.group.teacher'])->get(),
+            'rooms' => Room::query()->where('branch_id', Auth::user()->branch_id)->with(['groups', 'groups.group', 'groups.group.teacher'])->get(),
         ];
     }
 
