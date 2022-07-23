@@ -62,6 +62,7 @@ class StudentService
                     self::getGroupPayment($request, $subject_price);
                     $message = 'Talaba ' . $group->name . ' guruxiga qo\'shildi, Uning xisobidan 12 ta dars uchun ' . $subject_price . ' miqdoridagi pul yechib olindi';
                     Action::studentAddGroup($message, $request->student_id, $subject_price);
+                    if($new_student->price !== null) { Discount::groupDiscount($group, $request->student_id, $new_student->price ); }
                     Alert::success($message);
                 } else {
                     Alert::success('Talaba guruxga qo\'shildi');

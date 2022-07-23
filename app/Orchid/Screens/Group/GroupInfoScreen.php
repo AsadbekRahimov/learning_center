@@ -53,6 +53,7 @@ class GroupInfoScreen extends Screen
             'metrics' => [
                'students' => StudentGroup::query()->where('group_id', $group->id)->count(),
                'lessons' => Lesson::query()->where('group_id', $group->id)->count(),
+               'day_type' => $group->day_type == 'odd' ? 'Toq kunlar' : 'Juft kunlar',
             ],
         ];
     }
@@ -119,6 +120,7 @@ class GroupInfoScreen extends Screen
                 Layout::metrics([
                     'Talabalar' => 'metrics.students',
                     'O\'tilgan darslar' => 'metrics.lessons',
+                    'Dars kunlari' => 'metrics.day_type',
                 ]),
                 Layout::tabs([
                    'Guruxning bugungi davomati' => GroupAttandTable::class,
@@ -131,6 +133,7 @@ class GroupInfoScreen extends Screen
                 Layout::metrics([
                     'Talabalar' => 'metrics.students',
                     'O\'tilgan darslar' => 'metrics.lessons',
+                    'Dars kunlari' => 'metrics.day_type',
                 ]),
                 Layout::tabs([
                     'Guruxdagi talabalar ro\'yhati' => GroupStudentsTable::class,
