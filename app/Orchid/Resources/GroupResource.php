@@ -306,7 +306,7 @@ class GroupResource extends Resource
     public function onSave(ResourceRequest $request, Model $model)
     {
         //dd($request->all());
-        if ($request->is_active == '0' && $model->students()->count())
+        if (($request->is_active == '0' && $model->students()->count()) && !is_null($model->is_active))
         {
             Alert::error('Oldin guruxdagi talabalarni guruxdan chiqarish kerak!');
         } else {
