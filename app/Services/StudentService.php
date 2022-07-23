@@ -62,6 +62,7 @@ class StudentService
                     self::getGroupPayment($request, $subject_price);
                     $message = 'Talaba ' . $group->name . ' guruxiga qo\'shildi, Uning xisobidan 12 ta dars uchun ' . $subject_price . ' miqdoridagi pul yechib olindi';
                     Action::studentAddGroup($message, $request->student_id, $subject_price);
+                    if($new_student->price !== null) { Discount::groupDiscount($group, $request->student_id, $new_student->price ); }
                     Alert::success($message);
                 } else {
                     Alert::success('Talaba guruxga qo\'shildi');
@@ -130,7 +131,7 @@ class StudentService
         return $lessons;
     }
 
-    private static function lessonsThisMonth(Group $group,  $last_day)
+    public static function lessonsThisMonth(Group $group,  $last_day)
     {
         $lessons_this_month = 0;
         for($i = 1; $i <= $last_day; $i++) // calculate all lessons count in this month

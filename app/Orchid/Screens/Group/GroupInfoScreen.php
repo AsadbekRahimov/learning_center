@@ -14,6 +14,7 @@ use App\Notifications\AdminNotify;
 use App\Orchid\Layouts\Group\GroupAttandTable;
 use App\Orchid\Layouts\Group\GroupLessonsTable;
 use App\Orchid\Layouts\Group\GroupStudentsTable;
+use App\Services\GroupService;
 use App\Services\StudentService;
 use App\Services\TelegramNotify;
 use Illuminate\Http\Request;
@@ -49,6 +50,12 @@ class GroupInfoScreen extends Screen
             'attand' => Attandance::query()->where('lesson_id', $lesson->id ?? '')->get(),
             'lessons' => Lesson::query()->with(['attandances', 'teacher'])->where('group_id', $group->id)
                 ->orderByDesc('id')->paginate(10),
+
+            'metrics' => [
+               'students' => StudentGroup::query()->where('group_id', $group->id)->count(),
+               'lessons' => Lesson::query()->where('group_id', $group->id)->count(),
+               'day_type' => $group->day_type == 'odd' ? 'Toq kunlar' : 'Juft kunlar',
+            ],
         ];
     }
 
@@ -111,6 +118,11 @@ class GroupInfoScreen extends Screen
     {
         if (Auth::user()->hasAccess('platform.attandance') && !is_null($this->lesson) && !$this->lesson->finish) {
             return [
+                Layout::metrics([
+                    'Talabalar' => 'metrics.students',
+                    'O\'tilgan darslar' => 'metrics.lessons',
+                    'Dars kunlari' => 'metrics.day_type',
+                ]),
                 Layout::tabs([
                    'Guruxning bugungi davomati' => GroupAttandTable::class,
                    'Guruxdagi talabalar ro\'yhati' => GroupStudentsTable::class,
@@ -119,6 +131,11 @@ class GroupInfoScreen extends Screen
             ];
         } else {
             return [
+                Layout::metrics([
+                    'Talabalar' => 'metrics.students',
+                    'O\'tilgan darslar' => 'metrics.lessons',
+                    'Dars kunlari' => 'metrics.day_type',
+                ]),
                 Layout::tabs([
                     'Guruxdagi talabalar ro\'yhati' => GroupStudentsTable::class,
                     'Guruxdagi o\'tilgan darslar ro\'yhati' => GroupLessonsTable::class,
@@ -146,19 +163,17 @@ class GroupInfoScreen extends Screen
     {
         $lesson = Lesson::query()->find($request->id);
         $lesson->finish = true;
-        $lesson->save();
-
         $ids = Attandance::query()->where('lesson_id', $lesson->id)->where('attand', 1)->pluck('student_id');
-        //StudentGroup::query()->where('group_id', $lesson->group_id)->whereIn('student_id', $ids)->decrement('lesson_limit');
-
+        $teacher_percent = $lesson->teacher->percent;
+        $lesson_price = 0;
         foreach (StudentGroup::query()->with(['student.branch', 'group'])->where('group_id', $lesson->group_id)
                      ->whereIn('student_id', $ids)->get() as $studentGroup)
         {
             if ($studentGroup->student->branch->payment_period === 'daily') {
                 $studentGroup->decrement('lesson_limit');
+                $subject_price = StudentService::getSubjectPrice($studentGroup);
                 if ($studentGroup->lesson_limit === 0) {
                     $student = Student::query()->find($studentGroup->student_id);
-                    $subject_price = StudentService::getSubjectPrice($studentGroup);
                     $student->getFromBalance($subject_price);
                     $studentGroup->update([
                         'lesson_limit' => 12
@@ -166,8 +181,17 @@ class GroupInfoScreen extends Screen
                     Action::getLessonPay($student->id, $subject_price, $studentGroup->group->name);
                     if($studentGroup->price !== null) { Discount::groupDiscount($studentGroup->group, $studentGroup->student_id, $studentGroup->price); }
                 }
+                $lesson_price += ($subject_price / 12) * $teacher_percent / 100;
             }
         }
+
+        if ($lesson_price > 0) {
+            $lesson->payment = $lesson_price;
+            $lesson->teacher->balance += $lesson_price;
+            $lesson->teacher->save();
+        }
+
+        $lesson->save();
         Alert::info('Davomat yakunlandi!');
     }
 

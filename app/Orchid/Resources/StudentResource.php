@@ -405,11 +405,11 @@ class StudentResource extends Resource
 
     public function onSave(ResourceRequest $request, Model $model)
     {
-        if ($request->status != $model->status) {
+        if (($request->status != $model->status) && !is_null($model->status)) {
             Action::changeStudentStatus($model, $request->status);
         }
 
-        if ($request->privilege != $model->privilege) {
+        if (($request->privilege != $model->privilege) && !is_null($model->privilege)) {
             Action::changeStudentPrivilege($model, $request->privilege);
         }
 
