@@ -28,7 +28,7 @@ class TeacherInfoScreen extends Screen
 
             'metrics' => [
                 'salary' => Expense::query()->where('teacher_id', $teacher->id)->count(),
-                'balance' => $teacher->balance,
+                'balance' => number_format($teacher->balance),
                 'percent' => $teacher->percent,
                 'lessons' => Lesson::query()->where('teacher_id', $teacher->id)->count(),
                 'tasks' => ['value' => 4, 'diff' => 34], // TODO add tasks part
