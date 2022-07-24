@@ -158,6 +158,7 @@ class PlatformProvider extends OrchidServiceProvider
                 ->addPermission('platform.rooms', 'O\'quv xonalari')
                 ->addPermission('platform.groupInfo', 'Gurux ma\'lumotlari')
                 ->addPermission('platform.attandance', 'Yo\'qlama qilish')
+                ->addPermission('platform.giveSalary', 'Oylik berish')
                 ->addPermission('platform.editLesson', 'Dars limitini o`zgartirish')
                 ->addPermission('platform.editStudentStatus', 'Talabaning talim bosqichini o`zgartirish')
                 ->addPermission('platform.editGroupPrice', 'Imtiyozli talabaning kurs narxini belgilash')

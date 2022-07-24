@@ -26,6 +26,7 @@ class Expense extends Model
         'type',
         'desc',
         'branch_id',
+        'teacher_id'
     ];
 
     protected $allowedFilters = [
@@ -72,4 +73,14 @@ class Expense extends Model
         ]);
     }
 
+    public static function giveSalary($request)
+    {
+        return self::query()->create([
+            'branch_id' => $request->branch_id,
+            'price' => $request->price,
+            'teacher_id' => $request->teacher_id,
+            'type' => 'salary',
+            'desc' => Auth::user()->name . ' tomonidan ' . number_format($request->price) . ' so\'m miqdorida ' . $request->teacher . ' uchun oylik maosh berildi',
+        ]);
+    }
 }

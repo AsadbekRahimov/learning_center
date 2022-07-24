@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Student;
+use App\Models\StudentGroup;
 use Illuminate\Console\Command;
 
 class AddStudents extends Command
@@ -29,9 +30,14 @@ class AddStudents extends Command
     public function handle()
     {
         require 'studentsList.php';
-        dd(($students));
-
-
+        $num = 0;
+        foreach ($students as $student)
+        {
+            $new_student = Student::createStudent($student);
+            $student_group = StudentGroup::saveStudents($new_student->id, $student["val2"]);
+            $num++;
+            $this->info($num);
+        }
         return 0;
     }
 }

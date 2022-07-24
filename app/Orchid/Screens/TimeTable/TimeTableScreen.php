@@ -2,6 +2,7 @@
 
 namespace App\Orchid\Screens\TimeTable;
 
+use App\Models\Group;
 use App\Models\GroupRoom;
 use App\Models\Room;
 use Illuminate\Http\Request;
@@ -25,7 +26,7 @@ class TimeTableScreen extends Screen
     {
         $this->groups = GroupRoom::query()->pluck('group_id');
         return [
-            'rooms' => Room::query()->where('branch_id', Auth::user()->branch_id)->with(['groups', 'groups.group', 'groups.group.teacher'])->get(),
+            'rooms' => Room::query()->where('branch_id', Auth::user()->branch_id)->with(['groups.group.teacher'])->get(),
         ];
     }
 
@@ -71,10 +72,16 @@ class TimeTableScreen extends Screen
                     Select::make('room_id')
                         ->fromQuery(Room::query()->where('branch_id', Auth::user()->branch_id), 'name')
                         ->title('Xonani tanlang')->required(),
-                    Input::make('time')
-                        ->type('time')
-                        ->title('Boshlanish vaqti')
-                        ->value('09:00:00')->required(),
+                    \Orchid\Screen\Fields\Group::make([
+                        Input::make('time')
+                            ->type('time')
+                            ->title('Boshlanish vaqti')
+                            ->value('09:00:00')->required(),
+                        Input::make('duration')
+                            ->type('number')
+                            ->title('Dars davomiyligi (minut)')
+                            ->value(90)->required(),
+                    ]),
                 ]),
             ])->title('Guruxni xonaga biriktirish')->applyButton('Qo\'shish')->closeButton('Yopish'),
             Layout::view('timetable'),
@@ -87,6 +94,7 @@ class TimeTableScreen extends Screen
             'group_id' => $request->group_id,
             'room_id' => $request->room_id,
             'time' => $this->getGroupTime($request->time),
+            'duration' => $request->duration,
         ]);
 
         Alert::success('Gurux jadvalga qo\'shildi');

@@ -10,6 +10,7 @@ use App\Models\Expense;
 use App\Models\Group;
 use App\Models\Payment;
 use App\Models\Student;
+use App\Models\Teacher;
 use App\Orchid\Layouts\Charts\DiscountChart;
 use App\Orchid\Layouts\Charts\ExpenseChart;
 use App\Orchid\Layouts\Charts\PaymentChart;
@@ -75,6 +76,7 @@ class PlatformScreen extends Screen
                         'all_groups' => Group::query()->when(Auth::user()->branch_id, function ($query){
                             return $query->where('branch_id', Auth::user()->branch_id);
                         })->count(),
+                        'teachers_balance' => Teacher::query()->sum('balance'),
                     ],
                     'year' => [
                         'payments'    => number_format((int)$payments->whereYear('created_at', date('Y'))->sum('sum')),
@@ -154,6 +156,7 @@ class PlatformScreen extends Screen
                         'Barcha talabalar soni' => 'statistic.all.all_students',
                         'Barcha guruxlar soni' => 'statistic.all.all_groups',
                         'Talabalarning umumiy qarzdorligi' => 'statistic.all.debts',
+                        'O\'qituvchilarning umumiy xisobi' => 'statistic.all.teachers_balance',
                     ]),
                 'Kunlik' => Layout::metrics([
                         'To\'lov'    => 'statistic.day.payments',
