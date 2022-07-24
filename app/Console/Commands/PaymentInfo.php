@@ -49,7 +49,7 @@ class PaymentInfo extends Command
                         }catch (\Exception $e){
                             //
                         }
-                        sleep(3); // TODO change max execution time in server
+                        sleep(2); // TODO change max execution time in server
                     }
                 }
             }

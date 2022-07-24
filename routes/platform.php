@@ -151,7 +151,7 @@ Route::screen('messages', \App\Orchid\Screens\Message\MessagesScreen::class)
             ->push('SMS xabarnomalar', route('platform.messages'));
     });
 
-// Sms xabarnomalar
+// Chiqimlar
 Route::screen('expenses', \App\Orchid\Screens\Expence\ExpencesInfoScreen::class)
     ->name('platform.expenses')
     ->breadcrumbs(function (Trail $trail) {
@@ -160,8 +160,8 @@ Route::screen('expenses', \App\Orchid\Screens\Expence\ExpencesInfoScreen::class)
             ->push('Chiqimlar', route('platform.expenses'));
     });
 
-// Sms xabarnomalar
-Route::screen('timetable', \App\Orchid\Screens\Timetable\TimetableScreen::class)
+// Dars jadvali
+Route::screen('timetable', \App\Orchid\Screens\TimeTable\TimeTableScreen::class)
     ->name('platform.timetable')
     ->breadcrumbs(function (Trail $trail) {
         return $trail
