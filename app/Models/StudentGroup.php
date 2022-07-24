@@ -34,6 +34,15 @@ class StudentGroup extends Model
         return $request->has('price') ? $request->price : null;
     }
 
+    public static function saveStudents($student_id, $group_id)
+    {
+        return self::query()->create([
+            'student_id' => $student_id,
+            'group_id' => $group_id,
+            'lesson_limit' => 12,
+        ]);
+    }
+
     public function group()
     {
         return $this->belongsTo(Group::class, 'group_id', 'id');

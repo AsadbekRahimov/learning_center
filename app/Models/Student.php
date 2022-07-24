@@ -36,6 +36,35 @@ class Student extends Model
         'privilege'
     ];
 
+    public static function createStudent($student)
+    {
+        $name = explode(' ', $student['val0']);
+        return self::query()->create([
+            'name' => $name[0],
+            'surname' => isset($name[1]) ? $name[1] : '',
+            'phone' => self::getPhone($student['val1']),
+            'source_id' => 6,
+            'branch_id' => 3,
+            'registered_id' => 1,
+            'come_date' => date('d.m.Y'),
+            'balance' => 0,
+            'debt' => 0,
+            'discount' => 0,
+            'status' => 'accepted',
+            'privilege' => 0,
+        ]);
+    }
+
+    private static function getPhone($number)
+    {
+        if (!empty($number)) {
+            $nums = explode(' ', $number);
+            return '(' . $nums[0] . ') ' . $nums[1] . '-' . $nums[2] . '-' . $nums[3];
+        } else {
+            return null;
+        }
+    }
+
 
     public function branch()
     {

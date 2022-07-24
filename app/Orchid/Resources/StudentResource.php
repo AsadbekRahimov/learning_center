@@ -132,9 +132,8 @@ class StudentResource extends Resource
             TD::make('id')->sort(),
             TD::make('name', 'Ismi')->filter(Input::make()->title('Ismi'))
                 ->render(function ($model) {
-                    return Link::make($model->name)->route('platform.addStudentToGroup', ['student' => $model->id]);
+                    return Link::make($model->name . ' ' . $model->surname)->route('platform.addStudentToGroup', ['student' => $model->id]);
                 })->cantHide(),
-            TD::make('surname', 'Familiyasi')->filter(Input::make()->title('Familiyasi'))->defaultHidden(),
             TD::make('lastname', 'Otasining ismi')->filter(Input::make()->title('Otasining ismi'))->defaultHidden(),
             TD::make('phone', 'Telefon raqam')->filter(Input::make()->mask('(99) 999-99-99')->title('Telefon raqami'))
                 ->render(function ($model) {
@@ -167,7 +166,7 @@ class StudentResource extends Resource
                 })->filter(Select::make('status')->options(Student::STATUS))->cantHide(),
             TD::make('source_id', 'Hamkor')->render(function ($model) {
                     return $model->source->name;
-                })->filter(Relation::make()->fromModel(Source::class, 'name'))->cantHide(),
+                })->filter(Relation::make()->fromModel(Source::class, 'name'))->defaultHidden(),
             TD::make('address', 'Manzil')->filter(Input::make()->title('Manzil'))->defaultHidden(),
             TD::make('registered_id', 'Ro`yhatga oluvchi')
                 ->render(function ($model) {
