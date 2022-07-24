@@ -79,7 +79,7 @@ class MessagesScreen extends Screen
         return [
             MessagesListTable::class,
             Layout::modal('asyncEditMessageModal', MessageEditLayout::class)->async('asyncGetUser')->applyButton('Saqlash')->closeButton('Yopish'),
-            Layout::modal('sendMessageModal', SendMessageLayout::class)->applyButton('Jo\'natish')->closeButton('Yopish'),
+            Layout::modal('sendMessageModal', SendMessageLayout::class)->title('Umumiy xabar jo\'natish')->applyButton('Jo\'natish')->closeButton('Yopish'),
         ];
     }
 
