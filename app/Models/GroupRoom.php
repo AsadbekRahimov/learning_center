@@ -18,7 +18,7 @@ class GroupRoom extends Model
 
     public function group()
     {
-        return $this->belongsTo(Group::class, 'group_id', 'id');
+        return $this->belongsTo(Group::class, 'group_id', 'id')->orderBy('day_type', 'desc');
     }
 
     public function room()
@@ -26,11 +26,11 @@ class GroupRoom extends Model
         return $this->belongsTo(Room::class, 'room_id', 'id');
     }
 
-    public static function getTimeline($value)
+    public static function getTimeline($time, $duration)
     {
-        $hour = (int) $value / 1;
-        $minute = ($value - $hour) * 100;
-        return self::startTime($hour, $minute) . '-' . self::endTime($hour, $minute);
+        $hour = (int) $time / 1;
+        $minute = ($time - $hour) * 100;
+        return self::startTime($hour, $minute) . '-' . self::endTime($hour, $minute, $duration);
     }
 
     private static function startTime($hour, $minute)
@@ -41,16 +41,15 @@ class GroupRoom extends Model
             return $hour . ':' . $minute;
     }
 
-    private static function endTime($hour, $minute)
+    private static function endTime($hour, $minute, $duration)
     {
-        if($minute == 0) {
-            return ($hour + 1) . ':30';
-        } elseif($minute = 30) {
-            return ($hour + 2 ) . ':00';
-        } elseif($minute < 30) {
-            return ($hour + 1) . ':' . ($minute + 30);
-        } elseif ($minute > 30) {
-            return ($hour + 2) . ':' . ($minute - 30);
+        $minutes = ($hour * 60) + $minute + $duration;
+        $endHour = (int)($minutes / 60);
+        if ($minutes % 60 == 0) {
+            $endMinute = '00';
+        } else {
+            $endMinute = $minutes % 60;
         }
+        return $endHour . ':' . $endMinute;
     }
 }

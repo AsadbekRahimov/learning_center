@@ -26,7 +26,7 @@ class TimeTableScreen extends Screen
     {
         $this->groups = GroupRoom::query()->pluck('group_id');
         return [
-            'rooms' => Room::query()->where('branch_id', Auth::user()->branch_id)->with(['groups', 'groups.group', 'groups.group.teacher'])->get(),
+            'rooms' => Room::query()->where('branch_id', Auth::user()->branch_id)->with(['groups.group.teacher'])->get(),
         ];
     }
 
@@ -94,6 +94,7 @@ class TimeTableScreen extends Screen
             'group_id' => $request->group_id,
             'room_id' => $request->room_id,
             'time' => $this->getGroupTime($request->time),
+            'duration' => $request->duration,
         ]);
 
         Alert::success('Gurux jadvalga qo\'shildi');
