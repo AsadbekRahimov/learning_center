@@ -33,6 +33,9 @@ class TeacherGroupsTable extends Table
             TD::make('subject_id', 'Fan')->render(function (Group $group) {
                 return $group->subject->name;
             }),
+            TD::make('students_count', 'O\'quvchilar soni')->render(function (Group $group) {
+                return $group->students->count();
+            })
         ];
     }
 }
