@@ -2,6 +2,7 @@
 
 namespace App\Orchid\Screens\TimeTable;
 
+use App\Models\Group;
 use App\Models\GroupRoom;
 use App\Models\Room;
 use Illuminate\Http\Request;
@@ -71,10 +72,16 @@ class TimeTableScreen extends Screen
                     Select::make('room_id')
                         ->fromQuery(Room::query()->where('branch_id', Auth::user()->branch_id), 'name')
                         ->title('Xonani tanlang')->required(),
-                    Input::make('time')
-                        ->type('time')
-                        ->title('Boshlanish vaqti')
-                        ->value('09:00:00')->required(),
+                    \Orchid\Screen\Fields\Group::make([
+                        Input::make('time')
+                            ->type('time')
+                            ->title('Boshlanish vaqti')
+                            ->value('09:00:00')->required(),
+                        Input::make('duration')
+                            ->type('number')
+                            ->title('Dars davomiyligi (minut)')
+                            ->value(90)->required(),
+                    ]),
                 ]),
             ])->title('Guruxni xonaga biriktirish')->applyButton('Qo\'shish')->closeButton('Yopish'),
             Layout::view('timetable'),

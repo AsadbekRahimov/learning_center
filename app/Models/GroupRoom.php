@@ -12,7 +12,8 @@ class GroupRoom extends Model
     protected $fillable = [
         'group_id',
         'room_id',
-        'time'
+        'time',
+        'duration',
     ];
 
     public function group()
