@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Lesson;
+use App\Services\GroupService;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,4 +23,17 @@ Route::get('/deleteGroupRoom/{id}', function ($id) {
     $groupRoom = \App\Models\GroupRoom::find($id);
     $groupRoom->delete();
     return redirect()->back();
-})->name('deleteGroupRoom');
+})->middleware('auth')->name('deleteGroupRoom');
+
+Route::get('/addLesson/{id}', function ($id) {
+    $group = \App\Models\Group::find($id);
+    Lesson::query()->create([
+        'date' => date('Y-m-d'),
+        'group_id' => $group->id,
+        'teacher_id' => $group->teacher_id,
+        'payment' => GroupService::calculatedLessonPrice($group),
+        'finish' => 0,
+    ]);
+    \Orchid\Support\Facades\Alert::success('Gurux uchun dars qoshildi, yo\'qlama qilishingiz mumkin!');
+    return redirect()->route('platform.groupInfo', ['group' => $group->id]);
+})->middleware('auth')->name('addLesson');
