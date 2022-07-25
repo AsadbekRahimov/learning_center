@@ -7,6 +7,7 @@ use App\Models\Message;
 use App\Models\Student;
 use App\Services\TelegramNotify;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Auth;
 use Napa\R19\Sms;
 
 class PaymentInfo extends Command
@@ -32,11 +33,8 @@ class PaymentInfo extends Command
      */
     public function handle()
     {
-        foreach (Branch::query()->where('payment_period', '=', 'monthly')->get() as $branch)
-        {
-            $students_info = null;
-            if (date('j') === date('t')) {
-                $students = Student::query()->where('branch_id', $branch->id)->where('status', 'accepted')->get();
+                $students_info = null;
+                $students = Student::query()->where('branch_id', Auth::user()->branch_id)->where('status', 'accepted')->get();
 
                 foreach ($students as $student)
                 {
@@ -52,12 +50,10 @@ class PaymentInfo extends Command
                         sleep(2); // TODO change max execution time in server
                     }
                 }
-            }
-            if (!is_null($students_info)) {
-                $error_message = 'Talabaning telefon raqami yo\'qligi sababli to\'lov vaqti kelganligi haqida sms yuborilmadi!';
-                $error_message .= $students_info;
-                TelegramNotify::sendMessage($error_message, 'oylik_tolov_ogoxlantirish', $branch->name);
-            }
-        }
+                if (!is_null($students_info)) {
+                    $error_message = 'Talabaning telefon raqami yo\'qligi sababli to\'lov vaqti kelganligi haqida sms yuborilmadi!';
+                    $error_message .= $students_info;
+                    TelegramNotify::sendMessage($error_message, 'oylik_tolov_ogoxlantirish', $branch->name);
+                }
     }
 }

@@ -166,6 +166,11 @@ class PlatformProvider extends OrchidServiceProvider
                 ->addPermission('platform.editGroupPrice', 'Imtiyozli talabaning kurs narxini belgilash')
                 ->addPermission('platform.rollbackStudentPayment', 'Talabaga pulini qaytarib berish'),
 
+            ItemPermission::group('Super vakolatlar')
+                ->addPermission('platform.specialy', 'Super vakolatlarni korish')
+                ->addPermission('platform.paymentInfo', 'Talabalarga tolov xaqida sms yuborish')
+                ->addPermission('platform.getPayment', 'Talabalar xisobidan oylik tolovni yechish'),
+
             ItemPermission::group('Bugalteriya')
                 ->addPermission('platform.payments', 'To\'lovlar')
                 ->addPermission('platform.expenses', 'Chiqimlar'),

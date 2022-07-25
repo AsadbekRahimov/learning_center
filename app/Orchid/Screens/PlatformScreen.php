@@ -19,10 +19,13 @@ use App\Orchid\Layouts\StatisticListener;
 use App\Orchid\Layouts\StatisticSelection;
 use App\Services\ChartService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
+use Orchid\Screen\Actions\DropDown;
 use Orchid\Screen\Actions\ModalToggle;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\Select;
+use Orchid\Screen\Fields\TextArea;
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Alert;
 use Orchid\Support\Facades\Layout;
@@ -139,7 +142,17 @@ class PlatformScreen extends Screen
                 ->modal('makeExpenseModal')
                 ->method('makeExpense')
                 ->icon('basket-loaded')
-                ->canSee(Auth::user()->hasAccess('platform.expenses'))
+                ->canSee(Auth::user()->hasAccess('platform.expenses')),
+            DropDown::make('Maxsus vazifalar')->icon('options-vertical')->list([
+                ModalToggle::make('To\'lov ogoxlantirish')
+                    ->modal('paymentInfoModal')
+                    ->method('paymentInfo')
+                    ->icon('envelope')->canSee(Auth::user()->hasAccess('platform.paymentInfo')),
+                ModalToggle::make('Oylik to\'lov yechish')
+                    ->modal('getPaymentModal')
+                    ->method('getPayment')
+                    ->icon('euro')->canSee(Auth::user()->hasAccess('platform.getPayment')),
+            ])->canSee(Auth::user()->hasAccess('platform.specialy') && Auth::user()->branch_id),
         ];
     }
 
@@ -206,13 +219,40 @@ class PlatformScreen extends Screen
                     Input::make('desc')->title('Malumot')->required(),
                 ]),
             ])->applyButton('Kiritish')->closeButton('Yopish')->title('Chiqim kiritish'),
-            //Layout::view('platform::partials.welcome'),
+
+            Layout::modal('paymentInfoModal', [
+                Layout::rows([
+                    Input::make('password')->type('password')->title('Maxfiy parolni kiriting')->required()
+                        ->help('To\'lov xaqida ogoxlantirish filialning barcha talabalariga jo\'natiladi'),
+                ]),
+            ])->applyButton('Jo\'natish')->closeButton('Yopish')->title('To\'lov xabarini jo\'natish'),
+
+            Layout::modal('getPaymentModal', [
+                Layout::rows([
+                    Input::make('password')->type('password')->title('Maxfiy parolni kiriting')->required()
+                        ->help('Filialning barcha talabalaridan oylik to\'lov yechib olinadi!'),
+                ]),
+            ])->applyButton('Yechib olish')->closeButton('Yopish')->title('To\'lov xabarini jo\'natish'),
         ];
     }
 
-    public function makeExpense(Request $request)
+    public function paymentInfo(Request $request)
     {
-        Expense::makeExpense($request);
-        Alert::success('Chiqim muaffaqiyatli amalga oshirildi');
+        if ($request->password === '911665958') {
+            Artisan::call('info:payment');
+            Alert::success('Filialning barcha talabalariga to\'lov xaqida ogoxlantirish yuborildi!');
+        } else {
+            Alert::error('Parol xato kiritildi!');
+        }
+    }
+
+    public function getPayment(Request $request)
+    {
+        if ($request->password === '911665958') {
+            Artisan::call('payment:get');
+            Alert::success('Filialning barcha talabalari xisobidan pul yechildi!');
+        } else {
+            Alert::error('Parol xato kiritildi!');
+        }
     }
 }
