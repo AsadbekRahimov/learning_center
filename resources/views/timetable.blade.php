@@ -1,9 +1,52 @@
 <link rel="stylesheet" type="text/css" href="{{ asset('styles/timetable.css') }}">
 
 <div class="tab">
+    <button class="tablinks" onclick="openRoom(event, 'lessons')">Bugungi darslar</button>
     @foreach($rooms as $room)
         <button class="tablinks" onclick="openRoom(event, '{{ $room->name }}')">{{ $room->name }}</button>
     @endforeach
+</div>
+
+<div id="lessons" class="tabcontent">
+    <section class="timeline_area section_padding_130">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <!-- Timeline Area-->
+                    <div class="apland-timeline-area">
+                        @foreach($rooms as $room)
+                            <div class="single-timeline-area">
+                                <div class="timeline-date wow fadeInLeft" data-wow-delay="0.1s" style="visibility: visible; animation-delay: 0.1s; animation-name: fadeInLeft;">
+                                    <p>{{ $room->name }}</p>
+                                </div>
+                                <div class="row">
+                                    @php
+                                        $groups = \App\Models\GroupRoom::query()->whereNotIn('group_id', $lesson_ids)->where('room_id', $room->id)->limit(3)->get();
+                                    @endphp
+                                    @foreach($groups as  $group)
+                                        @php
+                                            $time = \App\Models\GroupRoom::getTimeline($group->time, $group->duration);
+                                        @endphp
+                                        @if((in_array(date('l'), \App\Models\Group::ODD_DAYS) && $group->group->day_type == 'odd') || (in_array(date('l'), \App\Models\Group::EVEN_DAYS) && $group->group->day_type == 'even'))
+                                            <div class="col-12 col-md-6 col-lg-4">
+                                                <div class="single-timeline-content d-flex wow fadeInLeft" data-wow-delay="0.3s" style="visibility: visible; animation-delay: 0.3s; animation-name: fadeInLeft;">
+                                                    <div class="timeline-icon"><i class="fa fa-id-card" aria-hidden="true"></i></div>
+                                                    <div class="timeline-text">
+                                                        <h6>{{ $group->group->name }}</h6>
+                                                        <p>{{ $time }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 </div>
 
 @foreach($rooms as $room)

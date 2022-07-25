@@ -4,6 +4,7 @@ namespace App\Orchid\Screens\TimeTable;
 
 use App\Models\Group;
 use App\Models\GroupRoom;
+use App\Models\Lesson;
 use App\Models\Room;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,6 +28,7 @@ class TimeTableScreen extends Screen
         $this->groups = GroupRoom::query()->pluck('group_id');
         return [
             'rooms' => Room::query()->where('branch_id', Auth::user()->branch_id)->with(['groups.group.teacher'])->get(),
+            'lesson_ids' => Lesson::query()->where('date', date('Y-m-d'))->pluck('group_id'),
         ];
     }
 
