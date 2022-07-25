@@ -88,6 +88,7 @@ class PlatformProvider extends OrchidServiceProvider
                 ->icon('calendar')
                 ->route('platform.timetable')
                 ->title('O\'quv bo\'limi')
+                ->permission('platform.timetable')
                 ->canSee(!is_null(Auth::user()->branch_id)),
 
             Menu::make('Kirim-chiqim')
@@ -156,6 +157,7 @@ class PlatformProvider extends OrchidServiceProvider
                 ->addPermission('platform.teachers', 'O\'qituvchilar')
                 ->addPermission('platform.teacherInfo', 'O\'qituvchi malumotlari')
                 ->addPermission('platform.rooms', 'O\'quv xonalari')
+                ->addPermission('platform.timetable', 'Dars jadvali')
                 ->addPermission('platform.groupInfo', 'Gurux ma\'lumotlari')
                 ->addPermission('platform.attandance', 'Yo\'qlama qilish')
                 ->addPermission('platform.giveSalary', 'Oylik berish')

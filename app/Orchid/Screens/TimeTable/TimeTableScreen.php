@@ -42,6 +42,13 @@ class TimeTableScreen extends Screen
         return 'Dars jadvali';
     }
 
+    public function permission(): ?iterable
+    {
+        return [
+            'platform.timetable'
+        ];
+    }
+
     /**
      * Button commands.
      *
