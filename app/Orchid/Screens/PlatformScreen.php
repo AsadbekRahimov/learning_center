@@ -76,7 +76,7 @@ class PlatformScreen extends Screen
                         'all_groups' => Group::query()->when(Auth::user()->branch_id, function ($query){
                             return $query->where('branch_id', Auth::user()->branch_id);
                         })->count(),
-                        'teachers_balance' => Teacher::query()->sum('balance'),
+                        'teachers_balance' => number_format(Teacher::query()->sum('balance')),
                     ],
                     'year' => [
                         'payments'    => number_format((int)$payments->whereYear('created_at', date('Y'))->sum('sum')),
