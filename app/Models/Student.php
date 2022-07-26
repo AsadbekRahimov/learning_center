@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 use Orchid\Attachment\Attachable;
 use Orchid\Filters\Filterable;
 use Orchid\Metrics\Chartable;
@@ -63,6 +64,24 @@ class Student extends Model
         } else {
             return null;
         }
+    }
+
+    public static function createNewStudent(TemporaryGroup $student)
+    {
+        return self::query()->create([
+            'name' => $student->name,
+            'surname' => $student->surname,
+            'phone' => $student->number,
+            'source_id' => $student->source_id,
+            'branch_id' => $student->branch_id,
+            'registered_id' => Auth::user()->id,
+            'come_date' => date('d.m.Y'),
+            'balance' => 0,
+            'debt' => 0,
+            'discount' => 0,
+            'status' => 'accepted',
+            'privilege' => 0,
+        ]);
     }
 
 

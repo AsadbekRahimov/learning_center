@@ -19,7 +19,20 @@ class TemporaryGroup extends Model
         'surname',
         'number',
         'subject_id',
+        'source_id'
     ];
+
+    public static function createStudent(\Illuminate\Http\Request $request)
+    {
+        return self::query()->create([
+            'branch_id' => $request->branch_id,
+            'name' => $request->name,
+            'surname' => $request->surname,
+            'number' => $request->phone,
+            'subject_id' => $request->subject_id,
+            'source_id' => $request->source_id,
+        ]);
+    }
 
     public function branch()
     {
@@ -29,5 +42,10 @@ class TemporaryGroup extends Model
     public function subject()
     {
         return $this->belongsTo(Subject::class, 'subject_id', 'id');
+    }
+
+    public function source()
+    {
+        return $this->belongsTo(Source::class, 'source_id', 'id');
     }
 }

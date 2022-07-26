@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('surname')->nullable();
             $table->string('number');
             $table->integer('subject_id');
+            $table->integer('source_id');
             $table->timestamps();
         });
     }
