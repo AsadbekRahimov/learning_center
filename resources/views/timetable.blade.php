@@ -34,7 +34,7 @@
                                                     <div class="single-timeline-content d-flex wow fadeInLeft" data-wow-delay="0.3s" style="visibility: visible; animation-delay: 0.3s; animation-name: fadeInLeft;">
                                                         <div class="timeline-icon"><i class="fa fa-id-card" aria-hidden="true"></i></div>
                                                         <div class="timeline-text">
-                                                            <h6><a href="{{ route('addLesson', ['id' => $group->group->id]) }}" target="_blank">{{ $group->group->name }}</a></h6>
+                                                            <h6><a href="{{ route('addLesson', ['id' => $group->group->id]) }}">{{ $group->group->name }}</a></h6>
                                                             <p>{{ $time }}</p>
                                                         </div>
                                                     </div>

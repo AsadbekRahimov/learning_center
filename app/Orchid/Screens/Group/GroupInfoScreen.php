@@ -193,6 +193,7 @@ class GroupInfoScreen extends Screen
 
         $lesson->save();
         Alert::info('Davomat yakunlandi!');
+        return redirect()->route('platform.timetable');
     }
 
     public function none()
