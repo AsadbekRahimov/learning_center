@@ -10,6 +10,7 @@ use App\Models\Expense;
 use App\Models\Group;
 use App\Models\Payment;
 use App\Models\Student;
+use App\Models\Subject;
 use App\Models\Teacher;
 use App\Orchid\Layouts\Charts\DiscountChart;
 use App\Orchid\Layouts\Charts\ExpenseChart;
@@ -24,6 +25,7 @@ use Illuminate\Support\Facades\Auth;
 use Orchid\Screen\Actions\DropDown;
 use Orchid\Screen\Actions\ModalToggle;
 use Orchid\Screen\Fields\Input;
+use Orchid\Screen\Fields\Relation;
 use Orchid\Screen\Fields\Select;
 use Orchid\Screen\Fields\TextArea;
 use Orchid\Screen\Screen;
@@ -138,6 +140,11 @@ class PlatformScreen extends Screen
     public function commandBar(): iterable
     {
         return [
+            ModalToggle::make('')
+                ->modal('temporaryStudentModal')
+                ->method('createTemporaryStudent')
+                ->icon('user-follow')
+                ->canSee(Auth::user()->hasAccess('platform.temporaryStudent') && Auth::user()->branch_id),
             ModalToggle::make('Chiqim')
                 ->modal('makeExpenseModal')
                 ->method('makeExpense')
@@ -233,6 +240,19 @@ class PlatformScreen extends Screen
                         ->help('Filialning barcha talabalaridan oylik to\'lov yechib olinadi!'),
                 ]),
             ])->applyButton('Yechib olish')->closeButton('Yopish')->title('To\'lov xabarini jo\'natish'),
+
+            Layout::modal('temporaryStudentModal', [
+                Layout::rows([
+                    \Orchid\Screen\Fields\Group::make([
+                        Input::make('name')->type('text')->title('Ism')->required()->help('Kiritish majburiy'),
+                        Input::make('surname')->type('text')->title('Familiya'),
+                    ]),
+                    \Orchid\Screen\Fields\Group::make([
+                        Input::make('phone')->title('Telefon raqam')->mask('(99) 999-99-99')->required()->help('Kiritish majburiy'),
+                        Select::make('subject_id')->fromQuery(Subject::where('branch_id', Auth::user()->branch_id), 'name')->title('Fanni tanlang')->required()->help('Kiritish majburiy'),
+                    ])
+                ]),
+            ])->applyButton('Saqlash')->closeButton('Yopish')->title('Vaqtinchalik talaba kiritish'),
         ];
     }
 
@@ -254,5 +274,10 @@ class PlatformScreen extends Screen
         } else {
             Alert::error('Parol xato kiritildi!');
         }
+    }
+
+    public function createTemporaryStudent(Request $request)
+    {
+        dd($request->all());
     }
 }
