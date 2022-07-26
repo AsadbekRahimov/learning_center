@@ -26,10 +26,19 @@ class Discount extends Model
 
     public static function groupDiscount(Group $group, $student_id, $price)
     {
+        $discount = $group->subject->price - $price;
+        self::saveStudentDiscount($student_id, $discount);
         return self::query()->create([
             'student_id' => $student_id,
             'type' => 'group',
-            'price' => $group->subject->price - $price,
+            'price' => $discount,
         ]);
+    }
+
+    private static function saveStudentDiscount($student_id, $discount)
+    {
+        $student = Student::query()->find($student_id);
+        $student->discount += $discount;
+        $student->save();
     }
 }

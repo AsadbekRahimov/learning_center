@@ -8,6 +8,7 @@ use App\Models\Student;
 use App\Services\StudentService;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class GetPaymentFromBalance extends Command
 {
@@ -32,11 +33,9 @@ class GetPaymentFromBalance extends Command
      */
     public function handle()
     {
-        if (date('j') == '1')
-        {
             $students = Student::query()->with(['branch', 'groups.group'])->whereHas('branch', function (Builder $query) {
                 $query->where('payment_period', '=', 'monthly');
-            })->where('status', 'accepted')->get();
+            })->where('status', 'accepted')->where('branch_id', Auth::user()->branch_id)->get();
             foreach ($students as $student)
             {
                 $monthly_payment = 0;
@@ -49,6 +48,5 @@ class GetPaymentFromBalance extends Command
                 }
                 $student->getFromBalance($monthly_payment);
             }
-        }
     }
 }

@@ -11,6 +11,7 @@ use App\Orchid\Layouts\Teacher\TeacherLessonsTable;
 use App\Orchid\Layouts\Teacher\TeacherSalaryTable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Actions\ModalToggle;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Screen;
@@ -76,6 +77,10 @@ class TeacherInfoScreen extends Screen
                     'teacher' => $this->teacher->name,
                     'branch_id' => $this->teacher->branch_id,
                 ])->canSee(Auth::user()->hasAccess('platform.giveSalary')),
+            Link::make('Taxrirlash')
+                ->icon('settings')
+                ->canSee(Auth::user()->hasAccess('platform.teachers'))
+                ->href('/admin/crud/edit/teacher-resources/' . $this->teacher->id),
         ];
     }
 
