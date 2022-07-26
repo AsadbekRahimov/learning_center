@@ -160,6 +160,7 @@ class PlatformProvider extends OrchidServiceProvider
                 ->addPermission('platform.timetable', 'Dars jadvali')
                 ->addPermission('platform.groupInfo', 'Gurux ma\'lumotlari')
                 ->addPermission('platform.attandance', 'Yo\'qlama qilish')
+                ->addPermission('platform.temporaryStudent', 'Vaqtinchalik talaba kiritish')
                 ->addPermission('platform.giveSalary', 'Oylik berish')
                 ->addPermission('platform.editLesson', 'Dars limitini o`zgartirish')
                 ->addPermission('platform.editStudentStatus', 'Talabaning talim bosqichini o`zgartirish')
