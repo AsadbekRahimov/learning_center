@@ -37,6 +37,11 @@ class StudentPaymentsTable extends Table
             TD::make('created_at', 'Sana')->render(function (Payment $payment) {
                 return $payment->created_at->format('Y-m-d');
             }),
+            TD::make('payment', 'Kvitansiya')->render(function (Payment $payment) {
+                return Link::make('')->icon('printer')
+                    ->route('checkPrint', ['id' => $payment->id])
+                    ->target('_blank');
+            })
         ];
     }
 }

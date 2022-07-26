@@ -37,3 +37,8 @@ Route::get('/addLesson/{id}', function ($id) {
     \Orchid\Support\Facades\Alert::success('Gurux uchun dars qoshildi, yo\'qlama qilishingiz mumkin!');
     return redirect()->route('platform.groupInfo', ['group' => $group->id]);
 })->middleware('auth')->name('addLesson');
+
+Route::get('/checkPrint/{id}', function ($id) {
+    $receipt = \App\Models\Payment::query()->find($id);
+    return view('printCheck', compact('receipt'));
+})->name('checkPrint');
