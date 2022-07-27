@@ -16,6 +16,7 @@ use App\Orchid\Layouts\Student\StudentPaymentsTable;
 use App\Services\StudentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\DropDown;
 use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Actions\ModalToggle;
@@ -32,6 +33,8 @@ class StudentInfoScreen extends Screen
     public $student;
 
     public $groups;
+
+    public $last_payment;
     /**
      * Query data.
      *
@@ -41,6 +44,7 @@ class StudentInfoScreen extends Screen
     {
         //dd($student->groups);
         return [
+            'last_payment' => Payment::query()->where('student_id', $student->id)->orderByDesc('id')->first(),
             'student' => $student,
             'metrics' => [
                 'pay' => number_format(Payment::query()->where('student_id', $student->id)->sum('sum')),
@@ -98,6 +102,10 @@ class StudentInfoScreen extends Screen
         $modal_title = $this->student->status == 'accepted' ? 'Guruxga qo\'shish' : 'Talabaning ta\'lim bosqichi faol bolishi kerak!';
         return [
             Link::make('')->icon('star')->type(Color::WARNING())->canSee($this->student->privilege),
+            Link::make('')->icon('printer')
+                ->route('checkPrint', ['id' => $this->last_payment ? $this->last_payment->id : 1])
+                ->target('_blank')
+                ->canSee(!is_null($this->last_payment)),
 
             DropDown::make('Amallar')->icon('options-vertical')->list([
                 Link::make('Taxrirlash')

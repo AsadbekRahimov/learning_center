@@ -274,7 +274,6 @@ class StudentResource extends Resource
     {
         return [
             'name' => ['required'],
-            'address' => ['required'],
             'source_id' => ['required'],
             'branch_id' => ['required'],
             'registered_id' => ['required'],
@@ -287,7 +286,6 @@ class StudentResource extends Resource
     {
         return [
             'name.required' => 'Talabaning ismi kiritilishi shart',
-            'address.required' => 'Talabaning manzili kiritilishi shart',
             'source_id.required' => 'Talabaning jalb qilgan hamkor kiritilishi shart',
             'branch_id.required' => 'Talabaning o`quv filiali kiritilishi shart',
             'registered_id.required' => 'Talabaning royhatga olgan odam kiritilishi shart',

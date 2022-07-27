@@ -9,15 +9,18 @@ use App\Models\Discount;
 use App\Models\Expense;
 use App\Models\Group;
 use App\Models\Payment;
+use App\Models\Source;
 use App\Models\Student;
 use App\Models\Subject;
 use App\Models\Teacher;
+use App\Models\TemporaryGroup;
 use App\Orchid\Layouts\Charts\DiscountChart;
 use App\Orchid\Layouts\Charts\ExpenseChart;
 use App\Orchid\Layouts\Charts\PaymentChart;
 use App\Orchid\Layouts\Charts\SourceChart;
 use App\Orchid\Layouts\StatisticListener;
 use App\Orchid\Layouts\StatisticSelection;
+use App\Orchid\Layouts\Student\NewStudentsTable;
 use App\Services\ChartService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
@@ -109,6 +112,7 @@ class PlatformScreen extends Screen
             'payments' => [ (request()->has('begin')) ? ChartService::paymentChart($begin, $end) : ChartService::paymentChart()],
             'discounts' => [ (request()->has('begin')) ? ChartService::discountChart($begin, $end) : ChartService::discountChart()],
             'expenses' => [ (request()->has('begin')) ? ChartService::expenseChart($begin, $end) : ChartService::expenseChart() ],
+            'students' => TemporaryGroup::query()->where('branch_id', Auth::user()->branch_id)->orderByDesc('id')->paginate(10),
         ];
     }
 
@@ -144,6 +148,9 @@ class PlatformScreen extends Screen
                 ->modal('temporaryStudentModal')
                 ->method('createTemporaryStudent')
                 ->icon('user-follow')
+                ->parameters([
+                    'branch_id' => Auth::user()->branch_id,
+                ])
                 ->canSee(Auth::user()->hasAccess('platform.temporaryStudent') && Auth::user()->branch_id),
             ModalToggle::make('Chiqim')
                 ->modal('makeExpenseModal')
@@ -216,6 +223,8 @@ class PlatformScreen extends Screen
                 'Hamkorlar' => SourceChart::class,
             ])->canSee(!is_null($this->custom_stat)),
 
+            NewStudentsTable::class,
+
             Layout::modal('makeExpenseModal', [
                 Layout::rows([
                     Select::make('branch_id')->fromModel(Branch::class, 'name')
@@ -243,14 +252,17 @@ class PlatformScreen extends Screen
 
             Layout::modal('temporaryStudentModal', [
                 Layout::rows([
+                    Input::make('name')->type('text')->title('Ism')
+                        ->required()->help('Kiritish majburiy'),
+                    Input::make('surname')->type('text')->title('Familiya'),
                     \Orchid\Screen\Fields\Group::make([
-                        Input::make('name')->type('text')->title('Ism')->required()->help('Kiritish majburiy'),
-                        Input::make('surname')->type('text')->title('Familiya'),
+                        Input::make('phone')->title('Telefon raqam')->mask('(99) 999-99-99')
+                            ->required()->help('Kiritish majburiy'),
+                        Select::make('subject_id')->fromQuery(Subject::where('branch_id', Auth::user()->branch_id), 'name')
+                            ->title('Fanni tanlang')->required()->help('Kiritish majburiy'),
                     ]),
-                    \Orchid\Screen\Fields\Group::make([
-                        Input::make('phone')->title('Telefon raqam')->mask('(99) 999-99-99')->required()->help('Kiritish majburiy'),
-                        Select::make('subject_id')->fromQuery(Subject::where('branch_id', Auth::user()->branch_id), 'name')->title('Fanni tanlang')->required()->help('Kiritish majburiy'),
-                    ])
+                    Select::make('source_id')->fromModel(Source::class, 'name')
+                        ->title('Hamkorni tanlang tanlang')->required()->help('Kiritish majburiy'),
                 ]),
             ])->applyButton('Saqlash')->closeButton('Yopish')->title('Vaqtinchalik talaba kiritish'),
         ];
@@ -278,6 +290,23 @@ class PlatformScreen extends Screen
 
     public function createTemporaryStudent(Request $request)
     {
-        dd($request->all());
+        $student = TemporaryGroup::createStudent($request);
+        Alert::success($student->name . ' ' . $student->surname . ' muaffaqiyatli qo\'shildi');
+    }
+
+    public function addStudent(Request $request)
+    {
+        $student = TemporaryGroup::query()->find($request->id);
+        $new_student = Student::createNewStudent($student);
+        $student->delete();
+        Alert::success('Talaba muaffaqiyatli qabul qilindi. Eni talaba malumotlarini taxrirlab guruxga biriktirishingiz mumkin!');
+        return redirect()->route('platform.addStudentToGroup', ['student' => $new_student->id]);
+    }
+
+    public function deleteStudent(Request $request)
+    {
+        $student = TemporaryGroup::query()->find($request->id);
+        $student->delete();
+        Alert::success('Talaba muaffaqiyatli o\'chirildi');
     }
 }
