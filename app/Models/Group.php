@@ -66,6 +66,11 @@ class Group extends Model
         return $this->hasMany(Lesson::class, 'group_id', 'id');
     }
 
+    public function room()
+    {
+        return $this->belongsTo(GroupRoom::class, 'id', 'group_id');
+    }
+
     protected $allowedFilters = [
         'name',
         'subject_id',
