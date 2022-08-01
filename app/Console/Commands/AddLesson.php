@@ -5,12 +5,8 @@ namespace App\Console\Commands;
 use App\Models\Branch;
 use App\Models\Group;
 use App\Models\Lesson;
-use App\Models\RedDay;
-use App\Notifications\AdminNotify;
 use App\Services\GroupService;
-use App\Services\TelegramNotify;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Notification;
 
 class AddLesson extends Command
 {
@@ -37,17 +33,12 @@ class AddLesson extends Command
     {
         foreach (Branch::all() as $branch)
         {
-            $red_days = RedDay::query()->whereDate('date', '>=', date('Y-m-d'))
-                ->where('branch_id', $branch->id)->pluck('date');
-            $today = date('Y-m-d');
+            $groups = Group::query()->with(['students.student', 'subject', 'teacher', 'branch'])
+                ->where('is_active', '=', true)
+                ->where('branch_id', $branch->id)->get();
 
-            if (!$red_days->contains($today)) {
-                $groups = Group::query()->with(['students.student', 'subject', 'teacher', 'branch'])
-                    ->where('is_active', '=', true)
-                    ->where('branch_id', $branch->id)->get();
-
-                foreach ($groups as $group)
-                {
+            foreach ($groups as $group)
+            {
                     if ($group->day_type === 'odd' and in_array(date('l'), Group::ODD_DAYS) && $group->students->count())
                     {
                         Lesson::query()->create([
@@ -67,10 +58,6 @@ class AddLesson extends Command
                             'finish' => 0,
                         ]);
                     }
-                }
-            } else {
-                $message = 'Bugungi sana ishlanmaydigan kunlar sirasiga kiradi, shu sababdan bu kun uchun darslar qo\'yilmadi!';
-                TelegramNotify::sendMessage($message, 'ishlanmaydigan_kun', $branch->name);
             }
         }
     }

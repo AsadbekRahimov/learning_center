@@ -153,7 +153,6 @@ class PlatformProvider extends OrchidServiceProvider
                 ->addPermission('platform.sources', 'Hamkorlar')
                 ->addPermission('platform.students', 'Talabalar')
                 ->addPermission('platform.addStudentToGroup', 'Talaba malumotlari')
-                ->addPermission('platform.redDays', 'Ishlanmaydigan kunlar')
                 ->addPermission('platform.teachers', 'O\'qituvchilar')
                 ->addPermission('platform.teacherInfo', 'O\'qituvchi malumotlari')
                 ->addPermission('platform.rooms', 'O\'quv xonalari')
