@@ -2,7 +2,6 @@
 
 namespace App\Orchid\Screens\TimeTable;
 
-use App\Models\Group;
 use App\Models\GroupRoom;
 use App\Models\Lesson;
 use App\Models\Room;

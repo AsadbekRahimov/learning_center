@@ -16,7 +16,8 @@
                     <div class="apland-timeline-area">
                         @foreach($rooms as $room)
                             @php
-                                $groups = \App\Models\GroupRoom::query()->where('room_id', $room->id)->whereNotIn('group_id', $lesson_ids)->orderBy('time', 'ASC')->get();
+                                //$groups = \App\Models\GroupRoom::query()->where('room_id', $room->id)->whereNotIn('group_id', $lesson_ids)->orderBy('time', 'ASC')->get();
+                                //$groups = $room->groups()->where('room_id', $room->id)->whereNotIn('group_id', $lesson_ids)->orderBy('time', 'ASC')->get();
                                 $count = 1;
                             @endphp
                             <div class="single-timeline-area">
@@ -24,7 +25,7 @@
                                     <p>{{ $room->name }}</p>
                                 </div>
                                 <div class="row">
-                                    @foreach($groups as $group)
+                                    @foreach($room->room_groups($lesson_ids) as $group)
                                         @php
                                             $time = \App\Models\GroupRoom::getTimeline($group->time, $group->duration);
                                         @endphp
