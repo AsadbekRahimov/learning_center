@@ -16,8 +16,7 @@
                     <div class="apland-timeline-area">
                         @foreach($rooms as $room)
                             @php
-                                //$groups = \App\Models\GroupRoom::query()->where('room_id', $room->id)->whereNotIn('group_id', $lesson_ids)->orderBy('time', 'ASC')->get();
-                                //$groups = $room->groups()->where('room_id', $room->id)->whereNotIn('group_id', $lesson_ids)->orderBy('time', 'ASC')->get();
+                                $groups = \App\Models\GroupRoom::query()->with(['group'])->where('room_id', $room->id)->whereNotIn('group_id', $lesson_ids)->orderBy('time', 'ASC')->get();
                                 $count = 1;
                             @endphp
                             <div class="single-timeline-area">
@@ -25,11 +24,11 @@
                                     <p>{{ $room->name }}</p>
                                 </div>
                                 <div class="row">
-                                    @foreach($room->room_groups($lesson_ids) as $group)
+                                    @foreach($groups as $group)
                                         @php
                                             $time = \App\Models\GroupRoom::getTimeline($group->time, $group->duration);
                                         @endphp
-                                        @if((in_array(date('l'), \App\Models\Group::ODD_DAYS) && $group->group->day_type == 'odd') || (in_array(date('l'), \App\Models\Group::EVEN_DAYS) && $group->group->day_type == 'even'))
+                                        @if((in_array(date('l'), \App\Models\Group::ODD_DAYS) && $group->group->day_type === 'odd') || (in_array(date('l'), \App\Models\Group::EVEN_DAYS) && $group->group->day_type === 'even'))
                                             @if($count < 4)
                                                 <div class="col-12 col-md-6 col-lg-4">
                                                     <div class="single-timeline-content d-flex wow fadeInLeft" data-wow-delay="0.3s" style="visibility: visible; animation-delay: 0.3s; animation-name: fadeInLeft;">

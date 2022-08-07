@@ -27,14 +27,6 @@ class Room extends Model
         return $this->hasMany(GroupRoom::class, 'room_id', 'id')->orderBy('time', 'ASC');
     }
 
-    public function room_groups($lesson_ids)
-    {
-        return $this->hasMany(GroupRoom::class, 'room_id', 'id')
-            ->where('room_id', $this->id)
-            ->whereNotIn('group_id', $lesson_ids)
-            ->orderBy('time', 'ASC');
-    }
-
     public function branch()
     {
         return $this->belongsTo(Branch::class, 'branch_id', 'id')->withTrashed();
