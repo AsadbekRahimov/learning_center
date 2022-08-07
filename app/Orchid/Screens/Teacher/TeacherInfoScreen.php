@@ -41,7 +41,7 @@ class TeacherInfoScreen extends Screen
 
             'salary' => Expense::query()->where('teacher_id', $teacher->id)->orderByDesc('id')->paginate(10),
             'lessons' => Lesson::query()->with(['group'])->where('teacher_id', $teacher->id)->orderByDesc('id')->paginate(10),
-            'groups' => Group::query()->where('teacher_id', $teacher->id)->orderByDesc('id')->paginate(10),
+            'groups' => Group::query()->with(['subject', 'students'])->where('teacher_id', $teacher->id)->orderByDesc('id')->paginate(10),
         ];
     }
 

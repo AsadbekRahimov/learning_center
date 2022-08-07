@@ -202,7 +202,7 @@ class StudentInfoScreen extends Screen
             Layout::modal('addToGroupModal', [
                 Layout::rows([
                     Select::make('group_id')
-                        ->fromQuery(\App\Models\Group::where('branch_id', $this->student->branch_id)
+                        ->fromQuery(\App\Models\Group::query()->with(['subject'])->where('branch_id', $this->student->branch_id)
                             ->whereNotIn('id', $this->groups)->where('is_active', '=', true), 'all_name')
                         ->title('Guruxni tanlang')->disabled($this->student->status != 'accepted')->required(),
                     Input::make('price')->title('Imtiyozli talaba uchun gurux narxi')->type('number')
