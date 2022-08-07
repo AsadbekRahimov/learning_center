@@ -48,7 +48,6 @@ class StudentInfoScreen extends Screen
             'student' => $student,
             'metrics' => [
                 'pay' => number_format(Payment::query()->where('student_id', $student->id)->sum('sum')),
-                'balance' => number_format($student->balance),
                 'debt' => number_format($student->debt),
                 'discount' => number_format($student->discount),
                 'attandances' => [
@@ -185,7 +184,6 @@ class StudentInfoScreen extends Screen
         return [
             Layout::metrics([
                 'To\'lov' => 'metrics.pay',
-                'Hisob' => 'metrics.balance',
                 'Qarz' => 'metrics.debt',
                 'Chegirma' => 'metrics.discount',
                 'Davomat' => 'metrics.attandances',

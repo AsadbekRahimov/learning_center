@@ -148,10 +148,6 @@ class StudentResource extends Resource
                 ->render(function ($model) {
                     return Link::make($model->parent_phone)->href('tel:' . Student::telephone($model->parent_phone));
                 })->defaultHidden(),
-            TD::make('balance', 'Hisob')->render(function ($model) {
-                return Button::make(number_format($model->balance))->method('none')->type(Color::SUCCESS())
-                    ->canSee($model->balance > 0)->disabled();
-            })->sort()->cantHide(),
             TD::make('debt', 'Qarz')->render(function ($model) {
                 return Button::make(number_format($model->debt))->type(Color::DANGER())->canSee($model->debt > 0)->disabled();
             })->sort()->cantHide(),
@@ -221,7 +217,6 @@ class StudentResource extends Resource
                     return Link::make($model->parent_phone)->href('tel:' . Student::telephone($model->parent_phone));
                 }),
             Sight::make('come_date', 'Kelgan sanasi'),
-            Sight::make('balance', 'Hisob'),
             Sight::make('debt', 'Qarz'),
             Sight::make('source_id', 'Hamkor')->render(function ($model) {
                 return $model->source->name;

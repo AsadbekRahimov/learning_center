@@ -32,7 +32,6 @@ class Student extends Model
         'come_date',
         'comment',
         'hobbies',
-        'balance',
         'status',
         'privilege'
     ];
@@ -48,7 +47,6 @@ class Student extends Model
             'branch_id' => 3,
             'registered_id' => 1,
             'come_date' => date('d.m.Y'),
-            'balance' => 0,
             'debt' => 0,
             'discount' => 0,
             'status' => 'accepted',
@@ -76,7 +74,6 @@ class Student extends Model
             'branch_id' => $student->branch_id,
             'registered_id' => Auth::user()->id,
             'come_date' => date('d.m.Y'),
-            'balance' => 0,
             'debt' => 0,
             'discount' => 0,
             'status' => 'accepted',
@@ -126,7 +123,6 @@ class Student extends Model
         'id',
         'privilege',
         'come_date',
-        'balance',
         'debt',
         'discount',
         'updated_at',

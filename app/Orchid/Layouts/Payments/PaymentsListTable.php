@@ -6,11 +6,13 @@ use App\Models\Branch;
 use App\Models\Payment;
 use Illuminate\Support\Facades\Auth;
 use Orchid\Screen\Actions\Link;
+use Orchid\Screen\Fields\CheckBox;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\Relation;
 use Orchid\Screen\Fields\Select;
 use Orchid\Screen\Layouts\Table;
 use Orchid\Screen\TD;
+use Orchid\Support\Color;
 
 class PaymentsListTable extends Table
 {
@@ -34,9 +36,12 @@ class PaymentsListTable extends Table
         return [
             TD::make('id', 'ID')->sort(),
             TD::make('student_id', 'Talaba')->render(function (Payment $payment) {
-                return Link::make($payment->student->name)
+                return Link::make($payment->student->name . ' ' . $payment->student->surname)
                     ->route('platform.addStudentToGroup', ['student' => $payment->student_id]);
             })->cantHide(),
+            TD::make('privilege', 'Saxovat')->render(function (Payment $payment) {
+                return Link::make('')->icon('star')->type(Color::WARNING())->canSee($payment->student->privilege);
+            })->sort()->filter(CheckBox::make()->title('Saxovat talabasi')->sendTrueOrFalse())->cantHide(),
             TD::make('sum', 'Summasi')->render(function (Payment $payment) {
                 return number_format($payment->sum);
             })->sort()->filter(Input::make('sum')->type('number'))->cantHide(),
