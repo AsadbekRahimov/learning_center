@@ -3,9 +3,11 @@
 namespace App\Orchid\Screens\Payment;
 
 use App\Models\Payment;
-use App\Orchid\Layouts\Payments\PaymentsListTable;
+use App\Orchid\Layouts\Payments\PaidListTable;
+use App\Orchid\Layouts\Payments\UnpaidListTable;
 use Illuminate\Support\Facades\Auth;
 use Orchid\Screen\Screen;
+use Orchid\Support\Facades\Layout;
 
 class PaymentsListScreen extends Screen
 {
@@ -17,9 +19,17 @@ class PaymentsListScreen extends Screen
     public function query(): iterable
     {
         return [
-            'payments' => Payment::query()->with(['student', 'branch'])->when(Auth::user()->branch_id, function ($query){
-                return $query->where('branch_id', Auth::user()->branch_id);
-            })->filters()->defaultSort('id', 'desc')->paginate(15),
+            'paid' => Payment::query()->with(['student', 'group', 'branch'])
+                ->where('status', 'paid')
+                ->when(Auth::user()->branch_id, function ($query){
+                    return $query->where('branch_id', Auth::user()->branch_id);
+                })->filters()->defaultSort('id', 'desc')->paginate(15),
+
+            'unpaid' => Payment::query()->with(['student', 'group', 'branch'])
+                ->whereNot('status', 'paid')
+                ->when(Auth::user()->branch_id, function ($query){
+                    return $query->where('branch_id', Auth::user()->branch_id);
+                })->filters()->defaultSort('id', 'desc')->paginate(15),
         ];
     }
 
@@ -63,7 +73,10 @@ class PaymentsListScreen extends Screen
     public function layout(): iterable
     {
         return [
-            PaymentsListTable::class,
+            Layout::tabs([
+                'To\'lanmagan' => UnpaidListTable::class,
+                'To\'langan' => PaidListTable::class,
+            ]),
         ];
     }
 }

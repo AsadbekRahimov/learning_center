@@ -3,6 +3,7 @@
 namespace App\Orchid\Layouts\Payments;
 
 use App\Models\Branch;
+use App\Models\Group;
 use App\Models\Payment;
 use Illuminate\Support\Facades\Auth;
 use Orchid\Screen\Actions\Link;
@@ -14,7 +15,7 @@ use Orchid\Screen\Layouts\Table;
 use Orchid\Screen\TD;
 use Orchid\Support\Color;
 
-class PaymentsListTable extends Table
+class PaidListTable extends Table
 {
     /**
      * Data source.
@@ -24,7 +25,7 @@ class PaymentsListTable extends Table
      *
      * @var string
      */
-    protected $target = 'payments';
+    protected $target = 'paid';
 
     /**
      * Get the table cells to be displayed.
@@ -39,6 +40,9 @@ class PaymentsListTable extends Table
                 return Link::make($payment->student->name . ' ' . $payment->student->surname)
                     ->route('platform.addStudentToGroup', ['student' => $payment->student_id]);
             })->cantHide(),
+            TD::make('group_id', 'Gurux')->render(function (Payment $payment) {
+                return Link::make($payment->group->name)->route('platform.groupInfo', ['group' => $payment->group_id]);
+            })->filter(Select::make('group_id')->fromQuery(Group::query()->where('branch_id', Auth::user()->branch_id), 'name'))->cantHide(),
             TD::make('privilege', 'Saxovat')->render(function (Payment $payment) {
                 return Link::make('')->icon('star')->type(Color::WARNING())->canSee($payment->student->privilege);
             })->sort()->filter(CheckBox::make()->title('Saxovat talabasi')->sendTrueOrFalse())->cantHide(),
@@ -52,7 +56,7 @@ class PaymentsListTable extends Table
                 ->render(function (Payment $payment) {
                     return $payment->branch->name;
                 })->canSee(Auth::user()->branch_id ? false : true)->cantHide(),
-            TD::make('created_at', 'Sana')->render(function (Payment $payment) {
+            TD::make('updated_at', 'To\'langan sana')->render(function (Payment $payment) {
                 return $payment->created_at->format('Y-m-d');
             }),
             TD::make('payment', 'Kvitansiya')->render(function (Payment $payment) {

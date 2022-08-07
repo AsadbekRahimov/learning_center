@@ -14,12 +14,25 @@ class Payment extends Model
     use HasFactory;
     use AsSource, Filterable, Attachable;
 
-    protected $fillable = ['student_id', 'sum', 'type', 'branch_id'];
+    protected $fillable = [
+        'student_id',
+        'group_id',
+        'sum',
+        'type',
+        'branch_id',
+        'status'
+    ];
 
     public const TYPES = [
          'paper' => 'Naqt',
          'card' => 'Bank kartasi',
          'digital' => 'Click/Payme/...'
+    ];
+
+    public const STATUS = [
+        'unpaid' => 'To\'lanmagan',
+        'paid' => 'To\'langan',
+        'returned' => 'Qaytarilgan',
     ];
 
     protected $allowedSorts = [
@@ -29,8 +42,10 @@ class Payment extends Model
 
     protected $allowedFilters = [
         'student_id',
+        'group_id',
         'sum',
         'type',
+        'status',
         'branch_id',
         'created_at',
     ];
@@ -50,7 +65,13 @@ class Payment extends Model
         return $this->belongsTo(Student::class, 'student_id', 'id');
     }
 
-    public function branch() {
+    public function group()
+    {
+        return $this->belongsTo(Group::class, 'group_id', 'id');
+    }
+
+    public function branch()
+    {
         return $this->belongsTo(Branch::class, 'branch_id', 'id');
     }
 
