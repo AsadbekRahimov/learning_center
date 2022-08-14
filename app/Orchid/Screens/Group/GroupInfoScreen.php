@@ -8,18 +8,17 @@ use App\Models\Discount;
 use App\Models\Group;
 use App\Models\Lesson;
 use App\Models\Message;
+use App\Models\Payment;
 use App\Models\Student;
 use App\Models\StudentGroup;
-use App\Notifications\AdminNotify;
 use App\Orchid\Layouts\Group\GroupAttandTable;
+use App\Orchid\Layouts\Group\GroupDebtsTable;
 use App\Orchid\Layouts\Group\GroupLessonsTable;
 use App\Orchid\Layouts\Group\GroupStudentsTable;
-use App\Services\GroupService;
 use App\Services\StudentService;
 use App\Services\TelegramNotify;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Notification;
 use Napa\R19\Sms;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\Link;
@@ -44,10 +43,12 @@ class GroupInfoScreen extends Screen
             ->where('date', '=', date('Y-m-d'))->first();
 
         return [
+            'debts' => Payment::query()->with('student')->where('group_id', $group->id)
+                ->whereNot('status', 'paid')->paginate(10),
             'lesson' => $lesson,
-            'students' => StudentGroup::query()->with(['student'])->where('group_id', $group->id)->get(),
+            'students' => StudentGroup::query()->with(['student', 'group.subject', 'attandances'])->where('group_id', $group->id)->get(),
             'group' => $group->load('branch', 'teacher'),
-            'attand' => Attandance::query()->where('lesson_id', $lesson->id ?? '')->get(),
+            'attand' => Attandance::query()->with('student')->where('lesson_id', $lesson->id ?? '')->get(),
             'lessons' => Lesson::query()->with(['attandances', 'teacher'])->where('group_id', $group->id)
                 ->orderByDesc('id')->paginate(10),
 
@@ -137,6 +138,7 @@ class GroupInfoScreen extends Screen
                     'Dars kunlari' => 'metrics.day_type',
                 ]),
                 Layout::tabs([
+                    'Qarzdorlar' => GroupDebtsTable::class,
                     'Guruxdagi talabalar ro\'yhati' => GroupStudentsTable::class,
                     'Guruxdagi o\'tilgan darslar ro\'yhati' => GroupLessonsTable::class,
                 ]),

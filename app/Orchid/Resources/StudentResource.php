@@ -148,12 +148,9 @@ class StudentResource extends Resource
                 ->render(function ($model) {
                     return Link::make($model->parent_phone)->href('tel:' . Student::telephone($model->parent_phone));
                 })->defaultHidden(),
-            TD::make('debt', 'Qarz')->render(function ($model) {
-                return Button::make(number_format($model->debt))->type(Color::DANGER())->canSee($model->debt > 0)->disabled();
-            })->sort()->cantHide(),
             TD::make('discount', 'Chegirma')->render(function ($model) {
                 return Button::make(number_format($model->discount))->type(Color::INFO())->canSee($model->discount > 0)->disabled();
-            })->sort(),
+            })->sort()->defaultHidden(),
             TD::make('privilege', 'Saxovat')->render(function ($model) {
                     return Link::make('')->icon('star')->type(Color::WARNING())->canSee($model->privilege);
                 })->sort()->filter(CheckBox::make()->title('Saxovat talabasi')->sendTrueOrFalse())->cantHide(),
@@ -217,7 +214,7 @@ class StudentResource extends Resource
                     return Link::make($model->parent_phone)->href('tel:' . Student::telephone($model->parent_phone));
                 }),
             Sight::make('come_date', 'Kelgan sanasi'),
-            Sight::make('debt', 'Qarz'),
+            Sight::make('discount', 'Chegirmalar'),
             Sight::make('source_id', 'Hamkor')->render(function ($model) {
                 return $model->source->name;
             }),

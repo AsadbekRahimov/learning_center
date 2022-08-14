@@ -24,7 +24,6 @@ use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\Select;
 use Orchid\Screen\Screen;
 use Orchid\Support\Color;
-use Orchid\Support\Facades\Alert;
 use Orchid\Support\Facades\Layout;
 
 class StudentInfoScreen extends Screen
@@ -54,7 +53,7 @@ class StudentInfoScreen extends Screen
                     'diff' => $student->attand_percent()
                 ]
             ],
-            'student_groups' => StudentGroup::query()->with('group.subject', 'student')
+            'student_groups' => StudentGroup::query()->with('group.subject', 'student.branch')
                 ->where('student_id', $student->id)->orderByDesc('id')->paginate(10),
             'groups' => StudentGroup::query()->where('student_id', $student->id)->pluck('group_id'),
             'attandances' => Attandance::query()->with(['lesson.group'])->where('student_id', $student->id)
