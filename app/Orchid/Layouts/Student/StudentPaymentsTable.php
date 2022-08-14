@@ -32,7 +32,7 @@ class StudentPaymentsTable extends Table
                 return number_format($payment->sum);
             })->filter(TD::FILTER_NUMERIC),
             TD::make('type', 'To\'lov turi')->render(function (Payment $payment) {
-                return Payment::TYPES[$payment->type];
+                return $payment->type ? Payment::TYPES[$payment->type] : '';
             }),
             TD::make('created_at', 'Sana')->render(function (Payment $payment) {
                 return $payment->created_at->format('Y-m-d');

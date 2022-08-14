@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('student_id');
             $table->integer('group_id');
             $table->integer('sum');
-            $table->string('type')->default('paper');
+            $table->string('type')->nullable();
             $table->string('status')->default('unpaid');
             $table->integer('branch_id');
             $table->timestamps();

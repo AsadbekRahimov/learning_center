@@ -56,7 +56,7 @@ class ChartService
 
         foreach ($payments as $payment) {
             $result['values'][] = $payment['sum'];
-            $result['labels'][] = Payment::TYPES[$payment['type']];
+            $result['labels'][] = $payment['type'] ? Payment::TYPES[$payment['type']] : 'Tolanmagan';
         }
         return $result;
     }

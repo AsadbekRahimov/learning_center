@@ -50,7 +50,7 @@ class PaidListTable extends Table
                 return number_format($payment->sum);
             })->sort()->filter(Input::make('sum')->type('number'))->cantHide(),
             TD::make('type', 'To\'lov turi')->render(function (Payment $payment) {
-                return Payment::TYPES[$payment->type];
+                return $payment->type ? Payment::TYPES[$payment->type] : '';
             })->filter(Select::make('type')->options(Payment::TYPES))->cantHide(),
             TD::make('branch_id', 'Filial')->filter(Relation::make('branch_id')->fromModel(Branch::class, 'name'))
                 ->render(function (Payment $payment) {

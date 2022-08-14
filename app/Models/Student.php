@@ -181,15 +181,4 @@ class Student extends Model
         }
         $this->save();
     }
-
-    public function getFromBalance($getting_balance)
-    {
-        if ($this->balance >= $getting_balance) {
-            $this->balance -= $getting_balance;
-        } else {
-            $this->debt += ($getting_balance - $this->balance);
-            $this->balance = 0;
-        }
-        $this->save();
-    }
 }

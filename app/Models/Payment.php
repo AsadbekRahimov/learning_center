@@ -75,4 +75,13 @@ class Payment extends Model
         return $this->belongsTo(Branch::class, 'branch_id', 'id');
     }
 
+    public static function addPaymentForStudent($monthly_payment, Student $student, $group_id)
+    {
+        return self::query()->create([
+           'student_id' => $student->id,
+           'group_id' => $group_id,
+           'sum' => $monthly_payment,
+           'branch_id' => $student->branch_id,
+        ]);
+    }
 }

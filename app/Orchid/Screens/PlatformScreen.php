@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Orchid\Screens;
 
 use App\Models\Branch;
-use App\Models\Discount;
 use App\Models\Expense;
 use App\Models\Group;
 use App\Models\Payment;
@@ -18,7 +17,6 @@ use App\Orchid\Layouts\Charts\DiscountChart;
 use App\Orchid\Layouts\Charts\ExpenseChart;
 use App\Orchid\Layouts\Charts\PaymentChart;
 use App\Orchid\Layouts\Charts\SourceChart;
-use App\Orchid\Layouts\StatisticListener;
 use App\Orchid\Layouts\StatisticSelection;
 use App\Orchid\Layouts\Student\NewStudentsTable;
 use App\Services\ChartService;
@@ -28,9 +26,7 @@ use Illuminate\Support\Facades\Auth;
 use Orchid\Screen\Actions\DropDown;
 use Orchid\Screen\Actions\ModalToggle;
 use Orchid\Screen\Fields\Input;
-use Orchid\Screen\Fields\Relation;
 use Orchid\Screen\Fields\Select;
-use Orchid\Screen\Fields\TextArea;
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Alert;
 use Orchid\Support\Facades\Layout;
@@ -248,7 +244,7 @@ class PlatformScreen extends Screen
                     Input::make('password')->type('password')->title('Maxfiy parolni kiriting')->required()
                         ->help('Filialning barcha talabalaridan oylik to\'lov yechib olinadi!'),
                 ]),
-            ])->applyButton('Yechib olish')->closeButton('Yopish')->title('To\'lov xabarini jo\'natish'),
+            ])->applyButton('Yechib olish')->closeButton('Yopish')->title('To\'lov uchun xisob yaratish'),
 
             Layout::modal('temporaryStudentModal', [
                 Layout::rows([
