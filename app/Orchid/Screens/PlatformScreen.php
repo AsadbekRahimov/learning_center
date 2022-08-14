@@ -43,13 +43,13 @@ class PlatformScreen extends Screen
     public function query(): iterable
     {
         $this->branch_user = Auth::user()->branch_id ? true : false;
-        $payments = Payment::query()->when(Auth::user()->branch_id, function ($query){
+        $payments = Payment::query()->when($this->branch_user, function ($query){
+            return $query->where('branch_id', Auth::user()->branch_id);
+        })->where('status', '=', 'paid');
+        $expenses = Expense::query()->when($this->branch_user, function ($query){
             return $query->where('branch_id', Auth::user()->branch_id);
         });
-        $expenses = Expense::query()->when(Auth::user()->branch_id, function ($query){
-            return $query->where('branch_id', Auth::user()->branch_id);
-        });
-        $debts = Student::query()->when(Auth::user()->branch_id, function ($query){
+        $debts = Student::query()->when($this->branch_user, function ($query){
             return $query->where('branch_id', Auth::user()->branch_id);
         })->sum('debt');
 
@@ -61,13 +61,13 @@ class PlatformScreen extends Screen
             $begin = request()->get('begin') . ' 00:00:00';
             $end = request()->get('end') . ' 23:59:59';
             $this->custom_stat = [
-                'payments'    => number_format((int)Payment::query()->when(Auth::user()->branch_id, function ($query){
+                'payments'    => number_format((int)Payment::query()->when($this->branch_user, function ($query){
                          return $query->where('branch_id', Auth::user()->branch_id);
-                    })->whereBetween('created_at', [$begin, $end])->sum('sum')),
-                'expenses' => number_format((int)Expense::query()->when(Auth::user()->branch_id, function ($query){
+                    })->where('status', '=', 'paid')->whereBetween('created_at', [$begin, $end])->sum('sum')),
+                'expenses' => number_format((int)Expense::query()->when($this->branch_user, function ($query){
                          return $query->where('branch_id', Auth::user()->branch_id);
                     })->whereBetween('created_at', [$begin, $end])->sum('price')),
-                'new_students' => (int)Student::query()->when(Auth::user()->branch_id, function ($query){
+                'new_students' => (int)Student::query()->when($this->branch_user, function ($query){
                     return $query->where('branch_id', Auth::user()->branch_id);
                 })->whereBetween('created_at', [$begin, $end])->count(),
             ];
@@ -76,10 +76,10 @@ class PlatformScreen extends Screen
             'statistic' => [
                     'all' => [
                         'debts'   => number_format((int)$debts),
-                        'all_students' => Student::query()->when(Auth::user()->branch_id, function ($query){
+                        'all_students' => Student::query()->when($this->branch_user, function ($query){
                             return $query->where('branch_id', Auth::user()->branch_id);
                         })->count(),
-                        'all_groups' => Group::query()->when(Auth::user()->branch_id, function ($query){
+                        'all_groups' => Group::query()->when($this->branch_user, function ($query){
                             return $query->where('branch_id', Auth::user()->branch_id);
                         })->count(),
                         'teachers_balance' => number_format((int)$teacher_balance),
@@ -147,7 +147,7 @@ class PlatformScreen extends Screen
                 ->parameters([
                     'branch_id' => Auth::user()->branch_id,
                 ])
-                ->canSee(Auth::user()->hasAccess('platform.temporaryStudent') && Auth::user()->branch_id),
+                ->canSee(Auth::user()->hasAccess('platform.temporaryStudent') && $this->branch_user),
             ModalToggle::make('Chiqim')
                 ->modal('makeExpenseModal')
                 ->method('makeExpense')
@@ -157,12 +157,12 @@ class PlatformScreen extends Screen
                 ModalToggle::make('To\'lov ogoxlantirish')
                     ->modal('paymentInfoModal')
                     ->method('paymentInfo')
-                    ->icon('envelope')->canSee(Auth::user()->hasAccess('platform.paymentInfo')),
+                    ->icon('envelope')->canSee(Auth::user()->hasAccess('platform.paymentInfo') && $this->branch_user),
                 ModalToggle::make('Oylik to\'lov yechish')
                     ->modal('getPaymentModal')
                     ->method('getPayment')
                     ->icon('euro')->canSee(Auth::user()->hasAccess('platform.getPayment')),
-            ])->canSee(Auth::user()->hasAccess('platform.specialy') && Auth::user()->branch_id),
+            ])->canSee(Auth::user()->hasAccess('platform.specialy') && $this->branch_user),
         ];
     }
 

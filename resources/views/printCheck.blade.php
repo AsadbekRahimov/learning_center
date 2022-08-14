@@ -69,8 +69,9 @@
     <img class="centered" src="{{ asset('logo1.png') }}">
     <p><b>Tolov raqami: </b> № {{ $receipt->id }} </p>
     <p><b>O'quvchi: </b> {{ $receipt->student->fio_name }} </p>
+    <p><b>Gurux: </b> {{ $receipt->group->name }} </p>
     <p><b>To'lov turi: </b> {{ \App\Models\Payment::TYPES[$receipt->type] }} </p>
-    <p><b>To'lov miqdori: </b> {{ $receipt->sum }} </p>
+    <p><b>To'lov miqdori: </b> {{ number_format($receipt->sum) }} </p>
     <p><b>To'langan vaqt: </b> {{ $receipt->created_at }} </p>
 
 </div>

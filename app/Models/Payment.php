@@ -84,4 +84,21 @@ class Payment extends Model
            'branch_id' => $student->branch_id,
         ]);
     }
+
+    public  function pay($type, $sum = null)
+    {
+        return $this->update([
+            'type' => $type,
+            'status' => 'paid'
+        ]);
+    }
+
+    public  function partPayment($sum, $type)
+    {
+        $new_payment = $this->replicate();
+        $new_payment->status = 'paid';
+        $new_payment->sum = $sum;
+        $new_payment->type = $type;
+        $new_payment->save();
+    }
 }

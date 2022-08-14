@@ -6,7 +6,9 @@ use App\Models\Branch;
 use App\Models\Group;
 use App\Models\Payment;
 use Illuminate\Support\Facades\Auth;
+use Orchid\Screen\Actions\DropDown;
 use Orchid\Screen\Actions\Link;
+use Orchid\Screen\Actions\ModalToggle;
 use Orchid\Screen\Fields\CheckBox;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\Relation;
@@ -45,20 +47,34 @@ class UnpaidListTable extends Table
             })->filter(Select::make('group_id')->fromQuery(Group::query()->where('branch_id', Auth::user()->branch_id), 'name'))->cantHide(),
             TD::make('privilege', 'Saxovat')->render(function (Payment $payment) {
                 return Link::make('')->icon('star')->type(Color::WARNING())->canSee($payment->student->privilege);
-            })->sort()->filter(CheckBox::make()->title('Saxovat talabasi')->sendTrueOrFalse())->cantHide(),
+            })->sort()->filter(CheckBox::make()->title('Saxovat talabasi')->sendTrueOrFalse())->defaultHidden(),
             TD::make('sum', 'Summasi')->render(function (Payment $payment) {
                 return number_format($payment->sum);
             })->sort()->filter(Input::make('sum')->type('number'))->cantHide(),
-            TD::make('type', 'To\'lov turi')->render(function (Payment $payment) {
-                return $payment->type ? Payment::TYPES[$payment->type] : '';
-            })->filter(Select::make('type')->options(Payment::TYPES))->cantHide(),
             TD::make('branch_id', 'Filial')->filter(Relation::make('branch_id')->fromModel(Branch::class, 'name'))
                 ->render(function (Payment $payment) {
                     return $payment->branch->name;
-                })->canSee(Auth::user()->branch_id ? false : true)->cantHide(),
+                })->canSee(Auth::user()->branch_id ? false : true)->defaultHidden(),
             TD::make('created_at', 'Sana')->render(function (Payment $payment) {
                 return $payment->created_at->format('Y-m-d');
-            }),
+            })->defaultHidden(),
+            TD::make('Amallar')->align(TD::ALIGN_CENTER)->width('100px')
+                ->render(function (Payment $payment) {
+                    return DropDown::make()->icon('options-vertical')->list([
+                        ModalToggle::make('To\'liq to\'lov')->icon('dollar')
+                            ->modal('fullPaymentModal')
+                            ->method('fullPayment')
+                            ->parameters([
+                                'id' => $payment->id
+                            ]),
+                        ModalToggle::make('Qisman to\'lov')->icon('euro')
+                            ->modal('partPaymentModal')
+                            ->method('partPayment')
+                            ->parameters([
+                                'id' => $payment->id
+                            ]),
+                    ]);
+                }),
         ];
     }
 }

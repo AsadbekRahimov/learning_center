@@ -45,7 +45,7 @@ class PaidListTable extends Table
             })->filter(Select::make('group_id')->fromQuery(Group::query()->where('branch_id', Auth::user()->branch_id), 'name'))->cantHide(),
             TD::make('privilege', 'Saxovat')->render(function (Payment $payment) {
                 return Link::make('')->icon('star')->type(Color::WARNING())->canSee($payment->student->privilege);
-            })->sort()->filter(CheckBox::make()->title('Saxovat talabasi')->sendTrueOrFalse())->cantHide(),
+            })->sort()->filter(CheckBox::make()->title('Saxovat talabasi')->sendTrueOrFalse())->defaultHidden(),
             TD::make('sum', 'Summasi')->render(function (Payment $payment) {
                 return number_format($payment->sum);
             })->sort()->filter(Input::make('sum')->type('number'))->cantHide(),

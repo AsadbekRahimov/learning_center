@@ -41,7 +41,8 @@ class ChartService
     public static function paymentChart($begin = null, $end = null)
     {
         $payments = Payment::select('type', DB::raw('sum(sum) as sum'))
-            ->when(Auth::user()->branch_id, function ($query){
+          ->where('status', '=', 'paid')
+          ->when(Auth::user()->branch_id, function ($query){
                 return $query->where('branch_id', Auth::user()->branch_id);
           })->when(is_null($begin) && is_null($end), function ($query) {
                 $query->whereYear('created_at', date('Y'))->whereMonth('created_at', date('m'));
@@ -56,7 +57,7 @@ class ChartService
 
         foreach ($payments as $payment) {
             $result['values'][] = $payment['sum'];
-            $result['labels'][] = $payment['type'] ? Payment::TYPES[$payment['type']] : 'Tolanmagan';
+            $result['labels'][] = Payment::TYPES[$payment['type']];
         }
         return $result;
     }
