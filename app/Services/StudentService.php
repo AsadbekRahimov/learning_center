@@ -102,19 +102,6 @@ class StudentService
         $student->getFromBalance($subject_price);
     }
 
-    public static function getPayment(\Illuminate\Http\Request $request)
-    {
-        $student = Student::query()->find($request->student_id);
-        Action::studentPayment($student, $request->sum, $request->type);
-        if ($student->debt > 0) {
-            $student->returnBalance($request->sum);
-        }else {
-            $student->balance += $request->sum;
-            $student->save();
-        }
-        return $student;
-    }
-
     private static function returningLesson(Group $group,  $today,  $last_day)
     {
         $lessons = 0;
@@ -162,21 +149,6 @@ class StudentService
     public static function getSubjectPrice(StudentGroup $group)
     {
         return is_null($group->price) ? $group->group->subject->price : $group->price;
-    }
-
-    public static function rollbackPayment(\Illuminate\Http\Request $request)
-    {
-        $student = Student::query()->find($request->id);
-        if ($student->balance < $request->sum) {
-            Alert::error('Talabaning xisobida '. number_format($request->sum) . ' so\'m mavjud emas');
-        } else {
-            $student->balance -= $request->sum;
-            $student->save();
-            Expense::studentBalanceRollBack($student, $request->sum);
-            $message = 'Talabaning xisobidan '. number_format($request->sum) . ' so\'m unga qaytarildi';
-            Action::rollbackPayment($message, $request);
-            Alert::success($message);
-        }
     }
 
     public static function changeGroupPrice(\Illuminate\Http\Request $request)

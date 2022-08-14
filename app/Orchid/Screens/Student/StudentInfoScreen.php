@@ -46,8 +46,8 @@ class StudentInfoScreen extends Screen
             'last_payment' => Payment::query()->where('student_id', $student->id)->orderByDesc('id')->first(),
             'student' => $student,
             'metrics' => [
-                'pay' => number_format(Payment::query()->where('student_id', $student->id)->sum('sum')),
-                'debt' => number_format($student->debt),
+                'pay' => number_format(Payment::query()->where('student_id', $student->id)->where('status', 'paid')->sum('sum')),
+                'debt' => number_format(Payment::query()->where('student_id', $student->id)->whereNot('status', 'paid')->sum('sum')),
                 'discount' => number_format($student->discount),
                 'attandances' => [
                     'value' => $student->attand_count(),
@@ -59,7 +59,7 @@ class StudentInfoScreen extends Screen
             'groups' => StudentGroup::query()->where('student_id', $student->id)->pluck('group_id'),
             'attandances' => Attandance::query()->with(['lesson.group'])->where('student_id', $student->id)
                 ->orderByDesc('id')->paginate(10),
-            'payments' => Payment::query()->where('student_id', $student->id)
+            'payments' => Payment::query()->with('group')->where('student_id', $student->id)
                 ->where('status', 'paid')->filters()->orderByDesc('id')->paginate(10),
             'discounts' => Discount::query()->where('student_id', $student->id)->orderByDesc('id')
                 ->paginate(10),
@@ -75,7 +75,7 @@ class StudentInfoScreen extends Screen
      */
     public function name(): ?string
     {
-        return $this->student->name . ' | Ta\'lim bosqichi: ' . Student::STATUS[$this->student->status];
+        return $this->student->fio_name . ' | Ta\'lim bosqichi: ' . Student::STATUS[$this->student->status];
     }
 
     public function description(): ?string
@@ -111,24 +111,11 @@ class StudentInfoScreen extends Screen
                     ->canSee(Auth::user()->hasAccess('platform.students'))
                     ->href('/admin/crud/edit/student-resources/' . $this->student->id),
 
-                ModalToggle::make('Hisobni toldirish')
-                    ->modal('paymentModal')
-                    ->method('studentPayment')
-                    ->icon('dollar'),
-
                 ModalToggle::make('Guruxga qo\'shish')
                     ->modal('addToGroupModal')
                     ->method('addToGroup')
                     ->icon('organization')
                     ->modalTitle($modal_title),
-
-                ModalToggle::make('Pul qaytarish')
-                    ->icon('action-undo')
-                    ->modal('rollbackPaymentModal')
-                    ->method('rollbackPayment')
-                    ->parameters([
-                        'id' => $this->student->id,
-                    ])->canSee(Auth::user()->hasAccess('platform.rollbackStudentPayment')),
 
                 ModalToggle::make('Gurux narxini o\'zgartirish')
                     ->modal('changeGroupPriceModal')
@@ -143,13 +130,6 @@ class StudentInfoScreen extends Screen
         ];
     }
 
-    public function studentPayment(Request $request)
-    {
-        $student = StudentService::getPayment($request);
-        $payment = Payment::payInfo($request, $student);
-        Alert::success('Talaba muaffaqiyatli tolovni amalga oshirdi! To\'lov miqdori: ' . $payment->sum);
-    }
-
     public function addToGroup(Request $request)
     {
         StudentService::addToGroup($request);
@@ -160,11 +140,6 @@ class StudentInfoScreen extends Screen
         $group = StudentGroup::query()->with(['group'])->find($request->id);
         $student = Student::query()->find($group->student_id);
         StudentService::returnGroupBalance($group, $student);
-    }
-
-    public function rollbackPayment(Request $request)
-    {
-        StudentService::rollbackPayment($request);
     }
 
     public function changeGroupPrice(Request $request)

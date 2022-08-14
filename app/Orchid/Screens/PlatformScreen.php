@@ -49,9 +49,9 @@ class PlatformScreen extends Screen
         $expenses = Expense::query()->when($this->branch_user, function ($query){
             return $query->where('branch_id', Auth::user()->branch_id);
         });
-        $debts = Student::query()->when($this->branch_user, function ($query){
+        $debts = Payment::query()->when($this->branch_user, function ($query){
             return $query->where('branch_id', Auth::user()->branch_id);
-        })->sum('debt');
+        })->whereNot('status', 'paid')->sum('sum');
 
         $teacher_balance = Teacher::query()->sum('balance');
 
@@ -63,7 +63,7 @@ class PlatformScreen extends Screen
             $this->custom_stat = [
                 'payments'    => number_format((int)Payment::query()->when($this->branch_user, function ($query){
                          return $query->where('branch_id', Auth::user()->branch_id);
-                    })->where('status', '=', 'paid')->whereBetween('created_at', [$begin, $end])->sum('sum')),
+                    })->where('status', '=', 'paid')->whereBetween('updated_at', [$begin, $end])->sum('sum')),
                 'expenses' => number_format((int)Expense::query()->when($this->branch_user, function ($query){
                          return $query->where('branch_id', Auth::user()->branch_id);
                     })->whereBetween('created_at', [$begin, $end])->sum('price')),
@@ -72,6 +72,7 @@ class PlatformScreen extends Screen
                 })->whereBetween('created_at', [$begin, $end])->count(),
             ];
         }
+
         return [
             'statistic' => [
                     'all' => [
@@ -85,19 +86,19 @@ class PlatformScreen extends Screen
                         'teachers_balance' => number_format((int)$teacher_balance),
                     ],
                     'year' => [
-                        'payments'    => number_format((int)$payments->whereYear('created_at', date('Y'))->sum('sum')),
+                        'payments'    => number_format((int)$payments->whereYear('updated_at', date('Y'))->sum('sum')),
                         'expenses' => number_format((int)$expenses->whereYear('created_at', date('Y'))->sum('price')),
                         'new_students'    => (int)Student::query()->whereYear('created_at', date('Y'))->count(),
                     ],
 
                     'month' => [
-                        'payments'    => number_format((int)$payments->whereMonth('created_at', date('m'))->sum('sum')),
+                        'payments'    => number_format((int)$payments->whereMonth('updated_at', date('m'))->sum('sum')),
                         'expenses' => number_format((int)$expenses->whereMonth('created_at', date('m'))->sum('price')),
                         'new_students'    => (int)Student::query()->whereMonth('created_at', date('m'))->count(),
                     ],
 
                     'day' => [
-                        'payments'    => number_format((int)$payments->whereDay('created_at', date('d'))->sum('sum')),
+                        'payments'    => number_format((int)$payments->whereDay('updated_at', date('d'))->sum('sum')),
                         'expenses' => number_format((int)$expenses->whereDay('created_at', date('d'))->sum('price')),
                         'new_students'    => (int)Student::query()->whereDay('created_at', date('d'))->count(),
                     ],
@@ -304,5 +305,11 @@ class PlatformScreen extends Screen
         $student = TemporaryGroup::query()->find($request->id);
         $student->delete();
         Alert::success('Talaba muaffaqiyatli o\'chirildi');
+    }
+
+    public function makeExpense(Request $request)
+    {
+        Expense::makeExpense($request);
+        Alert::success('Chiqim muaffaqiyatli amalga oshirildi.');
     }
 }

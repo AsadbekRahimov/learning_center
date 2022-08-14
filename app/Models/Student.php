@@ -47,7 +47,6 @@ class Student extends Model
             'branch_id' => 3,
             'registered_id' => 1,
             'come_date' => date('d.m.Y'),
-            'debt' => 0,
             'discount' => 0,
             'status' => 'accepted',
             'privilege' => 0,
@@ -74,7 +73,6 @@ class Student extends Model
             'branch_id' => $student->branch_id,
             'registered_id' => Auth::user()->id,
             'come_date' => date('d.m.Y'),
-            'debt' => 0,
             'discount' => 0,
             'status' => 'accepted',
             'privilege' => 0,
@@ -123,7 +121,6 @@ class Student extends Model
         'id',
         'privilege',
         'come_date',
-        'debt',
         'discount',
         'updated_at',
         'created_at',
@@ -169,16 +166,5 @@ class Student extends Model
     public function getFioNameAttribute()
     {
         return $this->name . ' ' . $this->surname . ' ' . $this->lastname;
-    }
-
-    public function returnBalance($returned_balance)
-    {
-        if ($this->debt >= $returned_balance) {
-            $this->debt -= $returned_balance;
-        } else {
-            $this->balance += $returned_balance - $this->debt;
-            $this->debt = 0;
-        }
-        $this->save();
     }
 }

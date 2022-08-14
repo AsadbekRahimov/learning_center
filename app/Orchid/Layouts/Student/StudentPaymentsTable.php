@@ -2,9 +2,12 @@
 
 namespace App\Orchid\Layouts\Student;
 
+use App\Models\Group;
 use App\Models\Payment;
+use Illuminate\Support\Facades\Auth;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\Link;
+use Orchid\Screen\Fields\Select;
 use Orchid\Screen\Layouts\Table;
 use Orchid\Screen\TD;
 
@@ -28,6 +31,9 @@ class StudentPaymentsTable extends Table
     protected function columns(): iterable
     {
         return [
+            TD::make('group_id', 'Gurux')->render(function (Payment $payment) {
+                return Link::make($payment->group->name)->route('platform.groupInfo', ['group' => $payment->group_id]);
+            })->cantHide(),
             TD::make('sum', 'To\'lov miqdori')->render(function (Payment $payment) {
                 return number_format($payment->sum);
             })->filter(TD::FILTER_NUMERIC),

@@ -50,16 +50,6 @@ class Payment extends Model
         'created_at',
     ];
 
-    public static function payInfo(Request $request, Student $student)
-    {
-        return self::query()->create([
-            'student_id' => $request->student_id,
-            'sum' => $request->sum,
-            'type' => $request->type,
-            'branch_id' => $student->branch_id,
-        ]);
-    }
-
     public function student()
     {
         return $this->belongsTo(Student::class, 'student_id', 'id');
