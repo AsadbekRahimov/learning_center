@@ -21,6 +21,7 @@ return new class extends Migration
             $table->integer('teacher_id');
             $table->string('day_type');
             $table->tinyInteger('is_active')->default(1);
+            $table->integer('last_payment_month')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

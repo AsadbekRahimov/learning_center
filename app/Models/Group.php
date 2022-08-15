@@ -38,7 +38,8 @@ class Group extends Model
         'branch_id',
         'teacher_id',
         'day_type',
-        'is_active'
+        'is_active',
+        'last_payment_month',
     ];
 
     public function teacher()
