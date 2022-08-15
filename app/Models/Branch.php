@@ -16,7 +16,7 @@ class Branch extends Model
     use HasFactory;
     use AsSource, Filterable, Attachable;
 
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'last_payment_month'];
 
     public const PAYMENT_PERIOD = [
         'daily' => 'Har kunlik',

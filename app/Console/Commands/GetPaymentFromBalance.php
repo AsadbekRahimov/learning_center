@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Action;
+use App\Models\Branch;
 use App\Models\Discount;
 use App\Models\Payment;
 use App\Models\Student;
@@ -49,5 +50,10 @@ class GetPaymentFromBalance extends Command
                     Payment::addPaymentForStudent($monthly_payment, $student, $group->group_id);
                 }
             }
+
+            Branch::find(Auth::user()->branch_id)->update([
+                'last_payment_month' => date('n')
+            ]);
+
     }
 }

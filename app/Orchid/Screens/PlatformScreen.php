@@ -243,7 +243,8 @@ class PlatformScreen extends Screen
                     Input::make('password')->type('password')->title('Maxfiy parolni kiriting')->required()
                         ->help('Filialning barcha talabalaridan oylik to\'lov yechib olinadi!'),
                 ]),
-            ])->applyButton('Yechib olish')->closeButton('Yopish')->title('To\'lov uchun xisob yaratish'),
+            ])->applyButton('Yechib olish')->closeButton('Yopish')->title('To\'lov uchun xisob yaratish')
+                ->withoutApplyButton(date('n') == Auth::user()->branch->last_payment_month),
 
             Layout::modal('temporaryStudentModal', [
                 Layout::rows([
