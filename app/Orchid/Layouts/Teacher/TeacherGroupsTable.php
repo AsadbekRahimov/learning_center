@@ -3,6 +3,9 @@
 namespace App\Orchid\Layouts\Teacher;
 
 use App\Models\Group;
+use Illuminate\Support\Facades\Auth;
+use Orchid\Screen\Actions\Button;
+use Orchid\Screen\Actions\DropDown;
 use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Layouts\Table;
 use Orchid\Screen\TD;
@@ -38,7 +41,18 @@ class TeacherGroupsTable extends Table
             }),
             TD::make('payments', 'Gurux to\'lovi')->render(function (Group $group) {
                 return $group->last_payment_month == date('n') ? 'To\'langan' : number_format($group->salary() * $group->teacher->percent / 100);
-            })
+            }),
+            TD::make('Amallar')->align(TD::ALIGN_CENTER)->width('100px')
+                ->render(function (Group $group) {
+                    return DropDown::make()->icon('options-vertical')->list([
+                        Button::make('Oylik maosh ajiratish')
+                            ->icon('dollar')
+                            ->confirm('Siz rostdan ham ushbu oqituvchiga gurux uchun maosh bermoqchimisiz?')
+                            ->method('teacherSalary', [
+                                'id' => $group->id,
+                            ])->canSee($group->last_payment_month != date('n') && Auth::user()->hasAccess('platform.giveSalary')),
+                    ]);
+                }),
         ];
     }
 }

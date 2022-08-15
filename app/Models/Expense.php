@@ -73,14 +73,14 @@ class Expense extends Model
         ]);
     }
 
-    public static function giveSalary($request)
+    public static function giveSalary(Group $group, $salary)
     {
         return self::query()->create([
-            'branch_id' => $request->branch_id,
-            'price' => $request->price,
-            'teacher_id' => $request->teacher_id,
+            'branch_id' => $group->branch_id,
+            'price' => $salary,
+            'teacher_id' => $group->teacher_id,
             'type' => 'salary',
-            'desc' => Auth::user()->name . ' tomonidan ' . number_format($request->price) . ' so\'m miqdorida ' . $request->teacher . ' uchun oylik maosh berildi',
+            'desc' => $group->name . ' gurux darslari uchun ' .  Auth::user()->name . ' tomonidan ' . number_format($salary) . ' so\'m miqdorida ' . $group->teacher->name . ' uchun  oylik maosh berildi',
         ]);
     }
 }

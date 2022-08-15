@@ -33,7 +33,6 @@ class TeacherInfoScreen extends Screen
 
             'metrics' => [
                 'salary' => number_format(Expense::query()->where('teacher_id', $teacher->id)->sum('price')),
-                'balance' => number_format($teacher->balance),
                 'percent' => $teacher->percent,
                 'lessons' => Lesson::query()->where('teacher_id', $teacher->id)->count(),
                 'tasks' => ['value' => 4, 'diff' => 34], // TODO add tasks part
@@ -68,15 +67,6 @@ class TeacherInfoScreen extends Screen
     public function commandBar(): iterable
     {
         return [
-            ModalToggle::make('Oylik ajiratish')
-                ->modal('teacherSalaryModal')
-                ->method('teacherSalary')
-                ->icon('dollar')
-                ->parameters([
-                    'teacher_id' => $this->teacher->id,
-                    'teacher' => $this->teacher->name,
-                    'branch_id' => $this->teacher->branch_id,
-                ])->canSee(Auth::user()->hasAccess('platform.giveSalary')),
             Link::make('Taxrirlash')
                 ->icon('settings')
                 ->canSee(Auth::user()->hasAccess('platform.teachers'))
@@ -101,7 +91,6 @@ class TeacherInfoScreen extends Screen
         return [
             Layout::metrics([
                 'To\'lov' => 'metrics.salary',
-                'Hisob' => 'metrics.balance',
                 'Foiz' => 'metrics.percent',
                 'Dars' => 'metrics.lessons',
                 'Vazifa' => 'metrics.tasks',
@@ -112,22 +101,16 @@ class TeacherInfoScreen extends Screen
                 'O\'tilgan darslari' => TeacherLessonsTable::class,
                 //'Vazifalar' => TeacherTasksTable::class,
             ]),
-
-            Layout::modal('teacherSalaryModal', [
-                Layout::rows([
-                    Input::make('price')->type('number')->title('Moqdori')->required(),
-                ]),
-            ])->title('Oylik ajiratish')->applyButton('Ajiratish')->closeButton('Yopish'),
         ];
     }
 
     public function teacherSalary(Request $request)
     {
-        Expense::giveSalary($request);
-        $teacher = Teacher::query()->find($request->teacher_id);
-        $teacher->balance -= $request->price;
-        $teacher->save();
-        $message = $teacher->name . ' uchun ' . $request->price . ' som maosh berildi.';
+        $group = Group::query()->with(['payments', 'teacher'])->find($request->id);
+        $salary = $group->salary() * $group->teacher->percent / 100;
+        Expense::giveSalary($group, $salary);
+        $group->update(['last_payment_month' => date('n')]);
+        $message = $group->teacher->name . ' uchun ' . number_format($salary) . ' so\'m maosh berildi.';
         Alert::success($message);
     }
 }
