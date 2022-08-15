@@ -96,6 +96,10 @@ class GroupResource extends Resource
                 ->render(function ($model) {
                     return Link::make($model->teacher->name)->route('platform.teacherInfo', ['teacher' => $model->teacher_id]);
                 }),
+            TD::make('debt', 'Qarzdorlik')
+                ->render(function ($model) {
+                    return number_format($model->all_debts());
+                }),
             TD::make('room', 'Xona')
                 ->render(function ($model) {
                     return $model->room ? $model->room->room->name : '-';
@@ -168,7 +172,7 @@ class GroupResource extends Resource
 
     public function with(): array
     {
-        return ['subject', 'branch', 'lessons', 'students', 'teacher', 'room.room'];
+        return ['subject', 'branch', 'lessons', 'students', 'teacher', 'room.room', 'payments'];
     }
 
     public function filters(): array

@@ -14,12 +14,25 @@ class Payment extends Model
     use HasFactory;
     use AsSource, Filterable, Attachable;
 
-    protected $fillable = ['student_id', 'sum', 'type', 'branch_id'];
+    protected $fillable = [
+        'student_id',
+        'group_id',
+        'sum',
+        'type',
+        'branch_id',
+        'status'
+    ];
 
     public const TYPES = [
          'paper' => 'Naqt',
          'card' => 'Bank kartasi',
          'digital' => 'Click/Payme/...'
+    ];
+
+    public const STATUS = [
+        'unpaid' => 'To\'lanmagan',
+        'paid' => 'To\'langan',
+        'returned' => 'Qaytarilgan',
     ];
 
     protected $allowedSorts = [
@@ -29,29 +42,53 @@ class Payment extends Model
 
     protected $allowedFilters = [
         'student_id',
+        'group_id',
         'sum',
         'type',
+        'status',
         'branch_id',
         'created_at',
     ];
-
-    public static function payInfo(Request $request, Student $student)
-    {
-        return self::query()->create([
-            'student_id' => $request->student_id,
-            'sum' => $request->sum,
-            'type' => $request->type,
-            'branch_id' => $student->branch_id,
-        ]);
-    }
 
     public function student()
     {
         return $this->belongsTo(Student::class, 'student_id', 'id');
     }
 
-    public function branch() {
+    public function group()
+    {
+        return $this->belongsTo(Group::class, 'group_id', 'id');
+    }
+
+    public function branch()
+    {
         return $this->belongsTo(Branch::class, 'branch_id', 'id');
     }
 
+    public static function addPaymentForStudent($monthly_payment, Student $student, $group_id)
+    {
+        return self::query()->create([
+           'student_id' => $student->id,
+           'group_id' => $group_id,
+           'sum' => $monthly_payment,
+           'branch_id' => $student->branch_id,
+        ]);
+    }
+
+    public  function pay($type, $sum = null)
+    {
+        return $this->update([
+            'type' => $type,
+            'status' => 'paid'
+        ]);
+    }
+
+    public  function partPayment($sum, $type)
+    {
+        $new_payment = $this->replicate();
+        $new_payment->status = 'paid';
+        $new_payment->sum = $sum;
+        $new_payment->type = $type;
+        $new_payment->save();
+    }
 }

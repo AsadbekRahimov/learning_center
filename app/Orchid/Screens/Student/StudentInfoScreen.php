@@ -16,7 +16,6 @@ use App\Orchid\Layouts\Student\StudentPaymentsTable;
 use App\Services\StudentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\DropDown;
 use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Actions\ModalToggle;
@@ -25,7 +24,6 @@ use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\Select;
 use Orchid\Screen\Screen;
 use Orchid\Support\Color;
-use Orchid\Support\Facades\Alert;
 use Orchid\Support\Facades\Layout;
 
 class StudentInfoScreen extends Screen
@@ -47,22 +45,21 @@ class StudentInfoScreen extends Screen
             'last_payment' => Payment::query()->where('student_id', $student->id)->orderByDesc('id')->first(),
             'student' => $student,
             'metrics' => [
-                'pay' => number_format(Payment::query()->where('student_id', $student->id)->sum('sum')),
-                'balance' => number_format($student->balance),
-                'debt' => number_format($student->debt),
+                'pay' => number_format(Payment::query()->where('student_id', $student->id)->where('status', 'paid')->sum('sum')),
+                'debt' => number_format(Payment::query()->where('student_id', $student->id)->whereNot('status', 'paid')->sum('sum')),
                 'discount' => number_format($student->discount),
                 'attandances' => [
                     'value' => $student->attand_count(),
                     'diff' => $student->attand_percent()
                 ]
             ],
-            'student_groups' => StudentGroup::query()->with('group.subject', 'student')
+            'student_groups' => StudentGroup::query()->with('group.subject', 'student.branch')
                 ->where('student_id', $student->id)->orderByDesc('id')->paginate(10),
             'groups' => StudentGroup::query()->where('student_id', $student->id)->pluck('group_id'),
             'attandances' => Attandance::query()->with(['lesson.group'])->where('student_id', $student->id)
                 ->orderByDesc('id')->paginate(10),
-            'payments' => Payment::query()->where('student_id', $student->id)->filters()->orderByDesc('id')
-                ->paginate(10),
+            'payments' => Payment::query()->with('group')->where('student_id', $student->id)
+                ->where('status', 'paid')->filters()->orderByDesc('id')->paginate(10),
             'discounts' => Discount::query()->where('student_id', $student->id)->orderByDesc('id')
                 ->paginate(10),
             'student_actions' => Action::query()->where('student_id', $student->id)->orderByDesc('id')
@@ -77,7 +74,7 @@ class StudentInfoScreen extends Screen
      */
     public function name(): ?string
     {
-        return $this->student->name . ' | Ta\'lim bosqichi: ' . Student::STATUS[$this->student->status];
+        return $this->student->fio_name . ' | Ta\'lim bosqichi: ' . Student::STATUS[$this->student->status];
     }
 
     public function description(): ?string
@@ -113,24 +110,11 @@ class StudentInfoScreen extends Screen
                     ->canSee(Auth::user()->hasAccess('platform.students'))
                     ->href('/admin/crud/edit/student-resources/' . $this->student->id),
 
-                ModalToggle::make('Hisobni toldirish')
-                    ->modal('paymentModal')
-                    ->method('studentPayment')
-                    ->icon('dollar'),
-
                 ModalToggle::make('Guruxga qo\'shish')
                     ->modal('addToGroupModal')
                     ->method('addToGroup')
                     ->icon('organization')
                     ->modalTitle($modal_title),
-
-                ModalToggle::make('Pul qaytarish')
-                    ->icon('action-undo')
-                    ->modal('rollbackPaymentModal')
-                    ->method('rollbackPayment')
-                    ->parameters([
-                        'id' => $this->student->id,
-                    ])->canSee(Auth::user()->hasAccess('platform.rollbackStudentPayment')),
 
                 ModalToggle::make('Gurux narxini o\'zgartirish')
                     ->modal('changeGroupPriceModal')
@@ -145,13 +129,6 @@ class StudentInfoScreen extends Screen
         ];
     }
 
-    public function studentPayment(Request $request)
-    {
-        $student = StudentService::getPayment($request);
-        $payment = Payment::payInfo($request, $student);
-        Alert::success('Talaba muaffaqiyatli tolovni amalga oshirdi! To\'lov miqdori: ' . $payment->sum);
-    }
-
     public function addToGroup(Request $request)
     {
         StudentService::addToGroup($request);
@@ -162,11 +139,6 @@ class StudentInfoScreen extends Screen
         $group = StudentGroup::query()->with(['group'])->find($request->id);
         $student = Student::query()->find($group->student_id);
         StudentService::returnGroupBalance($group, $student);
-    }
-
-    public function rollbackPayment(Request $request)
-    {
-        StudentService::rollbackPayment($request);
     }
 
     public function changeGroupPrice(Request $request)
@@ -185,7 +157,6 @@ class StudentInfoScreen extends Screen
         return [
             Layout::metrics([
                 'To\'lov' => 'metrics.pay',
-                'Hisob' => 'metrics.balance',
                 'Qarz' => 'metrics.debt',
                 'Chegirma' => 'metrics.discount',
                 'Davomat' => 'metrics.attandances',
@@ -202,7 +173,7 @@ class StudentInfoScreen extends Screen
             Layout::modal('addToGroupModal', [
                 Layout::rows([
                     Select::make('group_id')
-                        ->fromQuery(\App\Models\Group::where('branch_id', $this->student->branch_id)
+                        ->fromQuery(\App\Models\Group::query()->with(['subject'])->where('branch_id', $this->student->branch_id)
                             ->whereNotIn('id', $this->groups)->where('is_active', '=', true), 'all_name')
                         ->title('Guruxni tanlang')->disabled($this->student->status != 'accepted')->required(),
                     Input::make('price')->title('Imtiyozli talaba uchun gurux narxi')->type('number')

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Orchid\Screens;
 
 use App\Models\Branch;
-use App\Models\Discount;
 use App\Models\Expense;
 use App\Models\Group;
 use App\Models\Payment;
@@ -14,11 +13,11 @@ use App\Models\Student;
 use App\Models\Subject;
 use App\Models\Teacher;
 use App\Models\TemporaryGroup;
+use App\Orchid\Layouts\Charts\DebtChart;
 use App\Orchid\Layouts\Charts\DiscountChart;
 use App\Orchid\Layouts\Charts\ExpenseChart;
 use App\Orchid\Layouts\Charts\PaymentChart;
 use App\Orchid\Layouts\Charts\SourceChart;
-use App\Orchid\Layouts\StatisticListener;
 use App\Orchid\Layouts\StatisticSelection;
 use App\Orchid\Layouts\Student\NewStudentsTable;
 use App\Services\ChartService;
@@ -28,9 +27,7 @@ use Illuminate\Support\Facades\Auth;
 use Orchid\Screen\Actions\DropDown;
 use Orchid\Screen\Actions\ModalToggle;
 use Orchid\Screen\Fields\Input;
-use Orchid\Screen\Fields\Relation;
 use Orchid\Screen\Fields\Select;
-use Orchid\Screen\Fields\TextArea;
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Alert;
 use Orchid\Support\Facades\Layout;
@@ -47,15 +44,15 @@ class PlatformScreen extends Screen
     public function query(): iterable
     {
         $this->branch_user = Auth::user()->branch_id ? true : false;
-        $payments = Payment::query()->when(Auth::user()->branch_id, function ($query){
+        $payments = Payment::query()->when($this->branch_user, function ($query){
+            return $query->where('branch_id', Auth::user()->branch_id);
+        })->where('status', '=', 'paid');
+        $expenses = Expense::query()->when($this->branch_user, function ($query){
             return $query->where('branch_id', Auth::user()->branch_id);
         });
-        $expenses = Expense::query()->when(Auth::user()->branch_id, function ($query){
+        $debts = Payment::query()->when($this->branch_user, function ($query){
             return $query->where('branch_id', Auth::user()->branch_id);
-        });
-        $debts = Student::query()->when(Auth::user()->branch_id, function ($query){
-            return $query->where('branch_id', Auth::user()->branch_id);
-        })->sum('debt');
+        })->whereNot('status', 'paid')->sum('sum');
 
         $teacher_balance = Teacher::query()->sum('balance');
 
@@ -65,43 +62,44 @@ class PlatformScreen extends Screen
             $begin = request()->get('begin') . ' 00:00:00';
             $end = request()->get('end') . ' 23:59:59';
             $this->custom_stat = [
-                'payments'    => number_format((int)Payment::query()->when(Auth::user()->branch_id, function ($query){
+                'payments'    => number_format((int)Payment::query()->when($this->branch_user, function ($query){
                          return $query->where('branch_id', Auth::user()->branch_id);
-                    })->whereBetween('created_at', [$begin, $end])->sum('sum')),
-                'expenses' => number_format((int)Expense::query()->when(Auth::user()->branch_id, function ($query){
+                    })->where('status', '=', 'paid')->whereBetween('updated_at', [$begin, $end])->sum('sum')),
+                'expenses' => number_format((int)Expense::query()->when($this->branch_user, function ($query){
                          return $query->where('branch_id', Auth::user()->branch_id);
                     })->whereBetween('created_at', [$begin, $end])->sum('price')),
-                'new_students' => (int)Student::query()->when(Auth::user()->branch_id, function ($query){
+                'new_students' => (int)Student::query()->when($this->branch_user, function ($query){
                     return $query->where('branch_id', Auth::user()->branch_id);
                 })->whereBetween('created_at', [$begin, $end])->count(),
             ];
         }
+
         return [
             'statistic' => [
                     'all' => [
                         'debts'   => number_format((int)$debts),
-                        'all_students' => Student::query()->when(Auth::user()->branch_id, function ($query){
+                        'all_students' => Student::query()->when($this->branch_user, function ($query){
                             return $query->where('branch_id', Auth::user()->branch_id);
                         })->count(),
-                        'all_groups' => Group::query()->when(Auth::user()->branch_id, function ($query){
+                        'all_groups' => Group::query()->when($this->branch_user, function ($query){
                             return $query->where('branch_id', Auth::user()->branch_id);
                         })->count(),
                         'teachers_balance' => number_format((int)$teacher_balance),
                     ],
                     'year' => [
-                        'payments'    => number_format((int)$payments->whereYear('created_at', date('Y'))->sum('sum')),
+                        'payments'    => number_format((int)$payments->whereYear('updated_at', date('Y'))->sum('sum')),
                         'expenses' => number_format((int)$expenses->whereYear('created_at', date('Y'))->sum('price')),
                         'new_students'    => (int)Student::query()->whereYear('created_at', date('Y'))->count(),
                     ],
 
                     'month' => [
-                        'payments'    => number_format((int)$payments->whereMonth('created_at', date('m'))->sum('sum')),
+                        'payments'    => number_format((int)$payments->whereMonth('updated_at', date('m'))->sum('sum')),
                         'expenses' => number_format((int)$expenses->whereMonth('created_at', date('m'))->sum('price')),
                         'new_students'    => (int)Student::query()->whereMonth('created_at', date('m'))->count(),
                     ],
 
                     'day' => [
-                        'payments'    => number_format((int)$payments->whereDay('created_at', date('d'))->sum('sum')),
+                        'payments'    => number_format((int)$payments->whereDay('updated_at', date('d'))->sum('sum')),
                         'expenses' => number_format((int)$expenses->whereDay('created_at', date('d'))->sum('price')),
                         'new_students'    => (int)Student::query()->whereDay('created_at', date('d'))->count(),
                     ],
@@ -110,6 +108,7 @@ class PlatformScreen extends Screen
             ],
             'source' => [ (request()->has('begin')) ? ChartService::sourceChart($begin, $end) : ChartService::sourceChart() ],
             'payments' => [ (request()->has('begin')) ? ChartService::paymentChart($begin, $end) : ChartService::paymentChart()],
+            'debts' => [ ChartService::debtsChart() ],
             'discounts' => [ (request()->has('begin')) ? ChartService::discountChart($begin, $end) : ChartService::discountChart()],
             'expenses' => [ (request()->has('begin')) ? ChartService::expenseChart($begin, $end) : ChartService::expenseChart() ],
             'students' => TemporaryGroup::query()->where('branch_id', Auth::user()->branch_id)->orderByDesc('id')->paginate(10),
@@ -151,7 +150,7 @@ class PlatformScreen extends Screen
                 ->parameters([
                     'branch_id' => Auth::user()->branch_id,
                 ])
-                ->canSee(Auth::user()->hasAccess('platform.temporaryStudent') && Auth::user()->branch_id),
+                ->canSee(Auth::user()->hasAccess('platform.temporaryStudent') && $this->branch_user),
             ModalToggle::make('Chiqim')
                 ->modal('makeExpenseModal')
                 ->method('makeExpense')
@@ -161,12 +160,12 @@ class PlatformScreen extends Screen
                 ModalToggle::make('To\'lov ogoxlantirish')
                     ->modal('paymentInfoModal')
                     ->method('paymentInfo')
-                    ->icon('envelope')->canSee(Auth::user()->hasAccess('platform.paymentInfo')),
+                    ->icon('envelope')->canSee(Auth::user()->hasAccess('platform.paymentInfo') && $this->branch_user),
                 ModalToggle::make('Oylik to\'lov yechish')
                     ->modal('getPaymentModal')
                     ->method('getPayment')
                     ->icon('euro')->canSee(Auth::user()->hasAccess('platform.getPayment')),
-            ])->canSee(Auth::user()->hasAccess('platform.specialy') && Auth::user()->branch_id),
+            ])->canSee(Auth::user()->hasAccess('platform.specialy') && $this->branch_user),
         ];
     }
 
@@ -212,6 +211,7 @@ class PlatformScreen extends Screen
             Layout::tabs([
                 'To\'lovlar' => PaymentChart::class,
                 'Chiqimlar' => ExpenseChart::class,
+                'Qarzdorlar' => DebtChart::class,
                 'Chegirmalar' => DiscountChart::class,
                 'Hamkorlar' => SourceChart::class,
             ])->canSee(is_null($this->custom_stat)),
@@ -248,7 +248,7 @@ class PlatformScreen extends Screen
                     Input::make('password')->type('password')->title('Maxfiy parolni kiriting')->required()
                         ->help('Filialning barcha talabalaridan oylik to\'lov yechib olinadi!'),
                 ]),
-            ])->applyButton('Yechib olish')->closeButton('Yopish')->title('To\'lov xabarini jo\'natish'),
+            ])->applyButton('Yechib olish')->closeButton('Yopish')->title('To\'lov uchun xisob yaratish'),
 
             Layout::modal('temporaryStudentModal', [
                 Layout::rows([
@@ -308,5 +308,11 @@ class PlatformScreen extends Screen
         $student = TemporaryGroup::query()->find($request->id);
         $student->delete();
         Alert::success('Talaba muaffaqiyatli o\'chirildi');
+    }
+
+    public function makeExpense(Request $request)
+    {
+        Expense::makeExpense($request);
+        Alert::success('Chiqim muaffaqiyatli amalga oshirildi.');
     }
 }

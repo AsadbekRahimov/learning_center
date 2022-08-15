@@ -8,6 +8,7 @@ use App\Models\Action;
 use App\Models\Discount;
 use App\Models\Expense;
 use App\Models\Group;
+use App\Models\Payment;
 use App\Models\Student;
 use App\Models\StudentGroup;
 use Orchid\Support\Facades\Alert;
@@ -31,10 +32,10 @@ class StudentService
             $today = date('j'); // number of  current date this month
             $last_day = date('t'); // number of last day in month
             $returning = self::returningPaymentForThisMonth($group, $today, $last_day);
-            $student->returnBalance($returning['balance']);
+            Expense::studentBalanceRollBack($student, $returning['balance']);
             $group->delete();
             $message = 'Talaba ' . $group->group->name . ' guruxidan chiqarildi, uning xisobida qolgan ' . $returning['days'] . ' ta dars limitlari xisobidan ' .
-                $returning['balance'] . ' so\'m talaba xisobiga qaytarildi';
+                $returning['balance'] . ' so\'m talabaga qaytarildi';
             Action::deleteFromGroup($student->id, $returning['balance'], $message);
             Alert::success($message);
         }
@@ -49,7 +50,7 @@ class StudentService
                 if ($request->payed === '0') {
                     $results = self::getMonthlyPayFromBalance($request->student_id, $request->group_id, $new_student->price);
                     $message = 'Talaba ' . $group->name . ' guruxiga qo\'shildi. Bu guruxda oy oxirigacha qolgan ' . $results['days'] .
-                        ' ta dars xisobidan ' . $results['price'] . ' so\'m talabaning xisobidan yechildi';
+                        ' ta dars xisobidan ' . $results['price'] . ' so\'m to\'lov talabaning xisobiga yozildi!';
                     Action::studentAddGroup($message, $request->student_id, $results['price']);
                     if($new_student->price !== null) { Discount::groupDiscount($group, $request->student_id, $new_student->price ); }
                     Alert::success($message);
@@ -88,7 +89,7 @@ class StudentService
             $remaining_payment_for_this_month = round(($monthly_subject_price / $lessons_this_month) * $remaining_lessons, -3);
         }
 
-        $student->getFromBalance($remaining_payment_for_this_month);
+        Payment::addPaymentForStudent($remaining_payment_for_this_month, $student, $group->id);
 
         return [
             'days' => $remaining_lessons,
@@ -100,19 +101,6 @@ class StudentService
     {
         $student = Student::query()->find($request->student_id);
         $student->getFromBalance($subject_price);
-    }
-
-    public static function getPayment(\Illuminate\Http\Request $request)
-    {
-        $student = Student::query()->find($request->student_id);
-        Action::studentPayment($student, $request->sum, $request->type);
-        if ($student->debt > 0) {
-            $student->returnBalance($request->sum);
-        }else {
-            $student->balance += $request->sum;
-            $student->save();
-        }
-        return $student;
     }
 
     private static function returningLesson(Group $group,  $today,  $last_day)
@@ -162,21 +150,6 @@ class StudentService
     public static function getSubjectPrice(StudentGroup $group)
     {
         return is_null($group->price) ? $group->group->subject->price : $group->price;
-    }
-
-    public static function rollbackPayment(\Illuminate\Http\Request $request)
-    {
-        $student = Student::query()->find($request->id);
-        if ($student->balance < $request->sum) {
-            Alert::error('Talabaning xisobida '. number_format($request->sum) . ' so\'m mavjud emas');
-        } else {
-            $student->balance -= $request->sum;
-            $student->save();
-            Expense::studentBalanceRollBack($student, $request->sum);
-            $message = 'Talabaning xisobidan '. number_format($request->sum) . ' so\'m unga qaytarildi';
-            Action::rollbackPayment($message, $request);
-            Alert::success($message);
-        }
     }
 
     public static function changeGroupPrice(\Illuminate\Http\Request $request)

@@ -19,10 +19,7 @@ class Teacher extends Model
         'name',
         'branch_id',
         'head_teacher_id',
-        'balance',
         'percent',
-        'last_payment',
-        'last_paid_date',
     ];
 
     public function group()

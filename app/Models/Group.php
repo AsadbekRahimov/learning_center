@@ -66,6 +66,10 @@ class Group extends Model
         return $this->hasMany(Lesson::class, 'group_id', 'id');
     }
 
+    public function payments() {
+        return $this->hasMany(Payment::class, 'group_id', 'id');
+    }
+
     public function room()
     {
         return $this->belongsTo(GroupRoom::class, 'id', 'group_id');
@@ -91,5 +95,10 @@ class Group extends Model
     public function getNameWithTypeAttribute($value)
     {
         return $this->name . ' (' . self::DAY_TYPE[$this->day_type] . ')';
+    }
+
+    public function all_debts()
+    {
+        return $this->payments()->whereNot('status', 'paid')->sum('sum');
     }
 }

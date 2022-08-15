@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Action;
 use App\Models\Discount;
+use App\Models\Payment;
 use App\Models\Student;
 use App\Services\StudentService;
 use Illuminate\Console\Command;
@@ -45,8 +46,8 @@ class GetPaymentFromBalance extends Command
                     $monthly_payment += $payment;
                     Action::getLessonPay($group->student_id, $payment, $group->group->name);
                     if($group->price !== null) { Discount::groupDiscount($group->group, $student->id, $group->price); }
+                    Payment::addPaymentForStudent($monthly_payment, $student, $group->group_id);
                 }
-                $student->getFromBalance($monthly_payment);
             }
     }
 }

@@ -16,8 +16,10 @@ return new class extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->integer('student_id');
+            $table->integer('group_id');
             $table->integer('sum');
-            $table->string('type')->default('paper');
+            $table->string('type')->nullable();
+            $table->string('status')->default('unpaid');
             $table->integer('branch_id');
             $table->timestamps();
         });
