@@ -201,7 +201,7 @@ class PlatformScreen extends Screen
                         'Chiqim' => 'statistic.custom.expenses',
                         'Yangi talabalar' => 'statistic.custom.new_students',
                     ])->canSee(!is_null($this->custom_stat)),
-            ])->activeTab(!is_null($this->custom_stat) ? 'Belgilangan' : 'Umumiy'),
+            ])->canSee(Auth::user()->hasAccess('platform.seeStatistic'))->activeTab(!is_null($this->custom_stat) ? 'Belgilangan' : 'Umumiy'),
 
             Layout::tabs([
                 'To\'lovlar' => PaymentChart::class,
@@ -209,14 +209,14 @@ class PlatformScreen extends Screen
                 'Qarzdorlar' => DebtChart::class,
                 'Chegirmalar' => DiscountChart::class,
                 'Hamkorlar' => SourceChart::class,
-            ])->canSee(is_null($this->custom_stat)),
+            ])->canSee(is_null($this->custom_stat) && Auth::user()->hasAccess('platform.seeStatistic')),
 
             Layout::accordion([
                 'To\'lovlar' => PaymentChart::class,
                 'Chiqimlar' => ExpenseChart::class,
                 'Chegirmalar' => DiscountChart::class,
                 'Hamkorlar' => SourceChart::class,
-            ])->canSee(!is_null($this->custom_stat)),
+            ])->canSee(!is_null($this->custom_stat) && Auth::user()->hasAccess('platform.seeStatistic')),
 
             NewStudentsTable::class,
 

@@ -168,7 +168,8 @@ class PlatformProvider extends OrchidServiceProvider
             ItemPermission::group('Super vakolatlar')
                 ->addPermission('platform.specialy', 'Super vakolatlarni korish')
                 ->addPermission('platform.paymentInfo', 'Talabalarga tolov xaqida sms yuborish')
-                ->addPermission('platform.getPayment', 'Talabalar xisobidan oylik tolovni yechish'),
+                ->addPermission('platform.getPayment', 'Talabalar xisobidan oylik tolovni yechish')
+                ->addPermission('platform.seeStatistic', 'Statistikani ko\'rish'),
 
             ItemPermission::group('Bugalteriya')
                 ->addPermission('platform.payments', 'To\'lovlar')
