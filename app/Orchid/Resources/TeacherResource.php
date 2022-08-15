@@ -91,9 +91,6 @@ class TeacherResource extends Resource
             TD::make('percent', 'Oylik foizi')->render(function ($model) {
                 return $model->percent . ' %';
             }),
-            TD::make('balance', 'Hisobi'),
-            TD::make('last_payment', 'Oxirgi to\'lov'),
-            TD::make('last_paid_date', 'Oxirgi to\'lov sanasi'),
         ];
     }
 
@@ -117,9 +114,6 @@ class TeacherResource extends Resource
             Sight::make('percent', 'Oylik foizi')->render(function ($model) {
                 return $model->percent . ' %';
             }),
-            Sight::make('balance', 'Hisobi'),
-            Sight::make('last_payment', 'Oxirgi to\'lov'),
-            Sight::make('last_paid_date', 'Oxirgi to\'lov sanasi'),
         ];
     }
 
