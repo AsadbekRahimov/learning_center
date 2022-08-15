@@ -126,6 +126,7 @@ class GroupInfoScreen extends Screen
                 ]),
                 Layout::tabs([
                    'Guruxning bugungi davomati' => GroupAttandTable::class,
+                   'Qarzdorlar' => GroupDebtsTable::class,
                    'Guruxdagi talabalar ro\'yhati' => GroupStudentsTable::class,
                    'Guruxdagi o\'tilgan darslar ro\'yhati' => GroupLessonsTable::class,
                 ]),
