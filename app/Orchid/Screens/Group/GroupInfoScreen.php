@@ -53,6 +53,7 @@ class GroupInfoScreen extends Screen
                 ->orderByDesc('id')->paginate(10),
 
             'metrics' => [
+               'debts' => number_format($group->all_debts()),
                'students' => StudentGroup::query()->where('group_id', $group->id)->count(),
                'lessons' => Lesson::query()->where('group_id', $group->id)->count(),
                'day_type' => $group->day_type == 'odd' ? 'Toq kunlar' : 'Juft kunlar',
@@ -135,6 +136,7 @@ class GroupInfoScreen extends Screen
             return [
                 Layout::metrics([
                     'Talabalar' => 'metrics.students',
+                    'Talabalarning qarzdorligi' => 'metrics.debts',
                     'O\'tilgan darslar' => 'metrics.lessons',
                     'Dars kunlari' => 'metrics.day_type',
                 ]),
