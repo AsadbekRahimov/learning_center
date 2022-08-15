@@ -13,6 +13,7 @@ use App\Models\Student;
 use App\Models\Subject;
 use App\Models\Teacher;
 use App\Models\TemporaryGroup;
+use App\Orchid\Layouts\Charts\DebtChart;
 use App\Orchid\Layouts\Charts\DiscountChart;
 use App\Orchid\Layouts\Charts\ExpenseChart;
 use App\Orchid\Layouts\Charts\PaymentChart;
@@ -107,6 +108,7 @@ class PlatformScreen extends Screen
             ],
             'source' => [ (request()->has('begin')) ? ChartService::sourceChart($begin, $end) : ChartService::sourceChart() ],
             'payments' => [ (request()->has('begin')) ? ChartService::paymentChart($begin, $end) : ChartService::paymentChart()],
+            'debts' => [ ChartService::debtsChart() ],
             'discounts' => [ (request()->has('begin')) ? ChartService::discountChart($begin, $end) : ChartService::discountChart()],
             'expenses' => [ (request()->has('begin')) ? ChartService::expenseChart($begin, $end) : ChartService::expenseChart() ],
             'students' => TemporaryGroup::query()->where('branch_id', Auth::user()->branch_id)->orderByDesc('id')->paginate(10),
@@ -209,6 +211,7 @@ class PlatformScreen extends Screen
             Layout::tabs([
                 'To\'lovlar' => PaymentChart::class,
                 'Chiqimlar' => ExpenseChart::class,
+                'Qarzdorlar' => DebtChart::class,
                 'Chegirmalar' => DiscountChart::class,
                 'Hamkorlar' => SourceChart::class,
             ])->canSee(is_null($this->custom_stat)),

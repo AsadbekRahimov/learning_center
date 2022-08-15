@@ -6,12 +6,12 @@ namespace App\Services;
 
 use App\Models\Discount;
 use App\Models\Expense;
+use App\Models\Group;
 use App\Models\Payment;
 use App\Models\Source;
 use App\Models\Student;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class ChartService
 {
@@ -105,6 +105,29 @@ class ChartService
         foreach ($discounts as $discount) {
             $result['values'][] = $discount['sum'];
             $result['labels'][] = Discount::TYPES[$discount['type']];
+        }
+        return $result;
+    }
+
+    public static function debtsChart()
+    {
+        $payments = Payment::select('group_id', DB::raw('sum(sum) as sum'))
+            ->whereNot('status', '=', 'paid')
+            ->when(Auth::user()->branch_id, function ($query){
+                return $query->where('branch_id', Auth::user()->branch_id);
+            })->groupBy('group_id')->get()->toArray();
+
+        $groups = Group::query()->pluck('name', 'id')->toArray();
+        //dd($groups);
+
+        $result = [
+            'values' => [],
+            'labels' => [],
+        ];
+
+        foreach ($payments as $payment) {
+            $result['values'][] = $payment['sum'];
+            $result['labels'][] = $groups[$payment['group_id']];
         }
         return $result;
     }
