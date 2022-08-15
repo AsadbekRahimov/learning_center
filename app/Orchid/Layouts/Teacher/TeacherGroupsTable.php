@@ -35,6 +35,9 @@ class TeacherGroupsTable extends Table
             }),
             TD::make('students_count', 'O\'quvchilar soni')->render(function (Group $group) {
                 return $group->students->count();
+            }),
+            TD::make('payments', 'Gurux to\'lovi')->render(function (Group $group) {
+                return $group->last_payment_month == date('n') ? 'To\'langan' : number_format($group->salary() * $group->teacher->percent / 100);
             })
         ];
     }

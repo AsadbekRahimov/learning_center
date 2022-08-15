@@ -102,4 +102,9 @@ class Group extends Model
     {
         return $this->payments()->whereNot('status', 'paid')->sum('sum');
     }
+
+    public function salary()
+    {
+        return $this->payments()->whereMonth('created_at', date('m'))->sum('sum');
+    }
 }
