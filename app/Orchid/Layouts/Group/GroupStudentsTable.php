@@ -37,7 +37,9 @@ class GroupStudentsTable extends Table
             TD::make('price', 'Kurs narxi')->render(function (StudentGroup $student) {
                 return number_format($student->price ? $student->price : $student->group->subject->price);
             })->cantHide(),
-            TD::make('lesson_limit', 'Dars limit')->cantHide(),
+            TD::make('lesson_limit', 'Dars limit')->render(function (StudentGroup $student) {
+                return $student->student->branch->payment_period === 'daily' ? $student->lesson_limit : '---';
+            })->cantHide(),
             TD::make('attand', 'Davomat soni')->render(function (StudentGroup $student) {
                 return $student->attand_count();
             })->cantHide(),

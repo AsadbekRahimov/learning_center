@@ -46,7 +46,7 @@ class GroupInfoScreen extends Screen
             'debts' => Payment::query()->with('student')->where('group_id', $group->id)
                 ->whereNot('status', 'paid')->paginate(10),
             'lesson' => $lesson,
-            'students' => StudentGroup::query()->with(['student', 'group.subject', 'attandances'])->where('group_id', $group->id)->get(),
+            'students' => StudentGroup::query()->with(['student.branch', 'group.subject', 'attandances'])->where('group_id', $group->id)->get(),
             'group' => $group->load('branch', 'teacher'),
             'attand' => Attandance::query()->with('student')->where('lesson_id', $lesson->id ?? '')->get(),
             'lessons' => Lesson::query()->with(['attandances', 'teacher'])->where('group_id', $group->id)
