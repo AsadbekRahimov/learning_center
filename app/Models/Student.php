@@ -68,7 +68,8 @@ class Student extends Model
         return self::query()->create([
             'name' => $student->name,
             'surname' => $student->surname,
-            'phone' => $student->number,
+            'phone' => $student->phone,
+            'parent_phone' => $student->parent_phone,
             'source_id' => $student->source_id,
             'branch_id' => $student->branch_id,
             'registered_id' => Auth::user()->id,

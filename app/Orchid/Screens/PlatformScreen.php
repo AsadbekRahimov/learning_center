@@ -252,13 +252,17 @@ class PlatformScreen extends Screen
                         ->required()->help('Kiritish majburiy'),
                     Input::make('surname')->type('text')->title('Familiya'),
                     \Orchid\Screen\Fields\Group::make([
-                        Input::make('phone')->title('Telefon raqam')->mask('(99) 999-99-99')
+                        Input::make('phone')->title('Telefon raqam (Shaxsiy)')->mask('(99) 999-99-99')
                             ->required()->help('Kiritish majburiy'),
+                        Input::make('parent_phone')->title('Telefon raqam (Ota-ona)')->mask('(99) 999-99-99')
+                            ->help('Majburiy emas'),
+                    ]),
+                    \Orchid\Screen\Fields\Group::make([
                         Select::make('subject_id')->fromQuery(Subject::where('branch_id', Auth::user()->branch_id), 'name')
                             ->title('Fanni tanlang')->required()->help('Kiritish majburiy'),
+                        Select::make('source_id')->fromModel(Source::class, 'name')
+                            ->title('Hamkorni tanlang tanlang')->required()->help('Kiritish majburiy'),
                     ]),
-                    Select::make('source_id')->fromModel(Source::class, 'name')
-                        ->title('Hamkorni tanlang tanlang')->required()->help('Kiritish majburiy'),
                 ]),
             ])->applyButton('Saqlash')->closeButton('Yopish')->title('Vaqtinchalik talaba kiritish'),
         ];

@@ -18,7 +18,8 @@ return new class extends Migration
             $table->integer('branch_id');
             $table->string('name');
             $table->string('surname')->nullable();
-            $table->string('number');
+            $table->string('phone');
+            $table->string('parent_phone')->nullable();
             $table->integer('subject_id');
             $table->integer('source_id');
             $table->timestamps();

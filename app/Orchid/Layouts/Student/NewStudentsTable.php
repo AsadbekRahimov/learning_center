@@ -33,9 +33,12 @@ class NewStudentsTable extends Table
         return [
              TD::make('name', 'Ism'),
              TD::make('surname', 'Familiya'),
-             TD::make('number', 'Telefon raqam')->render(function (TemporaryGroup $student) {
-                 return Link::make($student->number)->href('tel:' . Student::telephone($student->number));
+             TD::make('phone', 'Shaxsiy raqam')->render(function (TemporaryGroup $student) {
+                 return Link::make($student->phone)->href('tel:' . Student::telephone($student->phone));
              }),
+            TD::make('parent_phone', 'Shaxsiy raqam')->render(function (TemporaryGroup $student) {
+                return Link::make($student->parent_phone)->href('tel:' . Student::telephone($student->parent_phone));
+            }),
              TD::make('subject_id', 'Fan')->render(function (TemporaryGroup $student) {
                  return $student->subject->name;
              }),
