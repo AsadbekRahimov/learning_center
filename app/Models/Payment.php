@@ -75,7 +75,18 @@ class Payment extends Model
         ]);
     }
 
-    public  function pay($type, $sum = null)
+
+    public static function addPaymentForNewStudent($id, $group_id, $subject_price, $branch_id)
+    {
+        return self::query()->create([
+            'student_id' => $id,
+            'group_id' => $group_id,
+            'sum' => $subject_price,
+            'branch_id' => $branch_id,
+        ]);
+    }
+
+    public  function pay($type)
     {
         return $this->update([
             'type' => $type,

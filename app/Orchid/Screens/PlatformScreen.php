@@ -11,6 +11,7 @@ use App\Models\Payment;
 use App\Models\Source;
 use App\Models\Student;
 use App\Models\Subject;
+use App\Models\Teacher;
 use App\Models\TemporaryGroup;
 use App\Orchid\Layouts\Charts\DebtChart;
 use App\Orchid\Layouts\Charts\DiscountChart;
@@ -20,13 +21,17 @@ use App\Orchid\Layouts\Charts\SourceChart;
 use App\Orchid\Layouts\StatisticSelection;
 use App\Orchid\Layouts\Student\NewStudentsTable;
 use App\Services\ChartService;
+use App\Services\GroupService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Orchid\Screen\Actions\DropDown;
 use Orchid\Screen\Actions\ModalToggle;
+use Orchid\Screen\Fields\CheckBox;
 use Orchid\Screen\Fields\Input;
+use Orchid\Screen\Fields\Matrix;
 use Orchid\Screen\Fields\Select;
+use Orchid\Screen\Layouts\Modal;
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Alert;
 use Orchid\Support\Facades\Layout;
@@ -35,6 +40,7 @@ class PlatformScreen extends Screen
 {
     public $custom_stat;
     public $branch_user;
+    public $students;
     /**
      * Query data.
      *
@@ -42,6 +48,7 @@ class PlatformScreen extends Screen
      */
     public function query(): iterable
     {
+        $this->students = TemporaryGroup::query()->where('branch_id', Auth::user()->branch_id)->orderByDesc('id')->get();
         $this->branch_user = Auth::user()->branch_id ? true : false;
         $payments = Payment::query()->when($this->branch_user, function ($query){
             return $query->where('branch_id', Auth::user()->branch_id);
@@ -107,7 +114,7 @@ class PlatformScreen extends Screen
             'debts' => [ ChartService::debtsChart() ],
             'discounts' => [ (request()->has('begin')) ? ChartService::discountChart($begin, $end) : ChartService::discountChart()],
             'expenses' => [ (request()->has('begin')) ? ChartService::expenseChart($begin, $end) : ChartService::expenseChart() ],
-            'students' => TemporaryGroup::query()->where('branch_id', Auth::user()->branch_id)->orderByDesc('id')->paginate(10),
+            'students' => $this->students,
         ];
     }
 
@@ -265,7 +272,52 @@ class PlatformScreen extends Screen
                     ]),
                 ]),
             ])->applyButton('Saqlash')->closeButton('Yopish')->title('Vaqtinchalik talaba kiritish'),
+
+            Layout::modal('newGroupModal', [
+                Layout::rows([
+                    \Orchid\Screen\Fields\Group::make([
+                        Input::make('name')
+                            ->title('Gurux nomi')
+                            ->required()
+                            ->placeholder('Gurux nomini kiriting'),
+                        Select::make('subject_id')
+                            ->title('Fan')
+                            ->fromQuery(Subject::where('branch_id', '=', Auth::user()->branch_id), 'name')
+                            ->required(),
+                        Select::make('day_type')
+                            ->title('Dars kunlari')
+                            ->options(Group::DAY_TYPE)
+                            ->required(),
+                    ]),
+                    \Orchid\Screen\Fields\Group::make([
+                        Select::make('teacher_id')
+                            ->title('O\'qituvchi')
+                            ->fromQuery(Teacher::query()->where('branch_id', '=', Auth::user()->branch_id), 'name')
+                            ->required(),
+                        CheckBox::make('is_active')->title('Aktiv')
+                            ->sendTrueOrFalse()->value(true)->help('Guruxning xozirgi paytdagi aktivligi'),
+                    ]),
+                    Matrix::make('students')
+                        ->columns(['' => 'id', '+' => 'add', 'Ism' => 'name', 'Fan' => 'subject_id'])
+                        ->title('Talabalarni qo\'shish')
+                        ->fields([
+                            'id' => Input::make('id')->size('5px')->hidden(),
+                            'add' => CheckBox::make('toGroup')->sendTrueOrFalse(),
+                            'name' => Input::make('name'),
+                            'subject_id' => Select::make('subject_id')->fromModel(Subject::class, 'name'),
+                        ])->maxRows($this->students->count())->removableRows(false),
+                ]),
+            ])->size(Modal::SIZE_LG)
+              ->applyButton('Yaratish')->closeButton('Yopish')
+              ->withoutApplyButton($this->students->count() === 0)
+              ->title('Yangi gurux qo\'shish'),
         ];
+    }
+
+    public function newGroup(Request $request)
+    {
+        GroupService::createGroupWithStudents($request);
+        Alert::success('Gurux muaffaqiyatli yaratildi, talabalar guruxga qo\'shildi!');
     }
 
     public function paymentInfo(Request $request)
