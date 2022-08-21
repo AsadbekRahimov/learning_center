@@ -179,7 +179,7 @@ class GroupInfoScreen extends Screen
                 $subject_price = StudentService::getSubjectPrice($studentGroup);
                 if ($studentGroup->lesson_limit === 0) {
                     $student = Student::query()->find($studentGroup->student_id);
-                    $student->getFromBalance($subject_price);
+                    $student->getFromBalance($subject_price); // TODO fix for new logic
                     $studentGroup->update([
                         'lesson_limit' => 12
                     ]);
@@ -188,12 +188,6 @@ class GroupInfoScreen extends Screen
                 }
                 $lesson_price += ($subject_price / 12) * $teacher_percent / 100;
             }
-        }
-
-        if ($lesson_price > 0) {
-            $lesson->payment = $lesson_price;
-            $lesson->teacher->balance += $lesson_price;
-            $lesson->teacher->save();
         }
 
         $lesson->save();
