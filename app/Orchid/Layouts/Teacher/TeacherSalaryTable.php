@@ -30,6 +30,9 @@ class TeacherSalaryTable extends Table
             }),
             TD::make('created_at', 'Sanasi')->render(function (Expense $expense) {
                 return $expense->created_at->format('Y-m-d');
+            }),
+            TD::make('desc', 'Tasnifi')->render(function (Expense $expense) {
+                return $expense->desc;
             })
         ];
     }

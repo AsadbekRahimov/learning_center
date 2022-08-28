@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('payment_period');
+            $table->integer('last_payment_month')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

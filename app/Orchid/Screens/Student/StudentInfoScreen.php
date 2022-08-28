@@ -42,7 +42,7 @@ class StudentInfoScreen extends Screen
     {
         //dd($student->groups);
         return [
-            'last_payment' => Payment::query()->where('student_id', $student->id)->orderByDesc('id')->first(),
+            'last_payment' => Payment::query()->where('student_id', $student->id)->where('status', 'paid')->orderByDesc('id')->first(),
             'student' => $student,
             'metrics' => [
                 'pay' => number_format(Payment::query()->where('student_id', $student->id)->where('status', 'paid')->sum('sum')),

@@ -21,13 +21,17 @@ use App\Orchid\Layouts\Charts\SourceChart;
 use App\Orchid\Layouts\StatisticSelection;
 use App\Orchid\Layouts\Student\NewStudentsTable;
 use App\Services\ChartService;
+use App\Services\GroupService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Orchid\Screen\Actions\DropDown;
 use Orchid\Screen\Actions\ModalToggle;
+use Orchid\Screen\Fields\CheckBox;
 use Orchid\Screen\Fields\Input;
+use Orchid\Screen\Fields\Matrix;
 use Orchid\Screen\Fields\Select;
+use Orchid\Screen\Layouts\Modal;
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Alert;
 use Orchid\Support\Facades\Layout;
@@ -36,6 +40,7 @@ class PlatformScreen extends Screen
 {
     public $custom_stat;
     public $branch_user;
+    public $students;
     /**
      * Query data.
      *
@@ -43,6 +48,7 @@ class PlatformScreen extends Screen
      */
     public function query(): iterable
     {
+        $this->students = TemporaryGroup::query()->where('branch_id', Auth::user()->branch_id)->orderByDesc('id')->get();
         $this->branch_user = Auth::user()->branch_id ? true : false;
         $payments = Payment::query()->when($this->branch_user, function ($query){
             return $query->where('branch_id', Auth::user()->branch_id);
@@ -53,8 +59,6 @@ class PlatformScreen extends Screen
         $debts = Payment::query()->when($this->branch_user, function ($query){
             return $query->where('branch_id', Auth::user()->branch_id);
         })->whereNot('status', 'paid')->sum('sum');
-
-        $teacher_balance = Teacher::query()->sum('balance');
 
         if (!request()->has('begin')) {
             $this->custom_stat = null;
@@ -84,7 +88,6 @@ class PlatformScreen extends Screen
                         'all_groups' => Group::query()->when($this->branch_user, function ($query){
                             return $query->where('branch_id', Auth::user()->branch_id);
                         })->count(),
-                        'teachers_balance' => number_format((int)$teacher_balance),
                     ],
                     'year' => [
                         'payments'    => number_format((int)$payments->whereYear('updated_at', date('Y'))->sum('sum')),
@@ -111,7 +114,7 @@ class PlatformScreen extends Screen
             'debts' => [ ChartService::debtsChart() ],
             'discounts' => [ (request()->has('begin')) ? ChartService::discountChart($begin, $end) : ChartService::discountChart()],
             'expenses' => [ (request()->has('begin')) ? ChartService::expenseChart($begin, $end) : ChartService::expenseChart() ],
-            'students' => TemporaryGroup::query()->where('branch_id', Auth::user()->branch_id)->orderByDesc('id')->paginate(10),
+            'students' => $this->students,
         ];
     }
 
@@ -184,7 +187,6 @@ class PlatformScreen extends Screen
                         'Barcha talabalar soni' => 'statistic.all.all_students',
                         'Barcha guruxlar soni' => 'statistic.all.all_groups',
                         'Talabalarning umumiy qarzdorligi' => 'statistic.all.debts',
-                        'O\'qituvchilarning umumiy xisobi' => 'statistic.all.teachers_balance',
                     ]),
                 'Kunlik' => Layout::metrics([
                         'To\'lov'    => 'statistic.day.payments',
@@ -206,7 +208,7 @@ class PlatformScreen extends Screen
                         'Chiqim' => 'statistic.custom.expenses',
                         'Yangi talabalar' => 'statistic.custom.new_students',
                     ])->canSee(!is_null($this->custom_stat)),
-            ])->activeTab(!is_null($this->custom_stat) ? 'Belgilangan' : 'Umumiy'),
+            ])->canSee(Auth::user()->hasAccess('platform.seeStatistic'))->activeTab(!is_null($this->custom_stat) ? 'Belgilangan' : 'Umumiy'),
 
             Layout::tabs([
                 'To\'lovlar' => PaymentChart::class,
@@ -214,14 +216,14 @@ class PlatformScreen extends Screen
                 'Qarzdorlar' => DebtChart::class,
                 'Chegirmalar' => DiscountChart::class,
                 'Hamkorlar' => SourceChart::class,
-            ])->canSee(is_null($this->custom_stat)),
+            ])->canSee(is_null($this->custom_stat) && Auth::user()->hasAccess('platform.seeStatistic')),
 
             Layout::accordion([
                 'To\'lovlar' => PaymentChart::class,
                 'Chiqimlar' => ExpenseChart::class,
                 'Chegirmalar' => DiscountChart::class,
                 'Hamkorlar' => SourceChart::class,
-            ])->canSee(!is_null($this->custom_stat)),
+            ])->canSee(!is_null($this->custom_stat) && Auth::user()->hasAccess('platform.seeStatistic')),
 
             NewStudentsTable::class,
 
@@ -248,7 +250,8 @@ class PlatformScreen extends Screen
                     Input::make('password')->type('password')->title('Maxfiy parolni kiriting')->required()
                         ->help('Filialning barcha talabalaridan oylik to\'lov yechib olinadi!'),
                 ]),
-            ])->applyButton('Yechib olish')->closeButton('Yopish')->title('To\'lov uchun xisob yaratish'),
+            ])->applyButton('Yechib olish')->closeButton('Yopish')->title('To\'lov uchun xisob yaratish')
+                ->withoutApplyButton(date('n') == Auth::user()->branch->last_payment_month),
 
             Layout::modal('temporaryStudentModal', [
                 Layout::rows([
@@ -256,16 +259,65 @@ class PlatformScreen extends Screen
                         ->required()->help('Kiritish majburiy'),
                     Input::make('surname')->type('text')->title('Familiya'),
                     \Orchid\Screen\Fields\Group::make([
-                        Input::make('phone')->title('Telefon raqam')->mask('(99) 999-99-99')
+                        Input::make('phone')->title('Telefon raqam (Shaxsiy)')->mask('(99) 999-99-99')
                             ->required()->help('Kiritish majburiy'),
+                        Input::make('parent_phone')->title('Telefon raqam (Ota-ona)')->mask('(99) 999-99-99')
+                            ->help('Majburiy emas'),
+                    ]),
+                    \Orchid\Screen\Fields\Group::make([
                         Select::make('subject_id')->fromQuery(Subject::where('branch_id', Auth::user()->branch_id), 'name')
                             ->title('Fanni tanlang')->required()->help('Kiritish majburiy'),
+                        Select::make('source_id')->fromModel(Source::class, 'name')
+                            ->title('Hamkorni tanlang tanlang')->required()->help('Kiritish majburiy'),
                     ]),
-                    Select::make('source_id')->fromModel(Source::class, 'name')
-                        ->title('Hamkorni tanlang tanlang')->required()->help('Kiritish majburiy'),
                 ]),
             ])->applyButton('Saqlash')->closeButton('Yopish')->title('Vaqtinchalik talaba kiritish'),
+
+            Layout::modal('newGroupModal', [
+                Layout::rows([
+                    \Orchid\Screen\Fields\Group::make([
+                        Input::make('name')
+                            ->title('Gurux nomi')
+                            ->required()
+                            ->placeholder('Gurux nomini kiriting'),
+                        Select::make('subject_id')
+                            ->title('Fan')
+                            ->fromQuery(Subject::where('branch_id', '=', Auth::user()->branch_id), 'name')
+                            ->required(),
+                        Select::make('day_type')
+                            ->title('Dars kunlari')
+                            ->options(Group::DAY_TYPE)
+                            ->required(),
+                    ]),
+                    \Orchid\Screen\Fields\Group::make([
+                        Select::make('teacher_id')
+                            ->title('O\'qituvchi')
+                            ->fromQuery(Teacher::query()->where('branch_id', '=', Auth::user()->branch_id), 'name')
+                            ->required(),
+                        CheckBox::make('is_active')->title('Aktiv')
+                            ->sendTrueOrFalse()->value(true)->help('Guruxning xozirgi paytdagi aktivligi'),
+                    ]),
+                    Matrix::make('students')
+                        ->columns(['' => 'id', '+' => 'add', 'Ism' => 'name', 'Fan' => 'subject_id'])
+                        ->title('Talabalarni qo\'shish')
+                        ->fields([
+                            'id' => Input::make('id')->size('5px')->hidden(),
+                            'add' => CheckBox::make('toGroup')->sendTrueOrFalse(),
+                            'name' => Input::make('name'),
+                            'subject_id' => Select::make('subject_id')->fromModel(Subject::class, 'name'),
+                        ])->maxRows($this->students->count())->removableRows(false),
+                ]),
+            ])->size(Modal::SIZE_LG)
+              ->applyButton('Yaratish')->closeButton('Yopish')
+              ->withoutApplyButton($this->students->count() === 0)
+              ->title('Yangi gurux qo\'shish'),
         ];
+    }
+
+    public function newGroup(Request $request)
+    {
+        GroupService::createGroupWithStudents($request);
+        Alert::success('Gurux muaffaqiyatli yaratildi, talabalar guruxga qo\'shildi!');
     }
 
     public function paymentInfo(Request $request)

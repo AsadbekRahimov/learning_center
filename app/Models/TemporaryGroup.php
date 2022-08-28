@@ -17,7 +17,8 @@ class TemporaryGroup extends Model
         'branch_id',
         'name',
         'surname',
-        'number',
+        'phone',
+        'parent_phone',
         'subject_id',
         'source_id'
     ];
@@ -28,7 +29,8 @@ class TemporaryGroup extends Model
             'branch_id' => $request->branch_id,
             'name' => $request->name,
             'surname' => $request->surname,
-            'number' => $request->phone,
+            'phone' => $request->phone,
+            'parent_phone' => $request->parent_phone,
             'subject_id' => $request->subject_id,
             'source_id' => $request->source_id,
         ]);

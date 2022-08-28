@@ -31,7 +31,8 @@ Route::get('/addLesson/{id}', function ($id) {
         'date' => date('Y-m-d'),
         'group_id' => $group->id,
         'teacher_id' => $group->teacher_id,
-        'payment' => GroupService::calculatedLessonPrice($group),
+        //'payment' => GroupService::calculatedLessonPrice($group),
+        'payment' => 0,
         'finish' => 0,
     ]);
     \Orchid\Support\Facades\Alert::success('Gurux uchun dars qoshildi, yo\'qlama qilishingiz mumkin!');

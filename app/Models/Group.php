@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 use Orchid\Attachment\Attachable;
 use Orchid\Filters\Filterable;
 use Orchid\Screen\AsSource;
@@ -38,7 +39,8 @@ class Group extends Model
         'branch_id',
         'teacher_id',
         'day_type',
-        'is_active'
+        'is_active',
+        'last_payment_month',
     ];
 
     public function teacher()
@@ -100,5 +102,22 @@ class Group extends Model
     public function all_debts()
     {
         return $this->payments()->whereNot('status', 'paid')->sum('sum');
+    }
+
+    public function salary()
+    {
+        return $this->payments()->whereMonth('created_at', date('m'))->sum('sum');
+    }
+
+    public static function addGroup(\Illuminate\Http\Request $request)
+    {
+        return self::query()->create([
+            'name' => $request->name,
+            'subject_id' => $request->subject_id,
+            'branch_id' => Auth::user()->branch_id,
+            'teacher_id' => $request->teacher_id,
+            'day_type' => $request->day_type,
+            'is_active' => $request->is_active,
+        ]);
     }
 }

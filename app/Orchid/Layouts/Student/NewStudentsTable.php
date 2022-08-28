@@ -4,11 +4,14 @@ namespace App\Orchid\Layouts\Student;
 
 use App\Models\Student;
 use App\Models\TemporaryGroup;
+use Illuminate\Support\Facades\Auth;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\DropDown;
 use Orchid\Screen\Actions\Link;
+use Orchid\Screen\Actions\ModalToggle;
 use Orchid\Screen\Layouts\Table;
 use Orchid\Screen\TD;
+use Orchid\Support\Color;
 
 class NewStudentsTable extends Table
 {
@@ -33,15 +36,18 @@ class NewStudentsTable extends Table
         return [
              TD::make('name', 'Ism'),
              TD::make('surname', 'Familiya'),
-             TD::make('number', 'Telefon raqam')->render(function (TemporaryGroup $student) {
-                 return Link::make($student->number)->href('tel:' . Student::telephone($student->number));
+             TD::make('phone', 'Shaxsiy raqam')->render(function (TemporaryGroup $student) {
+                 return Link::make($student->phone)->href('tel:' . Student::telephone($student->phone));
+             }),
+             TD::make('parent_phone', 'Shaxsiy raqam')->render(function (TemporaryGroup $student) {
+                return Link::make($student->parent_phone)->href('tel:' . Student::telephone($student->parent_phone));
              }),
              TD::make('subject_id', 'Fan')->render(function (TemporaryGroup $student) {
                  return $student->subject->name;
              }),
-            TD::make('source_id', 'Hamkor')->render(function (TemporaryGroup $student) {
+             TD::make('source_id', 'Hamkor')->render(function (TemporaryGroup $student) {
                 return $student->source->name;
-            }),
+             }),
              TD::make('action', 'Amallar')->render(function (TemporaryGroup $student) {
                  return DropDown::make()->icon('options-vertical')->list([
                      Button::make('Doimiy talabalar safiga qo\'shish')
@@ -58,6 +64,20 @@ class NewStudentsTable extends Table
                         ])
                  ]);
              }),
+        ];
+    }
+
+    public function total():array
+    {
+        return [
+            TD::make('', 'Yangi guruxga biriktish')->render(function () {
+                return ModalToggle::make('YANGI GURUXGA BIRIKTIRISH')
+                    ->type(Color::SUCCESS())
+                    ->modal('newGroupModal')
+                    ->method('newGroup')
+                    ->icon('graduation')
+                    ->canSee(Auth::user()->hasAccess('platform.temporaryStudent'));
+            }),
         ];
     }
 }
