@@ -33,6 +33,7 @@ class Payment extends Model
         'unpaid' => 'To\'lanmagan',
         'paid' => 'To\'langan',
         'returned' => 'Qaytarilgan',
+        'teacher_paid' => 'Oqituvchiga to\'langan',
     ];
 
     protected $allowedSorts = [

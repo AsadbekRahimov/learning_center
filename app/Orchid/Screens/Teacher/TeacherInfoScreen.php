@@ -110,6 +110,9 @@ class TeacherInfoScreen extends Screen
         $salary = $group->salary() * $group->teacher->percent / 100;
         Expense::giveSalary($group, $salary);
         $group->update(['last_payment_month' => date('n')]);
+        $group->payments()->whereMonth('created_at', date('m'))->where('status', 'paid')->update([
+           'status' => 'teacher_paid',
+        ]);
         $message = $group->teacher->name . ' uchun ' . number_format($salary) . ' so\'m maosh berildi.';
         Alert::success($message);
     }

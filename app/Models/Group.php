@@ -40,7 +40,6 @@ class Group extends Model
         'teacher_id',
         'day_type',
         'is_active',
-        'last_payment_month',
     ];
 
     public function teacher()
@@ -106,7 +105,7 @@ class Group extends Model
 
     public function salary()
     {
-        return $this->payments()->whereMonth('created_at', date('m'))->sum('sum');
+        return $this->payments()->whereMonth('created_at', date('m'))->where('status', 'paid')->sum('sum');
     }
 
     public static function addGroup(\Illuminate\Http\Request $request)

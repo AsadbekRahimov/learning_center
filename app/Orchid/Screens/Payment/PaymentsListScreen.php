@@ -24,7 +24,7 @@ class PaymentsListScreen extends Screen
     {
         return [
             'paid' => Payment::query()->with(['student', 'group', 'branch'])
-                ->where('status', 'paid')
+                ->whereIn('status', ['paid', 'teacher_paid'])
                 ->when(Auth::user()->branch_id, function ($query){
                     return $query->where('branch_id', Auth::user()->branch_id);
                 })->filters()->defaultSort('updated_at', 'desc')->paginate(15),

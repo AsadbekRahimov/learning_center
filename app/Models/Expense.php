@@ -80,7 +80,7 @@ class Expense extends Model
             'price' => $salary,
             'teacher_id' => $group->teacher_id,
             'type' => 'salary',
-            'desc' => $group->name . ' gurux darslari uchun ' .  Auth::user()->name . ' tomonidan ' . number_format($salary) . ' so\'m miqdorida ' . $group->teacher->name . ' uchun  oylik maosh berildi',
+            'desc' => $group->name . ' | ' .  $group->teacher->name . ' | ' . number_format($salary) . ' | ' . Auth::user()->name,
         ]);
     }
 }

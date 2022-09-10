@@ -39,8 +39,8 @@ class TeacherGroupsTable extends Table
             TD::make('students_count', 'O\'quvchilar soni')->render(function (Group $group) {
                 return $group->students->count();
             }),
-            TD::make('payments', 'Gurux to\'lovi')->render(function (Group $group) {
-                return $group->last_payment_month == date('n') ? 'To\'langan' : number_format($group->salary() * $group->teacher->percent / 100);
+            TD::make('payments', 'Shu oy to\'lovi')->render(function (Group $group) {
+                return number_format($group->salary() * $group->teacher->percent / 100);
             }),
             TD::make('Amallar')->align(TD::ALIGN_CENTER)->width('100px')
                 ->render(function (Group $group) {
@@ -50,7 +50,7 @@ class TeacherGroupsTable extends Table
                             ->confirm('Siz rostdan ham ushbu oqituvchiga gurux uchun maosh bermoqchimisiz?')
                             ->method('teacherSalary', [
                                 'id' => $group->id,
-                            ])->canSee($group->last_payment_month != date('n') && Auth::user()->hasAccess('platform.giveSalary')),
+                            ])->canSee($group->salary() && Auth::user()->hasAccess('platform.giveSalary')),
                     ]);
                 }),
         ];
