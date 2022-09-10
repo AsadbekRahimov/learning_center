@@ -22,23 +22,18 @@ class GroupService
         $group_price = $group->subject->price;
         $lesson_price = 0;
         $teacher_percent = $group->teacher->percent;
-        $lessons_this_month = StudentService::lessonsThisMonth($group, date('t'));
-        if ($group->branch->payment_period == 'monthly') {
-            foreach($group->students as $student)
-            {
-                if (is_null($student->price))
-                    $lesson_price += ($group_price / $lessons_this_month) * $teacher_percent / 100;
-                else
-                    $lesson_price += ($student->price / $lessons_this_month) * $teacher_percent / 100;
-            }
 
-            $group->teacher->balance += $lesson_price;
-            $group->teacher->save();
+        if ($group->branch->payment_period == 'monthly')
+            $lessons_this_month = StudentService::lessonsThisMonth($group, date('t'));
+        else
+            $lessons_this_month = 12;
 
-            return  $lesson_price;
-        } else {
-            return 0;
+        foreach($group->students as $student)
+        {
+            $price = is_null($student->price) ? $group_price : $student->price;
+            $lesson_price += ($price * $teacher_percent / 100) / $lessons_this_month;
         }
+        return  $lesson_price;
     }
 
     public static function createGroupWithStudents(\Illuminate\Http\Request $request)
