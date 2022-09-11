@@ -11,6 +11,7 @@ use App\Orchid\Layouts\Teacher\TeacherLessonsTable;
 use App\Orchid\Layouts\Teacher\TeacherSalaryTable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Alert;
@@ -69,6 +70,12 @@ class TeacherInfoScreen extends Screen
                 ->icon('settings')
                 ->canSee(Auth::user()->hasAccess('platform.teachers'))
                 ->href('/admin/crud/edit/teacher-resources/' . $this->teacher->id),
+            Button::make('Oylik ajiratish')
+                ->icon('dollar')
+                ->method('giveMonthlySalary')
+                ->parameters([
+                    'teacher_id' => $this->teacher->id
+                ])->confirm('Siz rostdan xam ' . $this->teacher->name . ' uchun oylik maosh bermoqchimisiz?'),
         ];
     }
 
@@ -90,7 +97,7 @@ class TeacherInfoScreen extends Screen
             Layout::metrics([
                 'To\'lov' => 'metrics.salary',
                 'Foiz' => 'metrics.percent',
-                'Dars' => 'metrics.lessons',
+                'O\'tilgan darslari' => 'metrics.lessons',
                 'Vazifa' => 'metrics.tasks',
             ]),
             Layout::tabs([
@@ -105,18 +112,72 @@ class TeacherInfoScreen extends Screen
     public function teacherSalary(Request $request)
     {
         $group = Group::query()->with(['payments', 'teacher'])->find($request->id);
+        $this->giveSalary($group);
+    }
+
+    public function giveMonthlySalary(Request $request)
+    {
+        $teacher = Teacher::query()->find($request->teacher_id);
+        $ids = $request->ids;
+        $groups = $this->getGroups($ids);
+        $message = $this->giveSalaries($groups, $teacher);
+        Alert::success($message);
+    }
+
+    private function giveSalary(Group $group)
+    {
         $salary = $group->salary() * $group->teacher->percent / 100;
         if ($salary != 0)
         {
             Expense::giveSalary($group, $salary);
-            $group->update(['last_payment_month' => date('n')]);
-            $group->payments()->whereMonth('created_at', date('m'))->where('status', 'paid')->update([
-                'status' => 'teacher_paid',
-            ]);
+            $this->teacherPayment($group);
             $message = $group->teacher->name . ' uchun ' . number_format($salary) . ' so\'m maosh berildi.';
             Alert::success($message);
         } else {
             Alert::error('Oylik uchun mablag\' yetarli emas');
         }
+    }
+
+
+    private function giveSalaries($groups, $teacher)
+    {
+        $message = '';
+        $salary = 0;
+        $group_names = '';
+        foreach ($groups as $key => $group)
+        {
+            $group_salary = $group->salary();
+            if($key == 0)
+                $message .= $group->teacher->name;
+
+            if ($group_salary) {
+                if($salary)
+                    $group_names .= ', ' . $group->name;
+                else
+                    $group_names .= $group->name;
+                $salary += $group_salary * $group->teacher->percent / 100;
+            }
+            $this->teacherPayment($group);
+        }
+        Expense::giveSalaries($teacher, $salary, $group_names);
+        $message .= ' uchun ' . number_format($salary) . ' so\'m maosh berildi.';
+        return $message;
+    }
+
+    private function getGroups($ids)
+    {
+        $groups = [];
+        foreach ($ids as $id)
+        {
+            $groups[] = (int)$id;
+        }
+        return Group::query()->with(['payments', 'teacher'])->whereIn('id', $groups)->get();
+    }
+
+    private function teacherPayment(Group $group)
+    {
+        $group->payments()->whereMonth('created_at', date('m'))->where('status', 'paid')->update([
+            'status' => 'teacher_paid',
+        ]);
     }
 }

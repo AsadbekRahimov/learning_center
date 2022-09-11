@@ -80,7 +80,19 @@ class Expense extends Model
             'price' => $salary,
             'teacher_id' => $group->teacher_id,
             'type' => 'salary',
-            'desc' => $group->name . ' | ' .  $group->teacher->name . ' | ' . number_format($salary) . ' | ' . Auth::user()->name,
+            'desc' => $group->name . ' gurux darslari uchun ' .  Auth::user()->name . ' tomonidan  ' . number_format($salary) . ' so\'m miqdorida ' . $group->teacher->name . ' uchun oylik maosh berildi',
+        ]);
+    }
+
+
+    public static function giveSalaries($teacher, $salary, $group_names)
+    {
+        return self::query()->create([
+            'branch_id' => $teacher->branch_id,
+            'price' => $salary,
+            'teacher_id' => $teacher->id,
+            'type' => 'salary',
+            'desc' => $group_names . ' gurux darslari uchun ' .  Auth::user()->name . ' tomonidan  ' . number_format($salary) . ' so\'m miqdorida ' . $teacher->name . ' uchun oylik maosh berildi',
         ]);
     }
 }

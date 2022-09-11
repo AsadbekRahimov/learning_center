@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\DropDown;
 use Orchid\Screen\Actions\Link;
+use Orchid\Screen\Fields\CheckBox;
 use Orchid\Screen\Layouts\Table;
 use Orchid\Screen\TD;
 
@@ -30,6 +31,9 @@ class TeacherGroupsTable extends Table
     protected function columns(): iterable
     {
         return [
+            TD::make('id', 'ID')->render(function (Group $group){
+                return CheckBox::make('ids[]')->value($group->id);
+            }),
             TD::make('name', 'Gurux')->render(function (Group $group) {
                 return Link::make($group->name)->route('platform.groupInfo', ['group' => $group->id]);
             }),
