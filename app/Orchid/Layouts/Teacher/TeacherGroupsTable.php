@@ -32,7 +32,7 @@ class TeacherGroupsTable extends Table
     {
         return [
             TD::make('id', 'ID')->render(function (Group $group){
-                return CheckBox::make('ids[]')->value($group->id);
+                return CheckBox::make('ids[]')->value($group->id)->checked(false);
             }),
             TD::make('name', 'Gurux')->render(function (Group $group) {
                 return Link::make($group->name)->route('platform.groupInfo', ['group' => $group->id]);

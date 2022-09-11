@@ -117,11 +117,16 @@ class TeacherInfoScreen extends Screen
 
     public function giveMonthlySalary(Request $request)
     {
-        $teacher = Teacher::query()->find($request->teacher_id);
-        $ids = $request->ids;
-        $groups = $this->getGroups($ids);
-        $message = $this->giveSalaries($groups, $teacher);
-        Alert::success($message);
+        if (is_null($request->ids))
+        {
+            Alert::error('Kamida 1 ta gurux tanlangan bo\'lishi kerak!');
+        } else {
+            $teacher = Teacher::query()->find($request->teacher_id);
+            $ids = $request->ids;
+            $groups = $this->getGroups($ids);
+            $message = $this->giveSalaries($groups, $teacher);
+            $message ? Alert::success($message) : Alert::warning('Oylik uchun mablag\' yetarli emas');
+        }
     }
 
     private function giveSalary(Group $group)
@@ -159,8 +164,13 @@ class TeacherInfoScreen extends Screen
             }
             $this->teacherPayment($group);
         }
-        Expense::giveSalaries($teacher, $salary, $group_names);
-        $message .= ' uchun ' . number_format($salary) . ' so\'m maosh berildi.';
+
+        if ($salary) {
+            Expense::giveSalaries($teacher, $salary, $group_names);
+            $message .= ' uchun ' . number_format($salary) . ' so\'m maosh berildi.';
+        } else {
+            $message = 0;
+        }
         return $message;
     }
 
