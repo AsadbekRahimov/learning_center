@@ -41,7 +41,7 @@ class ChartService
     public static function paymentChart($begin = null, $end = null)
     {
         $payments = Payment::select('type', DB::raw('sum(sum) as sum'))
-          ->where('status', '=', 'paid')
+          ->whereIn('status',['paid', 'teacher_paid'])
           ->when(Auth::user()->branch_id, function ($query){
                 return $query->where('branch_id', Auth::user()->branch_id);
           })->when(is_null($begin) && is_null($end), function ($query) {

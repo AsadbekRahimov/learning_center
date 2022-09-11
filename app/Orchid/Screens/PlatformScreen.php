@@ -52,7 +52,7 @@ class PlatformScreen extends Screen
         $this->branch_user = Auth::user()->branch_id ? true : false;
         $payments = Payment::query()->when($this->branch_user, function ($query){
             return $query->where('branch_id', Auth::user()->branch_id);
-        })->where('status', '=', 'paid');
+        })->whereIn('status',['paid', 'teacher_paid']);
         $expenses = Expense::query()->when($this->branch_user, function ($query){
             return $query->where('branch_id', Auth::user()->branch_id);
         });
@@ -68,7 +68,7 @@ class PlatformScreen extends Screen
             $this->custom_stat = [
                 'payments'    => number_format((int)Payment::query()->when($this->branch_user, function ($query){
                          return $query->where('branch_id', Auth::user()->branch_id);
-                    })->where('status', '=', 'paid')->whereBetween('updated_at', [$begin, $end])->sum('sum')),
+                    })->whereIn('status',['paid', 'teacher_paid'])->whereBetween('updated_at', [$begin, $end])->sum('sum')),
                 'expenses' => number_format((int)Expense::query()->when($this->branch_user, function ($query){
                          return $query->where('branch_id', Auth::user()->branch_id);
                     })->whereBetween('created_at', [$begin, $end])->sum('price')),

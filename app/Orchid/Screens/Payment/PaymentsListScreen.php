@@ -30,7 +30,7 @@ class PaymentsListScreen extends Screen
                 })->filters()->defaultSort('updated_at', 'desc')->paginate(15),
 
             'unpaid' => Payment::query()->with(['student', 'group', 'branch'])
-                ->whereNot('status', 'paid')
+                ->where('status', 'unpaid')
                 ->when(Auth::user()->branch_id, function ($query){
                     return $query->where('branch_id', Auth::user()->branch_id);
                 })->filters()->defaultSort('updated_at', 'desc')->paginate(15),
