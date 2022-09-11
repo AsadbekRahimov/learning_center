@@ -40,7 +40,7 @@ class TeacherGroupsTable extends Table
                 return $group->students->count();
             }),
             TD::make('payments', 'Shu oy to\'lovi')->render(function (Group $group) {
-                return number_format($group->salary() * $group->teacher->percent / 100);
+                return number_format($group->salary);
             }),
             TD::make('Amallar')->align(TD::ALIGN_CENTER)->width('100px')
                 ->render(function (Group $group) {
@@ -50,7 +50,7 @@ class TeacherGroupsTable extends Table
                             ->confirm('Siz rostdan ham ushbu oqituvchiga gurux uchun maosh bermoqchimisiz?')
                             ->method('teacherSalary', [
                                 'id' => $group->id,
-                            ])->canSee($group->salary() && Auth::user()->hasAccess('platform.giveSalary')),
+                            ])->canSee(Auth::user()->hasAccess('platform.giveSalary')),
                     ]);
                 }),
         ];

@@ -108,6 +108,11 @@ class Group extends Model
         return $this->payments()->whereMonth('created_at', date('m'))->where('status', 'paid')->sum('sum');
     }
 
+    public function getSalaryAttribute($value)
+    {
+        return $this->salary() * $this->teacher->percent / 100;
+    }
+
     public static function addGroup(\Illuminate\Http\Request $request)
     {
         return self::query()->create([

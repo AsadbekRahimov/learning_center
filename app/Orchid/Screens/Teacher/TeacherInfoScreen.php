@@ -12,8 +12,6 @@ use App\Orchid\Layouts\Teacher\TeacherSalaryTable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Orchid\Screen\Actions\Link;
-use Orchid\Screen\Actions\ModalToggle;
-use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Alert;
 use Orchid\Support\Facades\Layout;
@@ -108,12 +106,17 @@ class TeacherInfoScreen extends Screen
     {
         $group = Group::query()->with(['payments', 'teacher'])->find($request->id);
         $salary = $group->salary() * $group->teacher->percent / 100;
-        Expense::giveSalary($group, $salary);
-        $group->update(['last_payment_month' => date('n')]);
-        $group->payments()->whereMonth('created_at', date('m'))->where('status', 'paid')->update([
-           'status' => 'teacher_paid',
-        ]);
-        $message = $group->teacher->name . ' uchun ' . number_format($salary) . ' so\'m maosh berildi.';
-        Alert::success($message);
+        if ($salary != 0)
+        {
+            Expense::giveSalary($group, $salary);
+            $group->update(['last_payment_month' => date('n')]);
+            $group->payments()->whereMonth('created_at', date('m'))->where('status', 'paid')->update([
+                'status' => 'teacher_paid',
+            ]);
+            $message = $group->teacher->name . ' uchun ' . number_format($salary) . ' so\'m maosh berildi.';
+            Alert::success($message);
+        } else {
+            Alert::error('Oylik uchun mablag\' yetarli emas');
+        }
     }
 }
