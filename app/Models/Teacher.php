@@ -22,9 +22,9 @@ class Teacher extends Model
         'percent',
     ];
 
-    public function group()
+    public function groups()
     {
-        return $this->hasOne(Group::class, 'teacher_id', 'id')->withTrashed();
+        return $this->hasMany(Group::class, 'teacher_id', 'id')->withTrashed();
     }
 
     public function headTeacher()

@@ -105,7 +105,10 @@ class Group extends Model
 
     public function salary()
     {
-        return $this->payments()->whereMonth('created_at', date('m'))->where('status', 'paid')->sum('sum');
+        return $this->payments()
+            ->whereYear('created_at', date('Y'))
+            ->whereMonth('created_at', date('m'))
+            ->where('status', 'paid')->sum('sum');
     }
 
     public function getSalaryAttribute($value)
