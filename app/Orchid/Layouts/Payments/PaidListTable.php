@@ -56,8 +56,11 @@ class PaidListTable extends Table
                 ->render(function (Payment $payment) {
                     return $payment->branch->name;
                 })->canSee(Auth::user()->branch_id ? false : true)->cantHide(),
+            TD::make('created_at', 'To\'lov oyi')->render(function (Payment $payment) {
+                return $payment->created_at->format('Y-m');
+            }),
             TD::make('updated_at', 'To\'langan sana')->render(function (Payment $payment) {
-                return $payment->created_at->format('Y-m-d');
+                return $payment->updated_at->format('Y-m-d');
             }),
             TD::make('payment', 'Kvitansiya')->render(function (Payment $payment) {
                 return Link::make('')->icon('printer')

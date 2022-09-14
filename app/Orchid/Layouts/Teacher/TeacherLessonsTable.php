@@ -36,6 +36,9 @@ class TeacherLessonsTable extends Table
             TD::make('percent', 'Davomat foizi')->render(function (Lesson $lesson) {
                 return $lesson->attand_percent();
             }),
+            TD::make('payment', 'Dars to\'lovi')->render(function (Lesson $lesson) {
+                return number_format($lesson->payment);
+            }),
         ];
     }
 }

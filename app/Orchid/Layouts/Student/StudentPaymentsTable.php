@@ -36,8 +36,11 @@ class StudentPaymentsTable extends Table
             TD::make('type', 'To\'lov turi')->render(function (Payment $payment) {
                 return $payment->type ? Payment::TYPES[$payment->type] : '';
             }),
-            TD::make('created_at', 'Sana')->render(function (Payment $payment) {
-                return $payment->created_at->format('Y-m-d');
+            TD::make('created_at', 'To\'lov oyi')->render(function (Payment $payment) {
+                return $payment->created_at->format('Y-m');
+            }),
+            TD::make('updated_at', 'To\'langan sana')->render(function (Payment $payment) {
+                return $payment->updated_at->format('Y-m-d');
             }),
             TD::make('payment', 'Kvitansiya')->render(function (Payment $payment) {
                 return Link::make('')->icon('printer')

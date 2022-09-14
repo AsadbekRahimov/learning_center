@@ -55,8 +55,8 @@ class UnpaidListTable extends Table
                 ->render(function (Payment $payment) {
                     return $payment->branch->name;
                 })->canSee(Auth::user()->branch_id ? false : true)->defaultHidden(),
-            TD::make('created_at', 'Sana')->render(function (Payment $payment) {
-                return $payment->created_at->format('Y-m-d');
+            TD::make('created_at', 'To\'lov oyi')->render(function (Payment $payment) {
+                return $payment->created_at->format('Y-m');
             })->defaultHidden(),
             TD::make('Amallar')->align(TD::ALIGN_CENTER)->width('100px')
                 ->render(function (Payment $payment) {
