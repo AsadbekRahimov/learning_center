@@ -56,6 +56,7 @@ class MonthFilter extends Filter
                 ->title('Month')
                 ->value('2011-08')
                 ->title('To\'lov oyi')
+                ->value(date('Y-m'))
                 ->vertical(),
         ];
     }

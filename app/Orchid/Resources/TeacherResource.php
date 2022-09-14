@@ -119,7 +119,7 @@ class TeacherResource extends Resource
 
     public function with(): array
     {
-        return ['branch', 'headTeacher', 'lowTeachers', 'group'];
+        return ['branch', 'headTeacher', 'lowTeachers', 'groups'];
     }
 
     public function filters(): array
@@ -264,8 +264,7 @@ class TeacherResource extends Resource
      */
     public function onDelete(Model $model)
     {
-        //dd($model->group);
-        if ($model->group()->count())
+        if ($model->groups()->count())
         {
             Alert::error('Oldin o\'qituvchiga biriktirilgan guruxni boshqa o\'qituvchiga biriktirish kerak!');
         }elseif ($model->lowTeachers()->count()) {
