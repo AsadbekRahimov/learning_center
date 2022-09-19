@@ -72,6 +72,7 @@
     <p><b>Gurux: </b> {{ $receipt->group->name }} </p>
     <p><b>To'lov turi: </b> {{ \App\Models\Payment::TYPES[$receipt->type] }} </p>
     <p><b>To'lov miqdori: </b> {{ number_format($receipt->sum) }} </p>
+    <p><b>To'lov oyi: </b> {{ $receipt->created_at->format('Y-m') }} </p>
     <p><b>To'langan vaqt: </b> {{ $receipt->created_at }} </p>
 
 </div>
