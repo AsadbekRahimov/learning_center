@@ -5,6 +5,7 @@ namespace App\Orchid\Layouts\Expence;
 use App\Models\Branch;
 use App\Models\Expense;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\Relation;
 use Orchid\Screen\Fields\Select;
@@ -30,12 +31,13 @@ class ExpencesListTable extends Table
      */
     protected function columns(): iterable
     {
+        $teachers = Cache::get('teachers');
         return [
             TD::make('price', 'Summasi')->render(function (Expense $expense) {
                  return number_format($expense->price);
             })->filter(Input::make()->type('number')),
-            TD::make('teacher_id', 'O\'qituvchi')->render(function (Expense $expense) {
-                return $expense->teacher_id ? $expense->teacher->name : '';
+            TD::make('teacher_id', 'O\'qituvchi')->render(function (Expense $expense) use ($teachers) {
+                return $expense->teacher_id ? $teachers[$expense->teacher_id] : '';
             })->filter(Input::make()->type('number')),
             TD::make('type', 'Turi')->render(function (Expense $expense) {
                 return Expense::TYPE[$expense->type];

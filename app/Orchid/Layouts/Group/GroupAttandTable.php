@@ -3,6 +3,7 @@
 namespace App\Orchid\Layouts\Group;
 
 use App\Models\Attandance;
+use Illuminate\Support\Facades\Cache;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Layouts\Table;
@@ -29,9 +30,10 @@ class GroupAttandTable extends Table
 
     protected function columns(): iterable
     {
+        $students = Cache::get('students');
         return [
-            TD::make('student_id', 'Talaba')->render(function (Attandance $attandance) {
-                return Link::make($attandance->student->name)->route('platform.addStudentToGroup', ['student' => $attandance->student_id]);
+            TD::make('student_id', 'Talaba')->render(function (Attandance $attandance) use ($students) {
+                return Link::make($students[$attandance->student_id])->route('platform.addStudentToGroup', ['student' => $attandance->student_id]);
             })->cantHide(),
             TD::make('attand', 'Davomat')->render(function (Attandance $attandance) {
                 return Button::make(Attandance::STATUS[$attandance->attand])

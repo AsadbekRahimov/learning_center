@@ -6,6 +6,7 @@ use App\Models\Branch;
 use App\Models\Group;
 use App\Models\Payment;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Fields\CheckBox;
 use Orchid\Screen\Fields\Input;
@@ -34,17 +35,20 @@ class PaidListTable extends Table
      */
     protected function columns(): iterable
     {
+        $students = Cache::get('students');
+        $privilege = Cache::get('privilege');
+        $groups = Cache::get('groups');
         return [
             TD::make('id', 'ID')->sort(),
-            TD::make('student_id', 'Talaba')->render(function (Payment $payment) {
-                return Link::make($payment->student->name . ' ' . $payment->student->surname)
+            TD::make('student_id', 'Talaba')->render(function (Payment $payment) use ($students) {
+                return Link::make($students[$payment->student_id])
                     ->route('platform.addStudentToGroup', ['student' => $payment->student_id]);
             })->cantHide(),
-            TD::make('group_id', 'Gurux')->render(function (Payment $payment) {
-                return Link::make($payment->group->name)->route('platform.groupInfo', ['group' => $payment->group_id]);
+            TD::make('group_id', 'Gurux')->render(function (Payment $payment) use ($groups) {
+                return Link::make($groups[$payment->group_id])->route('platform.groupInfo', ['group' => $payment->group_id]);
             })->filter(Select::make('group_id')->fromQuery(Group::query()->where('branch_id', Auth::user()->branch_id), 'name'))->cantHide(),
-            TD::make('privilege', 'Saxovat')->render(function (Payment $payment) {
-                return Link::make('')->icon('star')->type(Color::WARNING())->canSee($payment->student->privilege);
+            TD::make('privilege', 'Saxovat')->render(function (Payment $payment) use ($privilege) {
+                return Link::make('')->icon('star')->type(Color::WARNING())->canSee($privilege[$payment->student_id]);
             })->sort()->filter(CheckBox::make()->title('Saxovat talabasi')->sendTrueOrFalse())->defaultHidden(),
             TD::make('sum', 'Summasi')->render(function (Payment $payment) {
                 return number_format($payment->sum);

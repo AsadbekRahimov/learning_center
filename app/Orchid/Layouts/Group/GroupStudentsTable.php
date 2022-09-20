@@ -4,6 +4,7 @@ namespace App\Orchid\Layouts\Group;
 
 use App\Models\Student;
 use App\Models\StudentGroup;
+use Illuminate\Support\Facades\Cache;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Layouts\Table;
@@ -30,9 +31,10 @@ class GroupStudentsTable extends Table
 
     protected function columns(): iterable
     {
+        $students = Cache::get('students');
         return [
-            TD::make('name', 'Ism')->render(function (StudentGroup $student) {
-                return Link::make($student->student->fio_name)->route('platform.addStudentToGroup', ['student' => $student->student_id]);
+            TD::make('name', 'Ism')->render(function (StudentGroup $student) use ($students) {
+                return Link::make($students[$student->student_id])->route('platform.addStudentToGroup', ['student' => $student->student_id]);
             })->cantHide(),
             TD::make('price', 'Kurs narxi')->render(function (StudentGroup $student) {
                 return number_format($student->price ? $student->price : $student->group->subject->price);

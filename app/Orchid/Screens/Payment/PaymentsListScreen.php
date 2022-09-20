@@ -23,13 +23,13 @@ class PaymentsListScreen extends Screen
     public function query(): iterable
     {
         return [
-            'paid' => Payment::query()->with(['student', 'group', 'branch'])
+            'paid' => Payment::query()->with(['branch'])
                 ->whereIn('status', ['paid', 'teacher_paid'])
                 ->when(Auth::user()->branch_id, function ($query){
                     return $query->where('branch_id', Auth::user()->branch_id);
                 })->filters()->defaultSort('updated_at', 'desc')->paginate(15),
 
-            'unpaid' => Payment::query()->with(['student', 'group', 'branch'])
+            'unpaid' => Payment::query()->with(['branch'])
                 ->where('status', 'unpaid')
                 ->when(Auth::user()->branch_id, function ($query){
                     return $query->where('branch_id', Auth::user()->branch_id);
