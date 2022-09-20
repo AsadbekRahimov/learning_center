@@ -3,6 +3,7 @@
 namespace App\Orchid\Layouts\Student;
 
 use App\Models\Payment;
+use Illuminate\Support\Facades\Cache;
 use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Layouts\Table;
 use Orchid\Screen\TD;
@@ -26,9 +27,10 @@ class StudentPaymentsTable extends Table
      */
     protected function columns(): iterable
     {
+        $groups = Cache::get('groups');
         return [
-            TD::make('group_id', 'Gurux')->render(function (Payment $payment) {
-                return Link::make($payment->group->name)->route('platform.groupInfo', ['group' => $payment->group_id]);
+            TD::make('group_id', 'Gurux')->render(function (Payment $payment) use ($groups) {
+                return Link::make($groups[$payment->group_id])->route('platform.groupInfo', ['group' => $payment->group_id]);
             })->cantHide(),
             TD::make('sum', 'To\'lov miqdori')->render(function (Payment $payment) {
                 return number_format($payment->sum);

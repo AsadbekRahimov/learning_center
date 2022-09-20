@@ -3,6 +3,7 @@
 namespace App\Orchid\Layouts\Student;
 
 use App\Models\StudentGroup;
+use Illuminate\Support\Facades\Cache;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\DropDown;
 use Orchid\Screen\Actions\Link;
@@ -28,12 +29,14 @@ class StudentGroupsTable extends Table
      */
     protected function columns(): iterable
     {
+        $groups = Cache::get('groups');
+        $subjects = Cache::get('subjects');
         return [
-            TD::make('group_id', 'Gurux')->render(function (StudentGroup $student_groups) {
-                return Link::make($student_groups->group->name)->route('platform.groupInfo', ['group' => $student_groups->group_id]);
+            TD::make('group_id', 'Gurux')->render(function (StudentGroup $student_groups) use ($groups) {
+                return Link::make($groups[$student_groups->group_id])->route('platform.groupInfo', ['group' => $student_groups->group_id]);
             }),
-            TD::make('subject', 'Fan')->render(function (StudentGroup $student_groups) {
-                return $student_groups->group->subject->name;
+            TD::make('subject', 'Fan')->render(function (StudentGroup $student_groups) use ($subjects) {
+                return $subjects[$student_groups->group->subject_id];
             }),
             TD::make('price', 'Kurs narxi')->render(function (StudentGroup $student_groups) {
                 return is_null($student_groups->price) ? number_format($student_groups->group->subject->price) :

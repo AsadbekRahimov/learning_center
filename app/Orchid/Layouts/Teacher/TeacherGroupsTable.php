@@ -4,6 +4,7 @@ namespace App\Orchid\Layouts\Teacher;
 
 use App\Models\Group;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\DropDown;
 use Orchid\Screen\Actions\Link;
@@ -30,6 +31,7 @@ class TeacherGroupsTable extends Table
      */
     protected function columns(): iterable
     {
+        $subjects = Cache::get('subjects');
         return [
             TD::make('id', 'ID')->render(function (Group $group){
                 return CheckBox::make('ids[]')->value($group->id)->checked(false);
@@ -37,8 +39,8 @@ class TeacherGroupsTable extends Table
             TD::make('name', 'Gurux')->render(function (Group $group) {
                 return Link::make($group->name)->route('platform.groupInfo', ['group' => $group->id]);
             }),
-            TD::make('subject_id', 'Fan')->render(function (Group $group) {
-                return $group->subject->name;
+            TD::make('subject_id', 'Fan')->render(function (Group $group) use ($subjects) {
+                return $subjects[$group->subject_id];
             }),
             TD::make('students_count', 'O\'quvchilar soni')->render(function (Group $group) {
                 return $group->students->count();

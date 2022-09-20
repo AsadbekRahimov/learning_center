@@ -5,6 +5,7 @@ namespace App\Orchid\Layouts\Student;
 use App\Models\Student;
 use App\Models\TemporaryGroup;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\DropDown;
 use Orchid\Screen\Actions\Link;
@@ -33,20 +34,22 @@ class NewStudentsTable extends Table
      */
     protected function columns(): iterable
     {
+        $subjects = Cache::get('subjects');
+        $sources = Cache::get('sources');
         return [
              TD::make('name', 'Ism'),
              TD::make('surname', 'Familiya'),
-             TD::make('phone', 'Shaxsiy raqam')->render(function (TemporaryGroup $student) {
+             TD::make('phone', 'Shaxsiy raqam 1')->render(function (TemporaryGroup $student) {
                  return Link::make($student->phone)->href('tel:' . Student::telephone($student->phone));
              }),
-             TD::make('parent_phone', 'Shaxsiy raqam')->render(function (TemporaryGroup $student) {
+             TD::make('parent_phone', 'Shaxsiy raqam 2')->render(function (TemporaryGroup $student) {
                 return Link::make($student->parent_phone)->href('tel:' . Student::telephone($student->parent_phone));
              }),
-             TD::make('subject_id', 'Fan')->render(function (TemporaryGroup $student) {
-                 return $student->subject->name;
+             TD::make('subject_id', 'Fan')->render(function (TemporaryGroup $student) use ($subjects) {
+                 return $subjects[$student->subject_id];
              }),
-             TD::make('source_id', 'Hamkor')->render(function (TemporaryGroup $student) {
-                return $student->source->name;
+             TD::make('source_id', 'Hamkor')->render(function (TemporaryGroup $student) use ($sources){
+                return $sources[$student->source_id];
              }),
              TD::make('action', 'Amallar')->render(function (TemporaryGroup $student) {
                  return DropDown::make()->icon('options-vertical')->list([

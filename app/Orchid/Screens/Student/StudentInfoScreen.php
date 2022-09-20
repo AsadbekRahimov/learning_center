@@ -53,13 +53,13 @@ class StudentInfoScreen extends Screen
                     'diff' => $student->attand_percent()
                 ]
             ],
-            'student_groups' => StudentGroup::query()->with('group.subject', 'student.branch')
+            'student_groups' => StudentGroup::query()->with('group', 'student.branch')
                 ->where('student_id', $student->id)->orderByDesc('id')->paginate(10),
             'groups' => StudentGroup::query()->where('student_id', $student->id)->pluck('group_id'),
             'attandances' => Attandance::query()->with(['lesson.group'])->where('student_id', $student->id)
                 ->orderByDesc('id')->paginate(10),
-            'payments' => Payment::query()->with('group')->where('student_id', $student->id)
-                ->where('status', 'paid')->filters()->orderByDesc('id')->paginate(10),
+            'payments' => Payment::query()->where('student_id', $student->id)
+                ->whereNot('status', 'unpaid')->filters()->orderByDesc('id')->paginate(10),
             'discounts' => Discount::query()->where('student_id', $student->id)->orderByDesc('id')
                 ->paginate(10),
             'student_actions' => Action::query()->where('student_id', $student->id)->orderByDesc('id')
