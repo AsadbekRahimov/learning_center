@@ -10,6 +10,7 @@ use App\Orchid\Filters\WithTrashed;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Orchid\Crud\Filters\DefaultSorted;
 use Orchid\Crud\Resource;
 use Orchid\Crud\ResourceRequest;
@@ -319,6 +320,7 @@ class GroupResource extends Resource
             Alert::error('Oldin guruxdagi talabalarni guruxdan chiqarish kerak!');
         } else {
             $model->forceFill($request->all())->save();
+            Cache::forget('groups');
         }
     }
 
@@ -336,6 +338,7 @@ class GroupResource extends Resource
             Alert::error('Oldin guruxdagi talabalarni guruxdan chiqarish kerak!');
         } else {
             $model->delete();
+            Cache::forget('groups');
         }
     }
 }

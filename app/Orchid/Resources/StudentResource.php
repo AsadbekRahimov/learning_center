@@ -12,6 +12,7 @@ use App\Orchid\Filters\WithTrashed;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Orchid\Crud\Filters\DefaultSorted;
 use Orchid\Crud\Resource;
 use Orchid\Crud\ResourceRequest;
@@ -407,6 +408,10 @@ class StudentResource extends Resource
             Alert::error('Oldin talabani u azo bolgan barcha guruxlardan chiqarish kerak!');
         } else {
             $model->forceFill($request->all())->save();
+            Cache::forget('students');
+            Cache::rememberForever('students', function (){
+                return Student::query()->pluck('name', 'id');
+            });
         }
     }
 
@@ -423,6 +428,10 @@ class StudentResource extends Resource
         {
             Alert::error('Oldin talabani u azo bolgan barcha guruxlardan chiqarish kerak!');
         } else {
+            Cache::forget('students');
+            Cache::rememberForever('students', function (){
+                return Student::query()->pluck('fio_name', 'id');
+            });
             $model->delete();
         }
     }

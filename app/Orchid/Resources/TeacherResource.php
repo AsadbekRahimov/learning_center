@@ -10,6 +10,7 @@ use App\Orchid\Filters\WithTrashed;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Orchid\Crud\Filters\DefaultSorted;
 use Orchid\Crud\Resource;
 use Orchid\Crud\ResourceRequest;
@@ -255,6 +256,11 @@ class TeacherResource extends Resource
     }
 
 
+    public function onSave(ResourceRequest $request, Model $model)
+    {
+        $model->forceFill($request->all())->save();
+        Cache::forget('teachers');
+    }
     /**
      * Action to delete a model
      *
@@ -272,6 +278,7 @@ class TeacherResource extends Resource
         }
         else {
             $model->delete();
+            Cache::forget('teachers');
         }
     }
 }

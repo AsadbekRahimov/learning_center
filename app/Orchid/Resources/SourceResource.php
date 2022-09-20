@@ -2,10 +2,13 @@
 
 namespace App\Orchid\Resources;
 
+use App\Models\Source;
 use App\Orchid\Filters\WithTrashed;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 use Orchid\Crud\Filters\DefaultSorted;
 use Orchid\Crud\Resource;
+use Orchid\Crud\ResourceRequest;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Sight;
 use Orchid\Screen\TD;
@@ -189,12 +192,19 @@ class SourceResource extends Resource
         return 'Bu amallarni bajarish uchun malumotlar mavjud emas';
     }
 
+    public function onSave(ResourceRequest $request, Model $model)
+    {
+        $model->forceFill($request->all())->save();
+        Cache::forget('sources');
+    }
+
     public function onDelete(Model $model)
     {
         if ($model->students()->count())
         {
             Alert::error('Oldin bu hamkordan kelgan barcha talabalar hamkorlarini o\'zgartirish kerak!');
         } else {
+            Cache::forget('sources');
             $model->delete();
         }
     }

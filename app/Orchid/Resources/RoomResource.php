@@ -3,10 +3,11 @@
 namespace App\Orchid\Resources;
 
 use App\Models\Branch;
-use App\Orchid\Filters\WithTrashed;
+use App\Models\Room;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Orchid\Crud\Filters\DefaultSorted;
 use Orchid\Crud\Resource;
 use Orchid\Crud\ResourceRequest;
@@ -234,6 +235,12 @@ class RoomResource extends Resource
         });
     }
 
+    public function onSave(ResourceRequest $request, Model $model)
+    {
+        $model->forceFill($request->all())->save();
+        Cache::forget('rooms');
+    }
+
     public function onDelete(Model $model)
     {
         if ($model->groups()->count())
@@ -241,6 +248,7 @@ class RoomResource extends Resource
             Alert::error('Oldin bu xonaga biriktirilgan guruxlarni xonadan chiqarish kerak!');
         } else {
             $model->delete();
+            Cache::forget('rooms');
         }
     }
 }
