@@ -125,7 +125,15 @@ Route::screen('students/{student?}', StudentInfoScreen::class)
     });
 
 // Hisob kitob bolimi
-Route::screen('payments', \App\Orchid\Screens\Payment\PaymentsListScreen::class)
+Route::screen('payment/duties', \App\Orchid\Screens\Payment\PaymentsListScreen::class)
+    ->name('platform.payments.duties')
+    ->breadcrumbs(function (Trail $trail) {
+        return $trail
+            ->parent('platform.index')
+            ->push('Qarzdorlar', route('platform.payments.duties'));
+    });
+
+Route::screen('payments', \App\Orchid\Screens\Payment\PayedListScreen::class)
     ->name('platform.payments.list')
     ->breadcrumbs(function (Trail $trail) {
         return $trail

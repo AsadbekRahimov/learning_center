@@ -94,6 +94,11 @@ class PlatformProvider extends OrchidServiceProvider
             Menu::make('Kirim-chiqim')
                 ->icon('calculator')
                 ->list([
+                    Menu::make('Qarzdorlar')
+                        ->icon('bar-chart')
+                        ->route('platform.payments.duties')
+                        ->permission('platform.payments'),
+
                     Menu::make('To\'lovlar')
                         ->icon('money')
                         ->route('platform.payments.list')

@@ -3,7 +3,7 @@
 namespace App\Orchid\Screens\Payment;
 
 use App\Models\Payment;
-use App\Orchid\Layouts\Payments\UnpaidListTable;
+use App\Orchid\Layouts\Payments\PaidListTable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Orchid\Screen\Fields\Input;
@@ -12,7 +12,7 @@ use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Alert;
 use Orchid\Support\Facades\Layout;
 
-class PaymentsListScreen extends Screen
+class PayedListScreen extends Screen
 {
     /**
      * Query data.
@@ -22,8 +22,8 @@ class PaymentsListScreen extends Screen
     public function query(): iterable
     {
         return [
-            'unpaid' => Payment::query()->with(['branch'])
-                ->where('status', 'unpaid')
+            'paid' => Payment::query()->with(['branch'])
+                ->whereIn('status', ['paid', 'teacher_paid'])
                 ->when(Auth::user()->branch_id, function ($query){
                     return $query->where('branch_id', Auth::user()->branch_id);
                 })->filters()->defaultSort('updated_at', 'desc')->paginate(15),
@@ -37,12 +37,12 @@ class PaymentsListScreen extends Screen
      */
     public function name(): ?string
     {
-        return 'Qarzdorlar';
+        return 'Qilingan to\'lovlar';
     }
 
     public function description(): ?string
     {
-        return 'Talabalaring qarzdorliklari';
+        return 'Talabalaring qilgan tolovlari ro\'yhati';
     }
 
     public function permission(): ?iterable
@@ -70,8 +70,7 @@ class PaymentsListScreen extends Screen
     public function layout(): iterable
     {
         return [
-            UnpaidListTable::class,
-
+            PaidListTable::class,
             Layout::modal('fullPaymentModal', [
                 Layout::rows([
                     Select::make('type')->title('To\'lov turi') ->options(Payment::TYPES)->required(),
