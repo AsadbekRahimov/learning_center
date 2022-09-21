@@ -53,10 +53,7 @@ class MonthFilter extends Filter
         return [
             Input::make('month')
                 ->type('month')
-                ->title('Month')
-                ->value('2011-08')
                 ->title('To\'lov oyi')
-                ->value(date('Y-m'))
                 ->vertical(),
         ];
     }

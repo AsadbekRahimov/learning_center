@@ -92,7 +92,7 @@ class GroupResource extends Resource
             TD::make('subject_id', 'Fan')
                 ->render(function ($model) {
                     return $model->subject->name;
-                })->filter(Select::make()->fromQuery(Subject::where('branch_id', Auth::user()->branch_id), 'name'))->cantHide(),
+                })->filter(Select::make()->fromQuery(Subject::where('branch_id', Auth::user()->branch_id), 'name')->empty(''))->cantHide(),
             TD::make('teacher_id', 'O\'qituvchi')
                 ->render(function ($model) {
                     return Link::make($model->teacher->name)->route('platform.teacherInfo', ['teacher' => $model->teacher_id]);
@@ -113,14 +113,15 @@ class GroupResource extends Resource
                 ->render(function ($model) {
                     return $model->lessons->count();
                 })->cantHide(),
-            TD::make('branch_id', 'Filial')->filter(Relation::make('branch_id')->fromModel(Branch::class, 'name'))
+            TD::make('branch_id', 'Filial')
+                ->filter(Relation::make('branch_id')->fromModel(Branch::class, 'name'))
                 ->render(function ($model) {
                     return $model->branch->name;
                 })->canSee(!$this->branch_user),
             TD::make('day_type', 'Dars kunlari')
                 ->render(function ($model) {
                     return Group::DAY_TYPE[$model->day_type];
-                })->sort()->filter(Select::make()->options(Group::DAY_TYPE))->cantHide(),
+                })->sort()->filter(Select::make()->options(Group::DAY_TYPE)->empty(''))->cantHide(),
             TD::make('is_active', 'Aktiv')
                 ->render(function ($model) {
                     return $model->is_active ? Link::make()->icon('check')->type(Color::SUCCESS()) : Link::make()->icon('close')->type(Color::DANGER());

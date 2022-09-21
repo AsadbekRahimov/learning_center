@@ -157,7 +157,7 @@ class StudentResource extends Resource
                 })->sort()->filter(CheckBox::make()->title('Saxovat talabasi')->sendTrueOrFalse())->cantHide(),
             TD::make('status', 'Talim bosqichi')->render(function ($model) {
                     return  Student::STATUS[$model->status];
-                })->filter(Select::make('status')->options(Student::STATUS))->cantHide(),
+                })->filter(Select::make('status')->options(Student::STATUS)->empty(''))->cantHide(),
             TD::make('source_id', 'Hamkor')->render(function ($model) {
                     return $model->source->name;
                 })->filter(Relation::make()->fromModel(Source::class, 'name'))->defaultHidden(),

@@ -44,6 +44,7 @@ class Expense extends Model
     ];
 
     protected $allowedFilters = [
+        'teacher_id',
         'price',
         'type',
         'desc',

@@ -46,7 +46,7 @@ class PaidListTable extends Table
             })->cantHide(),
             TD::make('group_id', 'Gurux')->render(function (Payment $payment) use ($groups) {
                 return Link::make($groups[$payment->group_id])->route('platform.groupInfo', ['group' => $payment->group_id]);
-            })->filter(Select::make('group_id')->fromQuery(Group::query()->where('branch_id', Auth::user()->branch_id), 'name'))->cantHide(),
+            })->filter(Select::make('group_id')->fromQuery(Group::query()->where('branch_id', Auth::user()->branch_id), 'name')->empty(''))->cantHide(),
             TD::make('privilege', 'Saxovat')->render(function (Payment $payment) use ($privilege) {
                 return Link::make('')->icon('star')->type(Color::WARNING())->canSee($privilege[$payment->student_id]);
             })->sort()->filter(CheckBox::make()->title('Saxovat talabasi')->sendTrueOrFalse())->defaultHidden(),
@@ -55,7 +55,7 @@ class PaidListTable extends Table
             })->sort()->filter(Input::make('sum')->type('number'))->cantHide(),
             TD::make('type', 'To\'lov turi')->render(function (Payment $payment) {
                 return $payment->type ? Payment::TYPES[$payment->type] : '';
-            })->filter(Select::make('type')->options(Payment::TYPES))->cantHide(),
+            })->filter(Select::make('type')->options(Payment::TYPES)->empty(''))->cantHide(),
             TD::make('branch_id', 'Filial')->filter(Relation::make('branch_id')->fromModel(Branch::class, 'name'))
                 ->render(function (Payment $payment) {
                     return $payment->branch->name;

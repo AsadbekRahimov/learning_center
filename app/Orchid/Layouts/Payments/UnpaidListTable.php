@@ -48,7 +48,7 @@ class UnpaidListTable extends Table
             })->cantHide(),
             TD::make('group_id', 'Gurux')->render(function (Payment $payment) use ($groups) {
                 return Link::make($groups[$payment->group_id])->route('platform.groupInfo', ['group' => $payment->group_id]);
-            })->filter(Select::make('group_id')->fromQuery(Group::query()->where('branch_id', Auth::user()->branch_id), 'name'))->cantHide(),
+            })->filter(Select::make('group_id')->fromQuery(Group::query()->where('branch_id', Auth::user()->branch_id), 'name')->empty(''))->cantHide(),
             TD::make('privilege', 'Saxovat')->render(function (Payment $payment) use ($privilege) {
                 return Link::make('')->icon('star')->type(Color::WARNING())->canSee($privilege[$payment->student_id]);
             })->sort()->filter(CheckBox::make()->title('Saxovat talabasi')->sendTrueOrFalse())->defaultHidden(),

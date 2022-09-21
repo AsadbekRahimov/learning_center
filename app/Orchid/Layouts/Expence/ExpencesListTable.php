@@ -38,13 +38,13 @@ class ExpencesListTable extends Table
             })->filter(Input::make()->type('number')),
             TD::make('teacher_id', 'O\'qituvchi')->render(function (Expense $expense) use ($teachers) {
                 return $expense->teacher_id ? $teachers[$expense->teacher_id] : '';
-            })->filter(Input::make()->type('number')),
+            })->filter(Select::make('teacher_id')->options($teachers)->empty('')),
             TD::make('type', 'Turi')->render(function (Expense $expense) {
                 return Expense::TYPE[$expense->type];
-            })->filter(Select::make()->options(Expense::TYPE)),
+            })->filter(Select::make()->options(Expense::TYPE)->empty('')),
             TD::make('created_at', 'Sanasi')->render(function (Expense $expense) {
                 return $expense->created_at->format('Y-m-d H:i');
-            })->filter(Select::make()->options(Expense::TYPE)),
+            }),
             TD::make('desc', 'Tasnifi')->filter(Input::make()->type('text')),
             TD::make('branch_id', 'Filial')->filter(Relation::make('branch_id')->fromModel(Branch::class, 'name'))
                 ->render(function (Expense $expense) {
