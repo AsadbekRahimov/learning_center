@@ -45,7 +45,7 @@ class UnpaidListTable extends Table
             TD::make('student_id', 'Talaba')->render(function (Payment $payment) use ($students) {
                 return Link::make($students[$payment->student_id])
                     ->route('platform.addStudentToGroup', ['student' => $payment->student_id]);
-            })->cantHide(),
+            })->filter(Select::make('student_id')->options($students)->empty('',''))->cantHide(),
             TD::make('group_id', 'Gurux')->render(function (Payment $payment) use ($groups) {
                 return Link::make($groups[$payment->group_id])->route('platform.groupInfo', ['group' => $payment->group_id]);
             })->filter(Select::make('group_id')->fromQuery(Group::query()->where('branch_id', Auth::user()->branch_id), 'name')->empty(''))->cantHide(),
