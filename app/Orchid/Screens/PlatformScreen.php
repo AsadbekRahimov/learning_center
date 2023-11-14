@@ -159,7 +159,7 @@ class PlatformScreen extends Screen
                 ->method('makeExpense')
                 ->icon('basket-loaded')
                 ->canSee(Auth::user()->hasAccess('platform.expenses')),
-            DropDown::make('Maxsus vazifalar')->icon('options-vertical')->list([
+            /*DropDown::make('Maxsus vazifalar')->icon('options-vertical')->list([
                 ModalToggle::make('To\'lov ogoxlantirish')
                     ->modal('paymentInfoModal')
                     ->method('paymentInfo')
@@ -168,7 +168,7 @@ class PlatformScreen extends Screen
                     ->modal('getPaymentModal')
                     ->method('getPayment')
                     ->icon('euro')->canSee(Auth::user()->hasAccess('platform.getPayment')),
-            ])->canSee(Auth::user()->hasAccess('platform.specialy') && $this->branch_user),
+            ])->canSee(Auth::user()->hasAccess('platform.specialy') && $this->branch_user),*/
         ];
     }
 
@@ -238,7 +238,7 @@ class PlatformScreen extends Screen
                 ]),
             ])->applyButton('Kiritish')->closeButton('Yopish')->title('Chiqim kiritish'),
 
-            Layout::modal('paymentInfoModal', [
+            /*Layout::modal('paymentInfoModal', [
                 Layout::rows([
                     Input::make('password')->type('password')->title('Maxfiy parolni kiriting')->required()
                         ->help('To\'lov xaqida ogoxlantirish filialning barcha talabalariga jo\'natiladi'),
@@ -251,7 +251,7 @@ class PlatformScreen extends Screen
                         ->help('Filialning barcha talabalaridan oylik to\'lov yechib olinadi!'),
                 ]),
             ])->applyButton('Yechib olish')->closeButton('Yopish')->title('To\'lov uchun xisob yaratish')
-                ->withoutApplyButton(date('n') == Auth::user()->branch->last_payment_month),
+                ->withoutApplyButton(date('n') == Auth::user()->branch->last_payment_month),*/
 
             Layout::modal('temporaryStudentModal', [
                 Layout::rows([
