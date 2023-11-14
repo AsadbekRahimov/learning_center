@@ -139,19 +139,7 @@ class UserEditScreen extends Screen
                         ->icon('check')
                         ->canSee($this->user->exists)
                         ->method('save')
-                ),
-
-            Layout::block(RolePermissionLayout::class)
-                ->title('Huqular')
-                ->description('Huqular foydalanuvchilarga aynan bir amalni bajarish uchun kerak boladi.')
-                ->commands(
-                    Button::make('Saqlash')
-                        ->type(Color::DEFAULT())
-                        ->icon('check')
-                        ->canSee($this->user->exists)
-                        ->method('save')
-                ),
-
+                )
         ];
     }
 
@@ -171,12 +159,6 @@ class UserEditScreen extends Screen
             ],
         ]);
 
-        $permissions = collect($request->get('permissions'))
-            ->map(function ($value, $key) {
-                return [base64_decode($key) => $value];
-            })
-            ->collapse()
-            ->toArray();
 
         $user->when($request->filled('user.password'), function (Builder $builder) use ($request) {
             $builder->getModel()->password = Hash::make($request->input('user.password'));
@@ -184,7 +166,6 @@ class UserEditScreen extends Screen
 
         $user
             ->fill($request->collect('user')->except(['password', 'permissions', 'roles'])->toArray())
-            ->fill(['permissions' => $permissions])
             //->fill(['branch_id' => $request->user['branch_id']])
             ->save();
 
